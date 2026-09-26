@@ -1,0 +1,43 @@
+# Keremet — Apache settings (ignored by other servers)
+AddDefaultCharset UTF-8
+AddType text/javascript .js .mjs
+AddType image/svg+xml .svg
+AddType application/xml .xml
+<FilesMatch "^rss\.xml$">
+  ForceType application/rss+xml
+</FilesMatch>
+# build marker written by build.mjs — not for the public
+<Files ".keremet-build">
+  Require all denied
+</Files>
+ErrorDocument 404 /404.html
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  # HSTS (ORDER item 3): browsers keep to HTTPS for a year; only sent over HTTPS, as the standard requires
+  <If "%{HTTPS} == 'on'">
+    Header always set Strict-Transport-Security "max-age=31536000"
+  </If>
+  # HTML: always revalidate, so a redeploy is visible at once
+  <FilesMatch "\.(html|xml|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  # CSS/JS: revalidate (cheap 304) unless the URL carries the build hash (?v=…, added by build.mjs to
+  # base.css, main.js, home.css, home.js and pages/*.css) — those URLs change on every redeploy.
+  <FilesMatch "\.(css|js|mjs)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <If "%{QUERY_STRING} =~ /(^|&)v=[0-9a-f]+/">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # images, fonts, scans: one week
+  <FilesMatch "\.(svg|png|jpe?g|webp|avif|gif|ico|woff2?|pdf|glb)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
