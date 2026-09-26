@@ -48,24 +48,26 @@ export default {
     });
 
     // ------------------------------------------------------------------ requirements
-    const reqs = ui.cards([
-      { icon: 'graduation', title: X('Білімі', 'Образование', 'Education'), text: X(
+    const reqItems = [
+      { icon: 'graduation', title: X('Білімі', 'Образование', 'Education'), short: X('педагогикалық немесе бейінді білім, не қайта даярлау', 'педагогическое или профильное образование либо переподготовка', 'teacher or subject-field education, or retraining'), text: X(
         'Мұғалім үшін тиісті бейін бойынша мынаның бірі: жоғары және (немесе) жоғары оқу орнынан кейінгі педагогикалық білім; техникалық және кәсіптік, орта білімнен кейінгі педагогикалық білім; тиісті бейін бойынша өзге де кәсіптік білім; немесе педагогикалық қайта даярлауды растайтын құжат. «Педагог» санаты үшін жұмыс өтіліне талап қойылмайды.',
         'Для учителя — по соответствующему профилю одно из следующего: высшее и (или) послевузовское педагогическое образование; техническое и профессиональное, послесреднее педагогическое образование; иное профессиональное образование по соответствующему профилю; либо документ о педагогической переподготовке. Для категории «педагог» требования к стажу не предъявляются.',
         'For a teacher, one of the following in the relevant field: higher and/or postgraduate teacher education; technical and vocational or post-secondary teacher education (college); other professional education in the relevant field; or a teacher retraining certificate. No minimum experience for the “teacher” category.') },
-      { icon: 'trophy', title: X('Біліктілік санаты', 'Квалификационная категория', 'Qualification category'), text: X(
+      { icon: 'trophy', title: X('Біліктілік санаты', 'Квалификационная категория', 'Qualification category'), short: X('болса — куәлігі', 'при наличии — удостоверение', 'certificate, if you have one'), text: X(
         'Санаты бар болса — оның куәлігі (педагог, модератор, сарапшы, зерттеуші, шебер). Санат аттестаттау арқылы беріледі және көтеріледі.',
         'При наличии — удостоверение о категории (педагог, модератор, эксперт, исследователь, мастер). Категория присваивается и повышается через аттестацию.',
         'If you have one, the category certificate (teacher, moderator, expert, researcher, master). Categories are awarded and raised through attestation.') },
-      { icon: 'book', title: X('Біліктілікті арттыру', 'Повышение квалификации', 'Professional development'), text: X(
+      { icon: 'book', title: X('Біліктілікті арттыру', 'Повышение квалификации', 'Professional development'), short: X('соңғы 3 жылдағы сертификаттар', 'сертификаты за 3 года', 'certificates for the last 3 years'), text: X(
         'Соңғы 3 жылдағы курстар туралы сертификаттар — олар мектептің кадрлық көрсеткіштеріне енеді.',
         'Сертификаты о курсах за последние 3 года — они учитываются в кадровых показателях школы.',
         'Certificates for courses taken in the last 3 years — they count towards the school’s staffing indicators.') },
-      { icon: 'heart', title: X('Балалармен жұмыс', 'Работа с детьми', 'Working with children'), text: X(
+      { icon: 'heart', title: X('Балалармен жұмыс', 'Работа с детьми', 'Working with children'), short: X('әдеп және қауіпсіз орта', 'этика и безопасная среда', 'ethics and a safe environment'), text: X(
         'Педагогикалық әдеп, балалардың құқықтарын құрметтеу және қауіпсіз орта жасау — міндетті талаптар.',
         'Педагогическая этика, уважение прав детей и создание безопасной среды — обязательные требования.',
         'Teaching ethics, respect for children’s rights and a safe environment are essential.') },
-    ], { cols: 2, cls: 'sa-cards' });
+    ];
+    const reqs = `${ui.cards(reqItems.map((r) => ({ icon: r.icon, title: r.title, text: r.short })), { cols: 4, cls: 'sa-cards sa-cards--short' })}
+<div class="dz-row">${ui.more({ label: X('Талаптар толығырақ', 'Требования подробно', 'Requirements in full'), icon: 'doc', count: reqItems.length, tone: 'card', body: `<dl class="sa-needlist">${reqItems.map((r) => `<div><dt>${L(r.title)}</dt><dd>${L(r.text)}</dd></div>`).join('')}</dl>` })}`;
     // Order 338, §7 p.66 (ред. 19.06.2026): minimum teaching experience per category.
     const expTable = ui.table({
       cls: 'sa-tbl sa-exptbl',
@@ -79,29 +81,36 @@ export default {
         [X('Педагог-шебер', 'Педагог-мастер', 'Teacher-master'), X('5 жыл', '5 лет', '5 years'), X('жоғары', 'высший', 'higher')],
       ],
     });
-    const reqNote = ui.note(X(
+    const reqNote = `${ui.legal([
+      { href: TKH, title: X('Педагог лауазымдарының үлгілік біліктілік сипаттамалары (ҚР БҒМ бұйрығы)', 'Типовые квалификационные характеристики должностей педагогов (приказ МОН РК)', 'Standard qualification characteristics of teachers’ positions (MES order)'), number: '338', date: '2009-07-13', note: X('66-тармақ; 19.06.2026 редакциясы', 'п. 66; ред. от 19.06.2026', 'para. 66; as amended 19.06.2026') },
+      { href: STATUS, title: X('«Педагог мәртебесі туралы» ҚР Заңы', 'Закон РК «О статусе педагога»', 'Law “On the status of a teacher”') },
+      { href: LABOUR, title: X('ҚР Еңбек кодексі', 'Трудовой кодекс РК', 'Labour Code'), note: X('32-бап — жұмысқа қабылдау кезіндегі құжаттар', 'ст. 32 — документы при приёме на работу', 'Art. 32 — documents on hiring') },
+    ], { note: X(
       `Талаптар ${ui.extLink(TKH, 'Педагог лауазымдарының үлгілік біліктілік сипаттамаларының')} «Барлық мамандықтағы мұғалімдер» параграфы, 66-тармақ (ҚР БҒМ 13.07.2009 № 338 бұйрығы, 19.06.2026 редакциясы) және ${ui.extLink(STATUS, '«Педагог мәртебесі туралы» ҚР Заңы')} бойынша берілген. Басқа лауазымдарға (тәрбиеші, психолог, кітапханашы т.б.) өз параграфтарының талаптары қолданылады; нақты лауазымға қойылатын талаптар бос орын хабарландыруында көрсетіледі.`,
       `Требования приведены по п. 66 параграфа «Учителя всех специальностей» ${ui.extLink(TKH, 'Типовых квалификационных характеристик должностей педагогов')} (приказ МОН РК от 13.07.2009 № 338, ред. от 19.06.2026) и ${ui.extLink(STATUS, 'Закону РК «О статусе педагога»')}. Для других должностей (воспитатель, психолог, библиотекарь и др.) действуют требования их параграфов; требования к конкретной должности указываются в объявлении о вакансии.`,
       `Requirements follow para. 66 of the “Teachers of all subjects” section of the ${ui.extLink(TKH, 'Standard qualification characteristics of teachers’ positions')} (MES order No. 338 of 13.07.2009, as amended 19.06.2026) and the ${ui.extLink(STATUS, 'Law “On the status of a teacher”')}. Other posts (carer, psychologist, librarian, etc.) have their own sections; the requirements for a specific post are given in the vacancy notice.`,
-    ));
+    ) })}</div>`;
 
     // ------------------------------------------------------------------ how to apply (generic; the school's own selection procedure is not yet confirmed)
     const wa = ui.extLink(`https://wa.me/${phone.whatsapp}`, `WhatsApp ${phone.display}`);
-    const how = ui.steps([
+    const howSteps = [
       { title: X('Хабарласыңыз', 'Свяжитесь с нами', 'Get in touch'), text: X(`Қоңырау шалыңыз: <a href="tel:${phone.tel}">${phone.display}</a>.`, `Позвоните: <a href="tel:${phone.tel}">${phone.display}</a>.`, `Call <a href="tel:${phone.tel}">${phone.display}</a>.`) },
       { title: X('Түйіндеме жіберіңіз', 'Отправьте резюме', 'Send your CV'), text: X(`Білімі, тәжірибесі, санаты және курстары көрсетілген түйіндемені ${wa} арқылы жіберіңіз (ресми электрондық пошта нақтыланғанша).`, `Резюме с образованием, опытом, категорией и курсами отправьте в ${wa} (пока официальный e-mail уточняется).`, `Send a CV with your education, experience, category and courses via ${wa} (until an official e-mail is confirmed).`) },
       { title: X('Келесі қадамдар', 'Следующие шаги', 'Next steps'), text: X('Мектеп әкімшілігі сізге хабарласып, іріктеу тәртібін түсіндіреді.', 'Администрация школы свяжется с вами и объяснит порядок отбора.', 'The school administration will contact you and explain the selection process.') },
       { title: X('Жұмысқа қабылдау', 'Оформление', 'Hiring'), text: X(`Еңбек шарты жасалады; құжаттар тізімі — ${ui.extLink(LABOUR, 'ҚР Еңбек кодексінің')} 32-бабы бойынша.`, `Заключается трудовой договор; перечень документов — по ст. 32 ${ui.extLink(LABOUR, 'Трудового кодекса РК')}.`, `An employment contract is signed; documents as listed in Art. 32 of the ${ui.extLink(LABOUR, 'Labour Code')}.`) },
-    ], { cls: 'sa-steps' });
+    ];
+    // Layer 1: four step titles (phone / WhatsApp buttons are in the contact section); details one click away.
+    const how = ui.steps(howSteps.map((st) => ({ title: st.title })), { cls: 'sa-mini sa-mini--row' });
     const howPending = ui.pending({
       title: X('Мектептің іріктеу тәртібі нақтылануда', 'Порядок отбора школы уточняется', 'The school’s selection procedure is being confirmed'),
       note: X('Сұхбат, сынақ сабақ және шешім мерзімдері мектеп бекіткеннен кейін осы жерде көрсетіледі.', 'Собеседование, пробный урок и сроки решения будут указаны здесь после утверждения школой.', 'Interview, trial lesson and decision timelines will be listed here once the school approves them.'),
     });
-    const docsPrep = ui.prose(X(
+    const docsPrepList = ui.prose(X(
       '<ul><li>жеке басын куәландыратын құжат;</li><li>білімі туралы диплом (қосымшасымен) және біліктілік санаты туралы құжат;</li><li>еңбек қызметін растайтын құжат (болса);</li><li>соңғы 3 жылдағы біліктілікті арттыру сертификаттары;</li><li>медициналық тексеру туралы құжат;</li><li>соттылығының болуы не болмауы туралы анықтама — балалармен жұмыс істеуге рұқсат беру үшін.</li></ul>',
       '<ul><li>документ, удостоверяющий личность;</li><li>диплом об образовании (с приложением) и документ о квалификационной категории;</li><li>документ о трудовой деятельности (при наличии);</li><li>сертификаты о повышении квалификации за 3 года;</li><li>документ о медицинском осмотре;</li><li>справка о наличии либо отсутствии судимости — для допуска к работе с детьми.</li></ul>',
       '<ul><li>identity document;</li><li>diploma (with transcript) and qualification category certificate;</li><li>employment record (if any);</li><li>professional development certificates for the last 3 years;</li><li>medical check-up document;</li><li>criminal record certificate — required to work with children.</li></ul>',
     ));
+    const docsPrep = `<div class="dz-row">${ui.more({ label: X('Дайындалатын құжаттар', 'Какие документы подготовить', 'Documents to prepare'), icon: 'doc', count: 6, tone: 'card', body: docsPrepList })}${ui.more({ label: X('Қадамдар толығырақ', 'Каждый шаг подробно', 'Each step in detail'), icon: 'compass', count: howSteps.length, tone: 'card', body: ui.steps(howSteps, { cls: 'sa-steps-full' }) })}</div>`;
 
     const toc = ui.toc([
       { id: 'open', label: X('Ашық бос орындар', 'Открытые вакансии', 'Open positions') },
@@ -111,8 +120,8 @@ export default {
     ]);
     return [
       ui.split({ ratio: '1:2', cls: 'sa-split', left: toc, right: ui.section({ id: 'open', eyebrow: X('2026–2027 оқу жылы', '2026–2027 учебный год', 'School year 2026–2027'), title: X('Ашық бос орындар', 'Открытые вакансии', 'Open positions'), body: table + openPending }) }),
-      ui.section({ id: 'requirements', eyebrow: X('Кімді іздейміз', 'Кого мы ищем', 'Who we look for'), title: X('Біліктілік талаптары', 'Квалификационные требования', 'Qualification requirements'), body: reqs + `<h3>${L(X('Санат бойынша ең аз өтіл', 'Минимальный стаж по категориям', 'Minimum experience by category'))}</h3>` + expTable + reqNote }),
-      ui.section({ id: 'apply', tone: 'languages', eyebrow: X('Өтініш беру', 'Отклик', 'Applying'), title: X('Қалай өтініш беруге болады', 'Как откликнуться на вакансию', 'How to apply'), body: how + howPending + `<h3>${L(X('Дайындалатын құжаттар', 'Какие документы подготовить', 'Documents to prepare'))}</h3>` + docsPrep }),
+      ui.section({ id: 'requirements', eyebrow: X('Кімді іздейміз', 'Кого мы ищем', 'Who we look for'), title: X('Біліктілік талаптары', 'Квалификационные требования', 'Qualification requirements'), body: reqs + reqNote + `<h3>${L(X('Санат бойынша ең аз өтіл', 'Минимальный стаж по категориям', 'Minimum experience by category'))}</h3>` + expTable }),
+      ui.section({ id: 'apply', tone: 'languages', eyebrow: X('Өтініш беру', 'Отклик', 'Applying'), title: X('Қалай өтініш беруге болады', 'Как откликнуться на вакансию', 'How to apply'), body: how + howPending + docsPrep }),
       ui.section({ id: 'contact', eyebrow: X('Байланыс', 'Контакты', 'Contact'), title: X('Анықтама телефоны', 'Телефон для справок', 'Phone for enquiries'), body: ui.split({ ratio: '1:1', align: 'center',
         left: ui.facts([
           { k: t('phone'), v: `<a href="tel:${phone.tel}">${phone.display}</a>`, copy: phone.display },

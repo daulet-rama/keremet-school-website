@@ -101,14 +101,29 @@ export default {
       ratio: '3:2', align: 'center',
       left: `<div class="flow">${ui.eyebrow(X('Мектеп жобалары', 'Проекты школы', 'School projects'))}
 <h2 class="sec__title">${L(X('Бес бағыт — бір мақсат: ойлай білетін бала', 'Пять направлений — одна цель: думающий ребёнок', 'Five directions, one goal: a child who thinks'))}</h2>
-<p class="lead">${L(X(
-        'Мектеп 2025–2026 оқу жылына қабылдау туралы хабарландыруда өзінің оқу бағыттарын атап өтті. Олардың бесеуі осы бетте жоба ретінде сипатталған: әр бағыттың мазмұны, дамытатын дағдылары және мектеп толтыратын «жоба паспорты».',
-        'В объявлении о приёме на 2025–2026 учебный год школа назвала свои учебные направления. Пять из них описаны на этой странице как проекты: суть направления, какие навыки оно развивает и «паспорт проекта», который заполняет школа.',
-        'In its admission announcement for 2025–2026 the school listed its programmes. Five of them are presented here as projects: what each one is about, which skills it builds, and a “project passport” the school will fill in.',
-      ))}</p>
+${ui.more({ summary: X(
+        'Мектеп 2025–2026 оқу жылына қабылдау туралы хабарландыруда өзінің оқу бағыттарын атап өтті.',
+        'В объявлении о приёме на 2025–2026 учебный год школа назвала свои учебные направления.',
+        'In its admission announcement for 2025–2026 the school listed its programmes.',
+      ), body: X(
+        '<p>Олардың бесеуі осы бетте жоба ретінде сипатталған: әр бағыттың мазмұны, дамытатын дағдылары және мектеп толтыратын «жоба паспорты».</p>',
+        '<p>Пять из них описаны на этой странице как проекты: суть направления, какие навыки оно развивает и «паспорт проекта», который заполняет школа.</p>',
+        '<p>Five of them are presented here as projects: what each one is about, which skills it builds, and a “project passport” the school will fill in.</p>',
+      ), cls: 'pj-intro-more' }).replace('class="more__sum"', 'class="more__sum lead"')}
 ${ui.note(X(`Дереккөз: мектептің 12.08.2025 жарияланған хабарландыруы (${ui.extLink(SOURCE, 'Instagram')}).`, `Источник: объявление школы от 12.08.2025 (${ui.extLink(SOURCE, 'Instagram')}).`, `Source: the school’s announcement of 12.08.2025 (${ui.extLink(SOURCE, 'Instagram')}).`))}</div>`,
       right: orbit,
     });
+
+    // Layer 1: the first sentence of each description; layer 2: the rest ("Толығырақ / Подробнее / More").
+    const aboutHtml = (p) => {
+      const full = String(L(p.about));
+      const m = full.match(/^(.+?[.!?])\s+(\S[\s\S]*)$/);
+      if (!m) return `<p class="pj__about">${full}</p>`;
+      return ui.more({ summary: m[1], body: `<p>${m[2]}</p>`, cls: 'pj__more' }).replace('class="more__sum"', 'class="more__sum pj__about"');
+    };
+    // The project passport: 5 fields the school still has to fill in → ONE compact disclosure (pending rows inside).
+    const passport = (p) => `<aside class="pj__passport" aria-label="${ui.esc(L(X('Жоба паспорты', 'Паспорт проекта', 'Project passport')))}: ${ui.esc(L(p.title))}"><details class="pj__pdz"><summary class="pj__ptitle">${ui.icon('doc', { size: 18 })}<span class="pj__ptxt">${L(X('Жоба паспорты', 'Паспорт проекта', 'Project passport'))}</span><span class="pj-pend">${ui.icon('hourglass', { size: 14 })}${L(X(`${PASSPORT.length} жол толықтырылуда`, `${PASSPORT.length} полей уточняются`, `${PASSPORT.length} fields to be added`))}</span><span class="pj__chev" aria-hidden="true"></span></summary>
+<dl>${PASSPORT.map((r) => `<div><dt>${ui.icon(r.icon, { size: 16 })}${L(r.k)}</dt><dd>${pend}</dd></div>`).join('')}</dl></details></aside>`;
 
     // ---------------------------------------------------------------- project panels
     const panels = PROJECTS.map((p, i) => `<article class="pj pattern" id="${p.id}" data-theme="${p.theme}" aria-labelledby="${p.id}-t">
@@ -116,11 +131,10 @@ ${ui.shanyrakArt({ cls: 'pj__art' })}
 <header class="pj__head"><span class="pj__num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="pj__icon">${ui.icon(p.icon, { size: 30 })}</span><div><p class="pj__tagline">${L(p.tagline)}</p><h3 class="pj__title" id="${p.id}-t">${L(p.title)}</h3></div></header>
 <div class="pj__grid">
 <div class="pj__main"><p class="pj__status"><span class="pj-badge pj-badge--ok">${ui.icon('check', { size: 14 })}${L(X('Мектеп жариялаған бағыт', 'Направление объявлено школой', 'Announced by the school'))}</span><span class="pj-badge pj-badge--wait">${ui.icon('hourglass', { size: 14 })}${L(X('Нәтижелері толықтырылуда', 'Результаты уточняются', 'Results to be added'))}</span></p>
-<p class="pj__about">${L(p.about)}</p>
+${aboutHtml(p)}
 <p class="pj__k">${L(X('Қандай дағдыларды дамытады', 'Какие навыки развивает', 'Skills it builds'))}</p>
 <ul class="pj__skills" role="list">${p.skills.map((s) => `<li>${L(s)}</li>`).join('')}</ul></div>
-<aside class="pj__passport" aria-label="${ui.esc(L(X('Жоба паспорты', 'Паспорт проекта', 'Project passport')))}: ${ui.esc(L(p.title))}"><p class="pj__ptitle">${ui.icon('doc', { size: 18 })}${L(X('Жоба паспорты', 'Паспорт проекта', 'Project passport'))}</p>
-<dl>${PASSPORT.map((r) => `<div><dt>${ui.icon(r.icon, { size: 16 })}${L(r.k)}</dt><dd>${pend}</dd></div>`).join('')}</dl></aside>
+${passport(p)}
 </div></article>`).join('');
 
     // ---------------------------------------------------------------- other programmes

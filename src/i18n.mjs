@@ -117,6 +117,23 @@ const S = {
   // ------------------------------------------------------------------ pending / documents
   'pending.title': { kz: 'Ақпарат толықтырылуда', ru: 'Информация обновляется', en: 'Information is being updated' },
   'pending.text': { kz: 'Бұл мәліметтерді мектеп әкімшілігі нақтылап жатыр, олар жақын арада жарияланады.', ru: 'Сведения уточняются администрацией школы и будут опубликованы в ближайшее время.', en: 'The school administration is verifying this information; it will be published soon.' },
+  // pendingGroup summary line — plural forms (1 / 2–4 / 5+; ru grammar, kz/en map onto them)
+  'pgroup.1': { kz: '{n} материал дайындалуда', ru: '{n} материал готовится', en: '{n} item in preparation' },
+  'pgroup.2': { kz: '{n} материал дайындалуда', ru: '{n} материала готовятся', en: '{n} items in preparation' },
+  'pgroup.5': { kz: '{n} материал дайындалуда', ru: '{n} материалов готовятся', en: '{n} items in preparation' },
+  'pgroup.docs.1': { kz: '{n} құжат жүктеледі', ru: '{n} документ будет загружен', en: '{n} document will be uploaded' },
+  'pgroup.docs.2': { kz: '{n} құжат жүктеледі', ru: '{n} документа будут загружены', en: '{n} documents will be uploaded' },
+  'pgroup.docs.5': { kz: '{n} құжат жүктеледі', ru: '{n} документов будут загружены', en: '{n} documents will be uploaded' },
+
+  // ------------------------------------------------------------------ disclosures (ui.more / legal / docList collapse / tldr / expand-all)
+  'disc.more': { kz: 'Толығырақ', ru: 'Подробнее', en: 'More' },
+  'disc.less': { kz: 'Жасыру', ru: 'Скрыть', en: 'Show less' },
+  'disc.legal': { kz: 'Құқықтық негіз', ru: 'Правовая основа', en: 'Legal basis' },
+  'disc.showAll': { kz: 'Барлығын көрсету ({n})', ru: 'Показать все ({n})', en: 'Show all ({n})' },
+  'disc.showLess': { kz: 'Тізімді жию', ru: 'Свернуть список', en: 'Show fewer' },
+  'disc.inShort': { kz: 'Қысқаша', ru: 'Коротко', en: 'In short' },
+  'disc.expandAll': { kz: 'Барлығын ашу', ru: 'Развернуть всё', en: 'Expand all' },
+  'disc.collapseAll': { kz: 'Барлығын жабу', ru: 'Свернуть всё', en: 'Collapse all' },
   'doc.pending': { kz: 'Құжат жүктеледі', ru: 'Документ будет загружен', en: 'Document will be uploaded' },
   'doc.open': { kz: 'Ашу', ru: 'Открыть', en: 'Open' },
   'doc.download': { kz: 'Жүктеп алу', ru: 'Скачать', en: 'Download' },

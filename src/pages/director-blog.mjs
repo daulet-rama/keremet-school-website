@@ -35,7 +35,7 @@ export default {
     const letter = `<article class="fb-letter panel pattern" data-theme="chemistry">${ui.shanyrakArt()}
 <p class="fb-letter__eyebrow">${L(X('Директордың үндеуі', 'Обращение директора', 'A message from the director'))}</p>
 <h3 class="fb-letter__title">${L(X('Ата-аналар мен оқушыларға', 'К родителям и ученикам', 'To parents and pupils'))}</h3>
-${ui.pending({ title: X('Үндеу мәтіні дайындалуда', 'Текст обращения готовится', 'The message is being prepared'), note: X('Директордың ата-аналарға арналған жеке үндеуі (мәтіні және қаласа — фотосуреті) бекітілгеннен кейін осы жерде жарияланады.', 'Личное обращение директора к родителям (текст и, по желанию, фотография) будет опубликовано здесь после утверждения.', 'The director’s personal message to parents (text and, optionally, a photo) will be published here once approved.') })}
+${ui.pendingGroup(lang, [{ title: X('Үндеу мәтіні дайындалуда', 'Текст обращения готовится', 'The message is being prepared'), note: X('Директордың ата-аналарға арналған жеке үндеуі (мәтіні және қаласа — фотосуреті) бекітілгеннен кейін осы жерде жарияланады.', 'Личное обращение директора к родителям (текст и, по желанию, фотография) будет опубликовано здесь после утверждения.', 'The director’s personal message to parents (text and, optionally, a photo) will be published here once approved.') }], { title: X('Үндеу мәтіні дайындалуда', 'Текст обращения готовится', 'The message is being prepared') })}
 </article>`;
     // Neutral description of the page (no quotation, no attribution — the school has not approved any address text yet).
     const welcome = `<div class="fb-about">
@@ -76,14 +76,14 @@ ${ui.callout({ type: 'info', title: X('Шағым немесе ресми өті
         [X('Директордың орынбасарлары', 'Заместители директора', 'Deputy directors'), unconf, unconf, unconf, `<a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>`],
       ],
     });
-    const receptionPending = rec && S.deputies ? '' : ui.pending({
+    const receptionPending = rec && S.deputies ? '' : ui.pendingGroup(lang, [{
       title: X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'),
       note: X(
         'Директордың және әр орынбасардың жеке қабылдау күндері мен сағаттары, қабылдау өтетін кабинет, алдын ала жазылу тәртібі; орынбасарлардың аты-жөні мен жетекшілік ететін бағыттары.',
         'Дни и часы личного приёма директора и каждого заместителя, кабинет, порядок предварительной записи; ФИО заместителей и курируемые направления.',
         'Reception days and hours for the director and each deputy, the room, how to book in advance; the deputies’ names and areas of responsibility.',
       ),
-    });
+    }], { title: X('Қабылдау кестесі бекітілуде', 'График приёма утверждается', 'Reception hours are being approved') });
 
     // ---------------------------------------------------------------- published Q&A
     const answers = `<div class="fb-empty">

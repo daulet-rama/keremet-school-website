@@ -7,6 +7,9 @@
 //  Subject cards carry button.st__trick[data-trick] → home.js → window 'keremet:trick'.
 //  Facts only from school.mjs / news.mjs / documents.mjs; unknowns → ui.pending(). Generic text (how
 //  admission works under order №564) was checked against the current text of the order (03.03.2026).
+//  Compact official part (SPEC §6.1): levels/admission/news/contacts show key numbers + tiles; the legal basis, full
+//  admission rules, pending notes and the licensed-levels list sit in ui.more / ui.legal / ui.pendingGroup; documents,
+//  egov services, events, vacancies and feedback channels are ONE "Official information" ui.tabs block (#official).
 //  Styling: public/assets/css/home.css · behaviour: public/assets/js/home.js.
 // =====================================================================================
 
@@ -275,23 +278,34 @@ ${eyebrow(X('Толық күн мектебі', 'Школа полного дн�
       ['parents', 'handshake', X('Ата-аналармен жұмыс', 'Работа с родителями', 'Working with parents'), X('Жиналыстар және бірлескен іс-шаралар', 'Собрания и совместные мероприятия', 'Meetings and joint activities')],
       ['library', 'grid', X('Кітапхана және цифрлық ресурстар', 'Библиотека и цифровые ресурсы', 'Library & digital resources'), X('Оқулықтар, электрондық журнал', 'Учебники, электронный журнал', 'Textbooks, e-journal')],
     ];
+    // Layer 1: the nine areas (visual navigation) + one licence key-number card + projects; layer 2: the full list of
+    // licensed levels and the licence note (SPEC §6.1 — nothing removed, only folded). [data-xall-slot]: home.js moves
+    // main.js's "Expand all" button here (the landing has no .page-body; the top of <main> is the 3D hero).
+    // projects: compact tiles (label only); the note stays in the HTML (search, print, low-vision mode) + tooltip/description
+    const projTiles = (items) => `<ul class="lvp" role="list">${items.map((it, i) => `<li><a class="lvp__a" href="${it.href}" title="${esc(L(it.note))}" aria-describedby="lvp-note-${i + 1}"><span class="lvp__icon" aria-hidden="true">${ui.icon(it.icon, { size: 20 })}</span><span class="lvp__t">${L(it.label)}</span><span class="lvp__note" id="lvp-note-${i + 1}">${L(it.note)}</span>${ui.icon('arrow-right', { size: 18, cls: 'lvp__arrow' })}</a></li>`).join('')}</ul>`;
     const levels = `<section class="st st--levels" id="levels" data-station="levels" data-theme="paper" aria-labelledby="levels-title">
 <div class="st__inner st__inner--wide">
 <div class="st__card st__card--flat">
-<header class="blk__head">${eyebrow(X('Қызмет бағыттары', 'Направления деятельности', 'What we do'))}
+<header class="blk__head blk__head--row"><div class="blk__head-main">${eyebrow(X('Қызмет бағыттары', 'Направления деятельности', 'What we do'))}
 <h2 class="st__title" id="levels-title">${L(X('Мектеп қызметінің бағыттары', 'Направления деятельности школы', 'Areas of the school’s work'))}</h2>
-<p class="blk__lead">${L(X('Оқу, тәрбие, әдістемелік жұмыс және қолдау — әр бөлімде толық ақпарат пен құжаттар жарияланады.', 'Учебная, воспитательная, методическая работа и поддержка — в каждом разделе публикуются подробности и документы.', 'Teaching, upbringing, methodical work and support — each section publishes details and documents.'))}</p></header>
-<ul class="dirs" role="list">${directions.map(([slug, ic, title, note], i) => `<li class="dir"><a class="dir__a" href="${href(slug)}"><span class="dir__n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="dir__icon" aria-hidden="true">${ui.icon(ic, { size: 24 })}</span><span class="dir__title">${L(title)}</span><span class="dir__note">${L(note)}</span><span class="dir__arrow" aria-hidden="true">${ui.icon('arrow-right', { size: 20 })}</span></a></li>`).join('')}</ul>
+<p class="blk__lead">${L(X('Оқу, тәрбие, әдістемелік жұмыс және қолдау — әр бөлімде толық ақпарат пен құжаттар жарияланады.', 'Учебная, воспитательная, методическая работа и поддержка — в каждом разделе публикуются подробности и документы.', 'Teaching, upbringing, methodical work and support — each section publishes details and documents.'))}</p></div>
+<div class="hb-xall" data-xall-slot></div></header>
+<ul class="dirs" role="list">${directions.map(([slug, ic, title, note], i) => `<li class="dir"><a class="dir__a" href="${href(slug)}" title="${esc(L(note))}" aria-describedby="dir-note-${i + 1}"><span class="dir__n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><span class="dir__icon" aria-hidden="true">${ui.icon(ic, { size: 24 })}</span><span class="dir__title">${L(title)}</span><span class="dir__note" id="dir-note-${i + 1}">${L(note)}</span><span class="dir__arrow" aria-hidden="true">${ui.icon('arrow-right', { size: 20 })}</span></a></li>`).join('')}</ul>
 <div class="lv">
-<div class="lv__levels"><h3 class="blk__h3">${L(X('Лицензия бойынша білім беру деңгейлері', 'Уровни образования по лицензии', 'Levels of education under the licence'))}</h3>
-<ol class="lv__list" role="list">${S.licenceLevels.map((l, i) => `<li><span aria-hidden="true">${i + 1}</span>${L(l.label)}</li>`).join('')}</ol>
-<p class="blk__note">${ui.icon('info', { size: 16 })}<span>${L(X(`Лицензия № ${lic.number}, ${fmt.date(lic.date)}. Мектеп бастауыш сыныптарға қабылдау жариялаған; сынып аралығы (${gradesTxt}) нақтылануда.`, `Лицензия № ${lic.number} от ${fmt.date(lic.date)}. Школа объявляет приём в начальные классы; диапазон классов (${gradesTxt}) уточняется.`, `Licence No. ${lic.number} of ${fmt.date(lic.date)}. The school announces admission to primary grades; the grade range (${gradesTxt}) is being confirmed.`))}</span></p></div>
+<div class="lv__levels lvk">
+<div class="lvk__top"><span class="lvk__icon" aria-hidden="true">${ui.icon('shield', { size: 26 })}</span><p class="lvk__num">${S.licenceLevels.length}</p><div class="lvk__txt"><p class="lvk__label">${L(X('Лицензия бойынша қызмет түрлері', 'Видов деятельности по лицензии', 'Activities under the licence'))}</p><p class="lvk__meta"><a href="${href('license')}">№ ${lic.number}</a> · ${L(lic.term)}</p></div></div>
+<ul class="lvk__tags" role="list">${S.licenceLevels.slice(0, 3).map((l) => `<li>${L(l.label)}</li>`).join('')}</ul>
+${ui.more({
+      label: X('Лицензия бойынша барлық қызмет түрлері', 'Все виды деятельности по лицензии', 'All activities under the licence'), icon: 'graduation', count: S.licenceLevels.length, tone: 'card', cls: 'lvk__more',
+      body: `<ol class="lv__list" role="list">${S.licenceLevels.map((l, i) => `<li><span aria-hidden="true">${i + 1}</span>${L(l.label)}</li>`).join('')}</ol>
+<p class="blk__note">${ui.icon('info', { size: 16 })}<span>${L(X(`Лицензия № ${lic.number}, ${fmt.date(lic.date)}. Мектеп бастауыш сыныптарға қабылдау жариялаған; сынып аралығы (${gradesTxt}) нақтылануда.`, `Лицензия № ${lic.number} от ${fmt.date(lic.date)}. Школа объявляет приём в начальные классы; диапазон классов (${gradesTxt}) уточняется.`, `Licence No. ${lic.number} of ${fmt.date(lic.date)}. The school announces admission to primary grades; the grade range (${gradesTxt}) is being confirmed.`))}</span></p>`,
+    })}</div>
 <div class="lv__projects"><h3 class="blk__h3">${L(X('Жобалар мен мектеп өмірі', 'Проекты и жизнь школы', 'Projects & school life'))}</h3>
-${ui.linkList([
+${projTiles([
       { href: href('projects'), icon: 'target', label: X('Мектеп жобалары', 'Проекты школы', 'School projects'), note: X('Жобалар, байқаулар және олимпиадалар', 'Проекты, конкурсы и олимпиады', 'Projects, competitions and olympiads') },
       { href: href('clubs'), icon: 'sparkles', label: X('Үйірмелер', 'Кружки', 'Clubs'), note: X('Бағдарламалау, робототехника, спорт, шешендік өнер', 'Программирование, робототехника, спорт, ораторское мастерство', 'Programming, robotics, sport, public speaking') },
       { href: href('events'), icon: 'calendar', label: X('Іс-шаралар күнтізбесі', 'Календарь событий', 'Events calendar'), note: X('2026–2027 оқу жылы: тоқсандар, демалыс, мерекелер', '2026–2027 учебный год: четверти, каникулы, праздники', '2026–2027: terms, breaks, holidays') },
-    ], { cls: 'lv__links' })}</div>
+    ])}</div>
 </div>
 </div>
 </div>
@@ -322,30 +336,47 @@ ${ui.linkList([
       ['safety', 'shield', X('Қауіпсіздік', 'Безопасность', 'Safety')],
       ['documents', 'book', X('Құжаттар', 'Документы', 'Documents')],
     ];
-    const admission = `<section class="st st--admission" id="admission" data-station="admission" data-theme="paper" aria-labelledby="admission-title">
-<div class="st__inner st__inner--wide">
-<div class="st__card st__card--flat">
-<ul class="hb-banners" role="list">${banners.map(([slug, th, ic, title, text]) => `<li>${ui.banner({ theme: th, icon: ic, title, text, href: href(slug), label: t('more') })}</li>`).join('')}</ul>
-<div class="adm">
-<div class="adm__main">
-<header class="blk__head">${eyebrow(X('Қабылдау', 'Приём', 'Admission'))}
-<h2 class="st__title" id="admission-title">${L(X('Мектепке қалай түсуге болады', 'Как поступить в школу', 'How to join the school'))}</h2>
-<p class="blk__lead">${L(X('1-сыныпқа қабылдау ҚР Білім және ғылым министрінің 2018 жылғы 12 қазандағы № 564 бұйрығымен бекітілген Үлгілік қағидалар бойынша жүргізіледі.', 'Приём в 1 класс проводится по Типовым правилам, утверждённым приказом Министра образования и науки РК от 12 октября 2018 года № 564.', 'Grade 1 admission follows the Standard Rules approved by order No. 564 of the Minister of Education and Science of Kazakhstan of 12 October 2018.'))}</p></header>
-${ui.steps([
+    // Layer 1: four key facts of the order (age · dates · how · documents) as number cards; layer 2: the full wording
+    // with paragraph numbers ("Подробно"), the order itself ("Правовая основа") and the pending note (one slim line).
+    const admKeys = [
+      { ic: 'user', v: X('6 жас', '6 лет', 'Age 6'), k: X('Қабылдау жасы', 'Возраст приёма', 'Admission age') },
+      { ic: 'calendar', v: '01.04 – 31.08', k: X('Құжат қабылдау', 'Приём документов', 'Documents accepted') },
+      { ic: 'globe', v: 'egov.kz', k: X('немесе мектепте қағаз түрінде', 'или на бумаге в школе', 'or on paper at the school') },
+      { ic: 'doc', v: X('Құжаттар', 'Документы', 'Documents'), k: X('өтініш, куәліктер, анықтамалар, фото', 'заявление, свидетельства, справки, фото', 'application, certificates, medical forms, photo') },
+    ];
+    const admStepsFull = ui.steps([
       { title: X('Жасы', 'Возраст', 'Age'), text: X('Алты жастағы және ағымдағы күнтізбелік жылы алты жасқа толатын балалар қабылданады (8-т.).', 'Принимаются дети шести лет и дети, которым в текущем календарном году исполняется шесть лет (п. 8).', 'Children aged six and those turning six in the current calendar year are admitted (para. 8).') },
       { title: X('Мерзімі', 'Сроки', 'Dates'), text: X('1-сыныпқа құжаттар ағымдағы жылдың 1 сәуірінен 31 тамызына дейін қабылданады (10-т.).', 'Документы в 1 класс принимаются с 1 апреля по 31 августа текущего года (п. 10).', 'Grade 1 documents are accepted from 1 April to 31 August of the current year (para. 10).') },
       { title: X('Қалай беріледі', 'Как подать', 'How to apply'), text: X('egov.kz порталы арқылы немесе қағаз түрінде тікелей мектепке (9-т.).', 'Через портал egov.kz или на бумаге непосредственно в школе (п. 9).', 'Via the egov.kz portal or on paper directly at the school (para. 9).') },
       { title: X('Құжаттар', 'Документы', 'Documents'), text: X('Өтініш, баланың туу туралы куәлігі, ата-ананың жеке куәлігі, № 065/е және № 052-2/е медициналық анықтамалары, 3×4 см фотосурет (11-т.).', 'Заявление, свидетельство о рождении ребёнка, удостоверение личности родителя, медсправки форм 065/у и 052-2/у, фото 3×4 см (п. 11).', 'Application, child’s birth certificate, parent’s ID, medical forms 065/u and 052-2/u, a 3×4 cm photo (para. 11).') },
-    ], { cls: 'adm__steps' })}
-<p class="blk__note blk__note--pending">${ui.icon('hourglass', { size: 16 })}<span>${L(X('Жоғарыда — № 564 бұйрықтағы жалпы ереже. Нақты қабылдау науқанының мерзімдерін жыл сайын Шымкент қаласының білім басқармасы жариялайды. Келесі оқу жылына қабылдау мерзімдері мен мектептегі бос орындар туралы ақпаратты мектеп', 'Выше — общее правило приказа № 564. Сроки конкретной приёмной кампании ежегодно объявляет управление образования г. Шымкента. Сроки приёма на следующий учебный год и сведения о свободных местах школа опубликует', 'Above is the general rule of order No. 564. The exact dates of each year’s admission campaign are announced by the Shymkent city education department. The school will publish next year’s admission dates and free places'))} <a href="${href('admission')}">${L(X('«Қабылдау» бетінде жариялайды', 'на странице «Приём»', 'on the Admission page'))}</a>.</span></p>
-<p class="blk__note">${ui.icon('scale', { size: 16 })}<span>${L(X('Дереккөз:', 'Источник:', 'Source:'))} ${ui.extLink(ORDER_564[lang], X('№ 564 бұйрық, adilet.zan.kz', 'приказ № 564, adilet.zan.kz', 'order No. 564, adilet.zan.kz'))} ${L(X('(03.03.2026 өзгерістерімен)', '(с изменениями от 03.03.2026)', '(as amended on 03.03.2026)'))}</span></p>
+    ], { cls: 'adm__steps' });
+    const admPending = ui.pendingGroup(lang, [{
+      title: X('Келесі оқу жылына қабылдау мерзімдері мен бос орындар', 'Сроки приёма на следующий учебный год и свободные места', 'Next year’s admission dates and free places'),
+      note: `${L(X('Жоғарыда — № 564 бұйрықтағы жалпы ереже. Нақты қабылдау науқанының мерзімдерін жыл сайын Шымкент қаласының білім басқармасы жариялайды. Келесі оқу жылына қабылдау мерзімдері мен мектептегі бос орындар туралы ақпаратты мектеп', 'Выше — общее правило приказа № 564. Сроки конкретной приёмной кампании ежегодно объявляет управление образования г. Шымкента. Сроки приёма на следующий учебный год и сведения о свободных местах школа опубликует', 'Above is the general rule of order No. 564. The exact dates of each year’s admission campaign are announced by the Shymkent city education department. The school will publish next year’s admission dates and free places'))} <a href="${href('admission')}">${L(X('«Қабылдау» бетінде жариялайды', 'на странице «Приём»', 'on the Admission page'))}</a>.`,
+    }], { title: X('Келесі қабылдау мерзімдері — дайындалуда', 'Сроки следующего приёма — готовятся', 'Next admission dates — in preparation') });
+    const admLegal = ui.legal([{
+      title: X('№ 564 бұйрық, adilet.zan.kz', 'приказ № 564, adilet.zan.kz', 'order No. 564, adilet.zan.kz'), href: ORDER_564[lang], number: '564', date: '2018-10-12',
+      note: X('(03.03.2026 өзгерістерімен)', '(с изменениями от 03.03.2026)', '(as amended on 03.03.2026)'),
+    }], { note: X('1-сыныпқа қабылдау ҚР Білім және ғылым министрінің 2018 жылғы 12 қазандағы № 564 бұйрығымен бекітілген Үлгілік қағидалар бойынша жүргізіледі.', 'Приём в 1 класс проводится по Типовым правилам, утверждённым приказом Министра образования и науки РК от 12 октября 2018 года № 564.', 'Grade 1 admission follows the Standard Rules approved by order No. 564 of the Minister of Education and Science of Kazakhstan of 12 October 2018.') });
+    const admission = `<section class="st st--admission" id="admission" data-station="admission" data-theme="paper" aria-labelledby="admission-title">
+<div class="st__inner st__inner--wide">
+<div class="st__card st__card--flat">
+<ul class="hb-banners" role="list">${banners.map(([slug, th, ic, title, text]) => `<li>${ui.banner({ theme: th, icon: ic, title, text, href: href(slug), label: t('more') })}</li>`).join('')}</ul>
+<div class="adm__top">
+<header class="blk__head">${eyebrow(X('Қабылдау · 1-сынып', 'Приём · 1 класс', 'Admission · grade 1'))}
+<h2 class="st__title" id="admission-title">${L(X('Мектепке қалай түсуге болады', 'Как поступить в школу', 'How to join the school'))}</h2></header>
+</div>
+<div class="adm">
+<div class="adm__main">
+<ul class="akeys" role="list">${admKeys.map((k, i) => `<li class="akey akey--${i + 1}"><span class="akey__ic" aria-hidden="true">${ui.icon(k.ic, { size: 20 })}</span><p class="akey__v">${L(k.v)}</p><p class="akey__k">${L(k.k)}</p></li>`).join('')}</ul>
+<div class="dz-row adm__dz">${ui.more({ label: X('Толық ереже: 4 қадам', 'Подробно: 4 шага', 'Full rules: 4 steps'), icon: 'book', tone: 'card', body: admStepsFull })}${admLegal}</div>
+${admPending}
 <div class="adm__cta">${ui.button({ href: href('admission'), label: X('Қабылдау туралы толығырақ', 'Подробнее о приёме', 'Admission details'), kind: 'primary', icon: 'arrow-right', attrs: { 'data-magnetic': '' } })}${ui.button({ href: href('forms'), label: X('Өтініш үлгілері', 'Образцы заявлений', 'Application forms'), kind: 'ghost' })}</div>
 </div>
-<aside class="adm__side" aria-labelledby="egov-title">
-<h3 class="blk__h3" id="egov-title">${L(X('Танымал мемлекеттік қызметтер', 'Популярные госуслуги', 'Popular public services'))}</h3>
-${ui.linkList(services)}
-<h3 class="blk__h3">${L(X('Ата-аналарға', 'Родителям', 'For parents'))}</h3>
+<aside class="adm__side" aria-labelledby="parents-title">
+<h3 class="blk__h3" id="parents-title">${L(X('Ата-аналарға', 'Родителям', 'For parents'))}</h3>
 <ul class="quick" role="list">${parents.map(([slug, ic, lb]) => `<li><a href="${href(slug)}">${ui.icon(ic, { size: 20 })}<span>${L(lb)}</span></a></li>`).join('')}</ul>
+<a class="adm__egov" href="#official-egov"><span class="adm__egov-n" aria-hidden="true">${services.length}</span><span class="adm__egov-t">${L(X('Танымал мемлекеттік қызметтер', 'Популярные госуслуги', 'Popular public services'))}<small>egov.kz</small></span>${ui.icon('arrow-right', { size: 20 })}</a>
 </aside>
 </div>
 </div>
@@ -376,6 +407,27 @@ ${ui.linkList(services)}
     const eventsBlock = upcoming.length
       ? `<ul class="hev" role="list">${upcoming.map((e) => `<li class="hev__i"><time class="hev__d" datetime="${e.date}">${dm(e.date)}${e.end ? `<span>–${dm(e.end)}</span>` : ''}</time><div><p class="hev__t">${L(e.title)}</p>${EV_TYPES[e.type] ? `<p class="hev__k">${L(EV_TYPES[e.type].label)}</p>` : ''}</div></li>`).join('')}</ul>`
       : `<p class="trio__text">${L(X('2026–2027 оқу жылының күнтізбесі: тоқсандар, демалыс күндері және мемлекеттік мерекелер.', 'Календарь 2026–2027 учебного года: четверти, каникулы и государственные праздники.', 'The 2026–2027 school-year calendar: terms, breaks and public holidays.'))}</p>`;
+    // feedback channels (B.21) — shown in the "Official information" tabs
+    const channels = [
+      ['feedback', 'chat', X('Өтініш жолдау', 'Направить обращение', 'Send an appeal'), X('Сұрақ, ұсыныс немесе шағым — жауап береміз', 'Вопрос, предложение или жалоба — мы ответим', 'A question, suggestion or complaint — we will reply')],
+      ['faq', 'info', X('Сұрақ–жауап', 'Вопрос–ответ', 'FAQ'), X('Ата-аналардың жиі қоятын сұрақтары', 'Частые вопросы родителей', 'Questions parents often ask')],
+      ['director-blog', 'user', X('Директор блогы', 'Блог директора', 'Director’s blog'), X('Директорға сұрақ қойыңыз', 'Задайте вопрос директору', 'Ask the director a question')],
+    ];
+    // ONE compact "Ресми ақпарат / Официальная информация / Official information" block (SPEC §6.1): latest documents
+    // (B.16), egov services (B.20), events (B.19), vacancies and feedback channels (B.21) as accessible tabs — every
+    // panel stays in the HTML (hidden="until-found" → Ctrl+F / search / print / "Expand all" still reach it).
+    const offTabs = ui.tabs([
+      { id: 'official-docs', icon: 'doc', label: X('Құжаттар', 'Документы', 'Documents'), count: null,
+        body: `<h4 class="off__h">${L(X('Соңғы құжаттар', 'Последние документы', 'Latest documents'))}</h4>${docsCompact(latestDocuments(3))}<p class="blk__links"><a href="${href('documents')}">${L(X('Барлық құжаттар', 'Все документы', 'All documents'))} →</a></p>` },
+      { id: 'official-egov', icon: 'globe', label: X('Мемқызметтер', 'Госуслуги', 'e-Gov services'), count: services.length,
+        body: `<h4 class="off__h">${L(X('Танымал мемлекеттік қызметтер', 'Популярные госуслуги', 'Popular public services'))}</h4>${ui.linkList(services, { cls: 'off__egov' })}` },
+      { id: 'official-events', icon: 'calendar', label: X('Іс-шаралар', 'События', 'Events'), count: upcoming.length || null,
+        body: `<h4 class="off__h">${L(X('Іс-шаралар күнтізбесі', 'Календарь событий', 'Events calendar'))}</h4>${eventsBlock}<p class="blk__links"><a href="${href('events')}">${L(X('Барлық іс-шаралар', 'Все события', 'All events'))} →</a><a href="${href('schedule')}">${L(X('Оқу жылы күнтізбесі', 'Академический календарь', 'Academic calendar'))} →</a></p>` },
+      { id: 'official-jobs', icon: 'users', label: X('Бос орындар', 'Вакансии', 'Vacancies'),
+        body: `<h4 class="off__h">${L(X('Бос жұмыс орындары', 'Вакансии', 'Vacancies'))}</h4><p class="trio__text">${L(X('Лауазымдар, біліктілік талаптары және анықтама телефоны «Бос жұмыс орындары» бөлімінде жарияланады.', 'Должности, квалификационные требования и телефон для справок публикуются в разделе «Вакансии».', 'Positions, qualification requirements and an enquiry phone number are published on the Vacancies page.'))}</p><p class="blk__links"><a href="${href('vacancies')}">${L(X('Бос жұмыс орындары бөлімі', 'Раздел «Вакансии»', 'Vacancies page'))} →</a><a href="tel:${S.contacts.phone.tel}">${ui.icon('phone', { size: 16 })}${S.contacts.phone.display}</a></p>` },
+      { id: 'official-feedback', icon: 'chat', label: X('Кері байланыс', 'Обратная связь', 'Feedback'), count: channels.length,
+        body: `<h4 class="off__h">${L(X('Кері байланыс арналары', 'Каналы обратной связи', 'Feedback channels'))}</h4><ul class="chan off__chan" role="list">${channels.map(([slug, ic, title, note]) => `<li><a class="chan__a" href="${href(slug)}"><span class="chan__icon" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span><span class="chan__t">${L(title)}</span><span class="chan__n">${L(note)}</span><span class="chan__arrow" aria-hidden="true">${ui.icon('arrow-right', { size: 20 })}</span></a></li>`).join('')}</ul>` },
+    ], { label: X('Ресми ақпарат', 'Официальная информация', 'Official information'), cls: 'off__tabs' });
     const newsSec = `<section class="st st--news" id="news" data-station="news" data-theme="paper" aria-labelledby="news-title">
 <div class="st__inner st__inner--wide">
 <div class="st__card st__card--flat">
@@ -383,29 +435,18 @@ ${ui.linkList(services)}
 <h2 class="st__title" id="news-title">${L(X('Жаңалықтар', 'Новости', 'News'))}</h2></div>
 <p class="blk__links"><a href="${href('news')}">${t('news.all')} →</a><a href="rss.xml">${ui.icon('rss', { size: 16 })} RSS</a></p></header>
 ${ui.newsList(news, { limit: 3 })}
-<div class="trio">
-<div class="trio__cell"><h3 class="blk__h3">${ui.icon('doc', { size: 20 })}<span>${L(X('Соңғы құжаттар', 'Последние документы', 'Latest documents'))}</span></h3>
-${docsCompact(latestDocuments(3))}
-<p class="blk__links"><a href="${href('documents')}">${L(X('Барлық құжаттар', 'Все документы', 'All documents'))} →</a></p></div>
-<div class="trio__cell"><h3 class="blk__h3">${ui.icon('users', { size: 20 })}<span>${L(X('Бос жұмыс орындары', 'Вакансии', 'Vacancies'))}</span></h3>
-<p class="trio__text">${L(X('Лауазымдар, біліктілік талаптары және анықтама телефоны «Бос жұмыс орындары» бөлімінде жарияланады.', 'Должности, квалификационные требования и телефон для справок публикуются в разделе «Вакансии».', 'Positions, qualification requirements and an enquiry phone number are published on the Vacancies page.'))}</p>
-<p class="blk__links"><a href="${href('vacancies')}">${L(X('Бос жұмыс орындары бөлімі', 'Раздел «Вакансии»', 'Vacancies page'))} →</a><a href="tel:${S.contacts.phone.tel}">${ui.icon('phone', { size: 16 })}${S.contacts.phone.display}</a></p></div>
-<div class="trio__cell"><h3 class="blk__h3">${ui.icon('calendar', { size: 20 })}<span>${L(X('Іс-шаралар күнтізбесі', 'Календарь событий', 'Events calendar'))}</span></h3>
-${eventsBlock}
-<p class="blk__links"><a href="${href('events')}">${L(X('Барлық іс-шаралар', 'Все события', 'All events'))} →</a><a href="${href('schedule')}">${L(X('Оқу жылы күнтізбесі', 'Академический календарь', 'Academic calendar'))} →</a></p></div>
+<div class="off" id="official" role="region" aria-labelledby="official-title">
+<header class="off__head"><span class="off__icon" aria-hidden="true">${ui.icon('shield', { size: 22 })}</span><h3 class="off__title" id="official-title">${L(X('Ресми ақпарат', 'Официальная информация', 'Official information'))}</h3></header>
+${offTabs}
 </div>
 </div>
 </div>
 </section>`;
 
-    // ------------------------------------------------------------ CONTACTS + feedback channels (B.21, B.23)
-    const channels = [
-      ['feedback', 'chat', X('Өтініш жолдау', 'Направить обращение', 'Send an appeal'), X('Сұрақ, ұсыныс немесе шағым — жауап береміз', 'Вопрос, предложение или жалоба — мы ответим', 'A question, suggestion or complaint — we will reply')],
-      ['faq', 'info', X('Сұрақ–жауап', 'Вопрос–ответ', 'FAQ'), X('Ата-аналардың жиі қоятын сұрақтары', 'Частые вопросы родителей', 'Questions parents often ask')],
-      ['director-blog', 'user', X('Директор блогы', 'Блог директора', 'Director’s blog'), X('Директорға сұрақ қойыңыз', 'Задайте вопрос директору', 'Ask the director a question')],
-    ];
-    // B.21: the official mailbox is not confirmed yet (keremet.edu.kz does not resolve). As on the contacts page, no
-    // address is shown until the school confirms it: the row is dropped and the pending note below says so.
+    // ------------------------------------------------------------ CONTACTS (B.23; feedback channels B.21 → the official block above)
+    // B.21: the official mailbox is not confirmed yet (keremet.edu.kz does not resolve). ui.contactList shows that row as
+    // «e-mail уточняется» without an address (the filter only drops a row that would carry the raw address). The pending
+    // line under the list names the city landline only, so the e-mail is not announced twice at the same level.
     let contactList = ui.contactList({ admission: true });
     if (!S.contacts.emailConfirmed && S.contacts.email) {
       const mail = esc(S.contacts.email);
@@ -419,18 +460,16 @@ ${eventsBlock}
 <div class="ct">
 <div class="ct__info">
 ${contactList}
-<p class="blk__note">${ui.icon('bus', { size: 16 })}<span>${L(S.addresses.actual.transit)}</span></p>
-<p class="blk__note">${ui.icon('accessible', { size: 16 })}<span>${L(S.addresses.actual.building)}</span></p>
-${S.contacts.cityPhone ? '' : `<p class="blk__note blk__note--pending">${ui.icon('hourglass', { size: 16 })}<span>${L(X('Қалалық телефон (+7 7252 …) және ресми электрондық пошта нақтылануда.', 'Городской телефон (+7 7252 …) и официальная электронная почта уточняются.', 'A city landline (+7 7252 …) and the official e-mail are being confirmed.'))}</span></p>`}
+<div class="dz-row ct__dz">${ui.more({ label: X('Қалай жетуге болады · қолжетімділік', 'Как добраться · доступность', 'Getting here · accessibility'), icon: 'bus', tone: 'card', body: `<p class="blk__note">${ui.icon('bus', { size: 16 })}<span>${L(S.addresses.actual.transit)}</span></p>
+<p class="blk__note">${ui.icon('accessible', { size: 16 })}<span>${L(S.addresses.actual.building)}</span></p>` })}
+${S.contacts.cityPhone ? '' : ui.pendingGroup(lang, [{ title: X('Қалалық телефон (+7 7252 …)', 'Городской телефон (+7 7252 …)', 'City landline (+7 7252 …)'), note: X('Ресми электрондық пошта да нақтылануда — жоғарыдағы тізімде белгіленген.', 'Официальная электронная почта также уточняется — отмечено в списке выше.', 'The official e-mail is also being confirmed — marked in the list above.') }], { title: X('Қалалық телефон нақтылануда', 'Городской телефон уточняется', 'City landline being confirmed'), note: X('Қалалық телефон (+7 7252 …) және ресми электрондық пошта нақтылануда.', 'Городской телефон (+7 7252 …) и официальная электронная почта уточняются.', 'A city landline (+7 7252 …) and the official e-mail are being confirmed.'), cls: 'ct__pend' })}</div>
 <div class="ct__btns">${ui.button({ href: `tel:${S.contacts.phone.tel}`, label: t('cta.call'), kind: 'gold', iconLeft: 'phone', ext: false })}${ui.button({ href: `https://wa.me/${S.contacts.phone.whatsapp}`, label: 'WhatsApp', kind: 'light', iconLeft: 'whatsapp' })}${ui.button({ href: g2.url, label: '2GIS', kind: 'light', iconLeft: 'pin' })}${ui.button({ href: S.contacts.instagram.url, label: 'Instagram', kind: 'light', iconLeft: 'instagram' })}</div>
 </div>
 <div class="ct__side">
-<div class="ct__map">${ui.mapEmbed(S.addresses.actual.lat, S.addresses.actual.lng, { zoom: 16, height: 380 })}</div>
-<h3 class="blk__h3 ct__h3">${L(X('Кері байланыс арналары', 'Каналы обратной связи', 'Feedback channels'))}</h3>
-<ul class="chan" role="list">${channels.map(([slug, ic, title, note]) => `<li><a class="chan__a" href="${href(slug)}"><span class="chan__icon" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span><span class="chan__t">${L(title)}</span><span class="chan__n">${L(note)}</span><span class="chan__arrow" aria-hidden="true">${ui.icon('arrow-right', { size: 20 })}</span></a></li>`).join('')}</ul>
+<div class="ct__map">${ui.mapEmbed(S.addresses.actual.lat, S.addresses.actual.lng, { zoom: 16, height: 460 })}</div>
 </div>
 </div>
-<p class="ct__a11y">${a11yLink()}<a href="${href('contacts')}">${L(X('Барлық байланыс деректері', 'Все контакты', 'All contact details'))} →</a></p>
+<p class="ct__a11y">${a11yLink()}<a href="#official-feedback">${ui.icon('chat', { size: 18 })}${L(X('Кері байланыс арналары', 'Каналы обратной связи', 'Feedback channels'))}</a><a href="${href('contacts')}">${L(X('Барлық байланыс деректері', 'Все контакты', 'All contact details'))} →</a></p>
 </div>
 </div>
 </section>`;

@@ -36,12 +36,14 @@ export default {
     const scan = (d, stamp, old, trim) => `<figure class="ab-scan${trim ? ` ab-scan--trim-${trim}` : ''}">
 <span class="ab-scan__stamp${old ? ' ab-scan__stamp--old' : ''}">${L(stamp)}</span>
 <a class="ab-scan__frame" href="${asset(d.file)}" aria-label="${L(X('Құжат фотосын толық өлшемде ашу', 'Открыть фото документа в полном размере', 'Open the full-size photo of the document'))}: ${L(d.title)} (JPG, ${size(d)})"><img src="${asset(d.file)}" alt="${L(X('Құжаттың фотокөшірмесі', 'Фотокопия документа', 'Photo of the document'))}: ${L(d.title)}" width="960" height="1280" loading="lazy" decoding="async"><span class="ab-scan__zoom" aria-hidden="true">${ui.icon('search', { size: 14 })}${L(X('Үлкейту', 'Увеличить', 'Zoom'))}</span></a>
-<figcaption>JPG, ${size(d)} · ${L(X('басып шығарылған құжаттың фотокөшірмесі', 'фотокопия распечатанного документа', 'photo of a printed copy'))}${trim ? ` · ${L(X('алдын ала қарауда жиектері қиылған, толық файл — сілтеме бойынша', 'в превью обрезаны края, полный файл — по ссылке', 'edges trimmed in the preview; full file via the link'))}` : ''}</figcaption>
+<figcaption>JPG, ${size(d)} · ${L(X('фотокөшірме', 'фотокопия', 'photo'))}${trim ? ` · <span title="${L(X('алдын ала қарауда жиектері қиылған, толық файл — сілтеме бойынша', 'в превью обрезаны края, полный файл — по ссылке', 'edges trimmed in the preview; full file via the link'))}">${L(X('алдын ала қарау қиылған', 'превью обрезано', 'preview trimmed'))}</span>` : ''}</figcaption>
 </figure>`;
     const textVersion = X('Құжаттың мәтіндік нұсқасы', 'Текстовая версия документа', 'Text version of the document');
-    // Text version in a <details> (open by default; an inline script collapses it on phones to keep the page short).
-    const tv = (facts) => `<details class="ab-tv" open><summary class="ab-kicker">${L(textVersion)}</summary>${facts}</details>`;
-    // Compact download row: the text version above already carries the metadata, so drop issuer/note.
+    // Layer 1 = number + status pill + 2–3 key chips + download row; layer 2 = the full text version of the document
+    // (every field transcribed from the scan, ORDER-114 K.76) behind "Текстовая версия документа · N ▾".
+    const tv = (facts) => ui.more({ label: textVersion, icon: 'doc', tone: 'plain', count: (facts.match(/facts__row/g) || []).length, body: facts, cls: 'ab-tv' });
+    const keys = (items) => ui.chips(items, { cls: 'ab-keys' });
+    // Compact download row: the text version carries the metadata, so drop issuer/note.
     const dl = (d) => ui.docList([{ ...d, issuer: null, note: null }]);
 
     // ---------------------------------------------------------------- stats
@@ -70,12 +72,16 @@ export default {
     ]);
     const current = `<div class="ab-lic">${scan(d25, X('Қолданыстағы', 'Действующая', 'Current'))}
 <div><div class="ab-lic__head"><p class="ab-lic__no">№ ${cur.number}</p>${pill('ok', X('Қолданыста · мерзімсіз', 'Действует · бессрочно', 'Valid · unlimited'), 'check')}</div>
-${tv(curFacts)}
-${dl(d25)}</div></div>`;
-    const appendixPending = ui.callout({
-      type: 'warn', icon: 'hourglass',
+${keys([
+      { icon: 'calendar', label: X(`${fmt.date(cur.date)} берілген`, `Выдана ${fmt.date(cur.date)}`, `Issued ${fmt.date(cur.date)}`) },
+      { icon: 'clock', label: X(`Алғаш ${fmt.date(cur.firstIssued)}`, `Первично ${fmt.date(cur.firstIssued)}`, `First issued ${fmt.date(cur.firstIssued)}`) },
+      { icon: 'shield', label: cur.class },
+    ])}
+${dl(d25)}
+${tv(curFacts)}</div></div>`;
+    const appendixPending = ({
       title: X('№ KZ29LAM00002781 лицензияға қосымша жүктеледі', 'Приложение к лицензии № KZ29LAM00002781 будет загружено', 'The appendix to licence No. KZ29LAM00002781 will be uploaded'),
-      text: X(
+      note: X(
         'Қосымшада лицензияланатын қызметтің кіші түрлері (бастауыш, негізгі орта, жалпы орта білім беру және т.б.), білім беру объектісінің мекенжайы, берілу негізі (лицензиардың бұйрығы) көрсетіледі. Қосымшаның сканерленген көшірмесі немесе elicense.kz-тен алынған электрондық нұсқасы осы бетте орналастырылады.',
         'В приложении указываются подвиды лицензируемой деятельности (начальное, основное среднее, общее среднее образование и др.), адрес объекта и основание выдачи (приказ лицензиара). Скан приложения или его электронная копия с elicense.kz будет размещена на этой странице.',
         'The appendix lists the licensed sub-types (primary, lower and upper secondary education, etc.), the address of the premises and the basis for issue (the licensor’s order). A scan of the appendix or its electronic copy from elicense.kz will be posted on this page.'),
@@ -124,11 +130,10 @@ ${dl(d25)}</div></div>`;
     ]);
     const previous = `<div class="ab-lic">${scan(d22, X('2022 · алғашқы', '2022 · первая', '2022 · first'), true, 'top')}
 <div><div class="ab-lic__head"><p class="ab-lic__no">№ ${prev.number}</p>${pill('law', X('Алғашқы лицензия', 'Первичная лицензия', 'Original licence'), 'calendar')}</div>
-${tv(prevFacts)}${dl(d22)}</div></div>
+${dl(d22)}${tv(prevFacts + ui.note(X(`2025 жылғы № ${cur.number} лицензияда алғаш берілген күні ретінде ${fmt.date(cur.firstIssued)} көрсетілген.`, `В лицензии № ${cur.number} 2025 года датой первичной выдачи указано ${fmt.date(cur.firstIssued)}.`, `Licence No. ${cur.number} (2025) gives ${fmt.date(cur.firstIssued)} as the date of first issue.`)))}</div></div>
 <div class="ab-lic ab-lic--rev">${scan(app, X('Қосымша № 001', 'Приложение № 001', 'Appendix 001'), true)}
 <div><div class="ab-lic__head"><p class="ab-lic__no">${L(X('Қосымша № 001', 'Приложение № 001', 'Appendix No. 001'))}</p>${pill('law', X('Бастауыш білім беру', 'Начальное образование', 'Primary education'), 'graduation')}</div>
-${tv(appFacts)}${dl(app)}</div></div>
-${ui.note(X(`2025 жылғы № ${cur.number} лицензияда алғаш берілген күні ретінде ${fmt.date(cur.firstIssued)} көрсетілген.`, `В лицензии № ${cur.number} 2025 года датой первичной выдачи указано ${fmt.date(cur.firstIssued)}.`, `Licence No. ${cur.number} (2025) gives ${fmt.date(cur.firstIssued)} as the date of first issue.`))}`;
+${dl(app)}${tv(appFacts)}</div></div>`;
 
     // ---------------------------------------------------------------- registration certificate + charter
     const regFacts = ui.facts([
@@ -143,19 +148,22 @@ ${ui.note(X(`2025 жылғы № ${cur.number} лицензияда алғаш �
     ]);
     const registration = `<div class="ab-lic">${scan(reg, X('egov.kz анықтамасы', 'Справка egov.kz', 'egov.kz certificate'), false, 'left')}
 <div><div class="ab-lic__head"><p class="ab-lic__no">${L(X('БСН', 'БИН', 'BIN'))} ${S.legal.bin}</p>${pill('ok', X('Тіркелген', 'Зарегистрировано', 'Registered'), 'check')}</div>
-${tv(regFacts)}${dl(reg)}${ui.docList([docById('charter')].filter(Boolean))}</div></div>`;
+${keys([
+      { icon: 'calendar', label: X(`${fmt.date(S.legal.registered)} тіркелген`, `Зарегистрировано ${fmt.date(S.legal.registered)}`, `Registered ${fmt.date(S.legal.registered)}`) },
+      { icon: 'doc', label: X(`Анықтама ${fmt.date(reg.date)}`, `Справка от ${fmt.date(reg.date)}`, `Certificate of ${fmt.date(reg.date)}`) },
+    ])}
+${dl(reg)}${tv(regFacts)}${ui.docList([docById('charter')].filter(Boolean), { groupPending: true })}</div></div>`;
 
     // ---------------------------------------------------------------- how to verify
-    const verify = ui.split({
-      ratio: '3:2', align: 'start',
-      left: ui.steps([
+    // Layer 1: the two portals as big buttons; layer 2: the step-by-step instructions.
+    const verifySteps = ui.steps([
         { title: X('elicense.kz порталын ашыңыз', 'Откройте портал elicense.kz', 'Open elicense.kz'), text: X(`Рұқсаттар мен хабарламалардың мемлекеттік электрондық тізілімі: ${ui.extLink(ELICENSE, 'elicense.kz')}.`, `Государственный электронный реестр разрешений и уведомлений: ${ui.extLink(ELICENSE, 'elicense.kz')}.`, `The state electronic register of permits and notifications: ${ui.extLink(ELICENSE, 'elicense.kz')}.`) },
         { title: X('Лицензияны іздеңіз', 'Найдите лицензию', 'Search for the licence'), text: X(`Тізілімнен БСН <span class="mono">${S.legal.bin}</span> немесе лицензия нөмірі <span class="mono">${cur.number}</span> бойынша іздеңіз.`, `Ищите в реестре по БИН <span class="mono">${S.legal.bin}</span> или номеру лицензии <span class="mono">${cur.number}</span>.`, `Search the register by BIN <span class="mono">${S.legal.bin}</span> or licence number <span class="mono">${cur.number}</span>.`) },
         { title: X('Деректерді салыстырыңыз', 'Сверьте данные', 'Compare the details'), text: X('Құжаттың төменгі жағында QR-кодтар бар; құжат мәтінінде оның түпнұсқалығын elicense.kz порталында тексеруге болатыны көрсетілген.', 'Внизу документа есть QR-коды; в тексте документа указано, что его подлинность можно проверить на портале elicense.kz.', 'The documents carry QR codes, and their text states that authenticity can be checked on elicense.kz.') },
-      ]),
-      right: `<div class="stack">${ui.banner({ theme: 'hero', icon: 'shield', eyebrow: X('Лицензиялар тізілімі', 'Реестр лицензий', 'Licence register'), title: 'elicense.kz', text: X('Лицензияның жарамдылығын тексеріңіз.', 'Проверьте действительность лицензии.', 'Check that the licence is valid.'), href: ELICENSE, label: X('Порталға өту', 'Перейти на портал', 'Go to the portal') })}
-${ui.banner({ theme: 'geography', icon: 'building', eyebrow: X('Заңды тұлғалар', 'Юридические лица', 'Legal entities'), title: 'egov.kz', text: X('Мемлекеттік тіркеу туралы анықтаманың түпнұсқалығын тексеріңіз.', 'Проверьте подлинность справки о государственной регистрации.', 'Check the authenticity of the registration certificate.'), href: EGOV, label: X('Порталға өту', 'Перейти на портал', 'Go to the portal') })}</div>`,
-    });
+      ]);
+    const verify = `${ui.grid({ cols: 2, items: [ui.banner({ theme: 'hero', icon: 'shield', eyebrow: X('Лицензиялар тізілімі', 'Реестр лицензий', 'Licence register'), title: 'elicense.kz', text: X('Лицензияның жарамдылығын тексеріңіз.', 'Проверьте действительность лицензии.', 'Check that the licence is valid.'), href: ELICENSE, label: X('Порталға өту', 'Перейти на портал', 'Go to the portal') }),
+ui.banner({ theme: 'geography', icon: 'building', eyebrow: X('Заңды тұлғалар', 'Юридические лица', 'Legal entities'), title: 'egov.kz', text: X('Мемлекеттік тіркеу туралы анықтаманың түпнұсқалығын тексеріңіз.', 'Проверьте подлинность справки о государственной регистрации.', 'Check the authenticity of the registration certificate.'), href: EGOV, label: X('Порталға өту', 'Перейти на портал', 'Go to the portal') })] })}
+${ui.more({ label: X('Тізілімнен қалай табуға болады', 'Как найти лицензию в реестре', 'How to find the licence in the register'), icon: 'search', count: 3, body: verifySteps })}`;
 
     // ---------------------------------------------------------------- criterion 1 & law
     const ladder = `<ol class="ab-ladder" reversed>${[
@@ -164,19 +172,17 @@ ${ui.banner({ theme: 'geography', icon: 'building', eyebrow: X('Заңды тұ�
       ['s3', 3, X('құжаттарда сәйкессіздіктер бар (мәліметтер, қосымшалар, деректемелер)', 'имеются несоответствия в документах (сведения, приложения, реквизиты)', 'inconsistencies in the documents (details, appendices, requisites)')],
       ['s2', 2, X('лицензияның болмауы немесе құжаттардың талаптарға сәйкес келмеуі', 'отсутствие лицензии либо несоответствие документов требованиям', 'no licence, or documents do not meet the requirements')],
     ].map(([c, n, txt]) => `<li class="${c}"><span class="ab-ladder__score" aria-hidden="true">${n}</span><div><p class="ab-ladder__lvl">${n} ${L(X('балл', n === 5 ? 'баллов' : 'балла', 'points'))}</p><p class="ab-ladder__txt">${L(txt)}</p></div></li>`).join('')}</ol>`;
-    const legal = ui.split({
-      ratio: '1:1', align: 'start',
-      left: `<div class="prose">${L(X(
+    // Officialese → layer 2: the norm, the three acts (adilet.zan.kz) and the scoring scale sit in two compact
+    // disclosures; layer 1 is one plain sentence (the section lead).
+    const legal = `<div class="ab-law dz-row">${ui.legal([
+      { href: ADILET('Z1400000202', lang), title: X('«Рұқсаттар және хабарламалар туралы» Заң', 'Закон «О разрешениях и уведомлениях»', 'Law on Permits and Notifications') },
+      { href: ADILET('Z070000319_', lang), title: X('«Білім туралы» Заң', 'Закон «Об образовании»', 'Law on Education') },
+      { href: ADILET('V2600038645', lang), title: X('№ 114-НҚ бұйрық (аттестаттау)', 'Приказ № 114-НҚ (аттестация)', 'Order No. 114-NK (attestation)') },
+    ], { note: X(
         '<p>Мемлекеттік аттестаттауда № 114-НҚ бұйрықтың 1-өлшемшарты бойынша құрылтай және рұқсат беру құжаттарының болуы және олардың «Рұқсаттар және хабарламалар туралы» және «Білім туралы» заңдарға сәйкестігі бағаланады.</p><p>Сондықтан сайтта лицензия ғана емес, оның барлық қосымшалары, жарғы және мемлекеттік тіркеу туралы анықтама жарияланады.</p>',
         '<p>При государственной аттестации по критерию 1 приказа № 114-НҚ оценивается наличие учредительных и разрешительных документов и их соответствие законам «О разрешениях и уведомлениях» и «Об образовании».</p><p>Поэтому на сайте публикуется не только лицензия, но и все приложения к ней, устав и справка о государственной регистрации.</p>',
-        '<p>Criterion 1 of Order No. 114-NK assesses whether the founding and permit documents exist and comply with the Law on Permits and Notifications and the Law on Education.</p><p>That is why the site publishes not only the licence but all its appendices, the charter and the registration certificate.</p>'))}</div>
-${ui.linkList([
-        { href: ADILET('Z1400000202', lang), icon: 'scale', label: X('«Рұқсаттар және хабарламалар туралы» Заң', 'Закон «О разрешениях и уведомлениях»', 'Law on Permits and Notifications') },
-        { href: ADILET('Z070000319_', lang), icon: 'scale', label: X('«Білім туралы» Заң', 'Закон «Об образовании»', 'Law on Education') },
-        { href: ADILET('V2600038645', lang), icon: 'scale', label: X('№ 114-НҚ бұйрық (аттестаттау)', 'Приказ № 114-НҚ (аттестация)', 'Order No. 114-NK (attestation)') },
-      ])}`,
-      right: `<p class="ab-kicker">${L(X('1-өлшемшарт · бағалау шкаласы', 'Критерий 1 · шкала оценки', 'Criterion 1 · scoring scale'))}</p>${ladder}`,
-    });
+        '<p>Criterion 1 of Order No. 114-NK assesses whether the founding and permit documents exist and comply with the Law on Permits and Notifications and the Law on Education.</p><p>That is why the site publishes not only the licence but all its appendices, the charter and the registration certificate.</p>') })}
+${ui.more({ label: X('1-өлшемшарт · бағалау шкаласы', 'Критерий 1 · шкала оценки', 'Criterion 1 · scoring scale'), icon: 'target', count: 4, tone: 'card', body: ladder })}</div>`;
 
     const related = ui.linkList([
       { href: href('about'), icon: 'school', label: X('Мектеп туралы', 'О школе', 'About the school'), note: X('Жалпы мәліметтер мен деректемелер', 'Общие сведения и реквизиты', 'General information and requisites') },
@@ -192,39 +198,38 @@ ${ui.linkList([
       { id: 'verify', label: X('Қалай тексеруге болады', 'Как проверить', 'How to verify') },
       { id: 'law', label: X('Аттестаттау талаптары', 'Требования аттестации', 'Attestation requirements') },
     ]);
+    // Layer 1 at the top: three plain-language points (the full licensor name etc. is in each text version).
     const intro = ui.split({
       ratio: '2:1', align: 'start', cls: 'ab-intro',
       left: `${ui.eyebrow(X('Рұқсат беру құжаттары', 'Разрешительные документы', 'Permits'))}
-<p class="lead">${L(X(
-        `«Keremet-City» ЖШС білім беру қызметін ${L(S.licensorShort)} берген мерзімсіз лицензия негізінде жүзеге асырады. Төменде құжаттардың фотокөшірмелері және әр құжаттың мәтіндік нұсқасы берілген.`,
-        `ТОО «Keremet-City» ведёт образовательную деятельность на основании бессрочной лицензии, выданной Департаментом по обеспечению качества в сфере образования г. Шымкент. Ниже — фотокопии документов и текстовая версия каждого из них.`,
-        `Keremet-City LLP operates under an unlimited licence issued by the Shymkent Department for Quality Assurance in Education. Below are photos of the documents and a text version of each.`))}</p>`,
+${ui.tldr({ points: [
+        { icon: 'shield', text: X(`Мектеп <strong>мерзімсіз лицензия</strong> негізінде жұмыс істейді: № ${cur.number}, ${fmt.date(cur.date)}.`, `Школа работает по <strong>бессрочной лицензии</strong> № ${cur.number} от ${fmt.date(cur.date)}.`, `The school operates under an <strong>unlimited licence</strong>, No. ${cur.number} of ${fmt.date(cur.date)}.`) },
+        { icon: 'image', text: X('Төменде — әр құжаттың фотосы және оның мәтіндік нұсқасы.', 'Ниже — фото каждого документа и его текстовая версия.', 'Below: a photo of each document and its text version.') },
+        { icon: 'search', text: X(`Түпнұсқалығын ${ui.extLink(ELICENSE, 'elicense.kz')} және ${ui.extLink(EGOV, 'egov.kz')} порталдарынан тексеруге болады.`, `Подлинность можно проверить на ${ui.extLink(ELICENSE, 'elicense.kz')} и ${ui.extLink(EGOV, 'egov.kz')}.`, `Authenticity can be checked on ${ui.extLink(ELICENSE, 'elicense.kz')} and ${ui.extLink(EGOV, 'egov.kz')}.`) },
+      ] })}`,
       right: toc,
     });
 
-    const pdfPending = ui.callout({
-      type: 'info', icon: 'doc',
+    const pdfPending = ({
       title: X('Құжаттардың электрондық нұсқалары (PDF) жүктеледі', 'Будут загружены электронные версии документов (PDF)', 'Electronic versions (PDF) of the documents will be uploaded'),
-      text: X(
+      note: X(
         'Қазір сайтта басып шығарылған құжаттардың телефонмен түсірілген фотолары орналастырылған. № 114-НҚ бұйрыққа сәйкес құрылтай құжаттары PDF форматында жарияланады: мұнда elicense.kz порталынан алынған лицензиялардың қосымшаларымен бірге электрондық құжаттары (PDF) және egov.kz порталынан алынған мемлекеттік тіркеу туралы анықтама (PDF) орналастырылады.',
         'Сейчас на сайте размещены фотографии распечатанных документов, сделанные на телефон. По приказу № 114-НҚ учредительные документы публикуются в формате PDF: здесь будут размещены электронные документы лицензий с приложениями (PDF) с портала elicense.kz и справка о государственной регистрации (PDF) с портала egov.kz.',
         'The site currently shows phone photos of printed copies. Under Order No. 114-NK founding documents are published as PDF: the electronic licences with their appendices (PDF) from elicense.kz and the registration certificate (PDF) from egov.kz will be posted here.'),
     });
-    // Collapse the text versions on phones (they stay open on larger screens and without JS).
-    const collapse = `<script>if(matchMedia('(max-width: 639px)').matches)document.querySelectorAll('details.ab-tv').forEach(function(d){d.open=false});</script>`;
+    // Both "will be uploaded" notices → ONE compact line (full wording inside).
+    const pendingLine = ui.pendingGroup(lang, [appendixPending, pdfPending]);
 
     return [
       intro,
       bento,
-      pdfPending,
-      ui.section({ id: 'current', eyebrow: X('Негізгі құжат', 'Основной документ', 'Main document'), title: X('Қолданыстағы лицензия', 'Действующая лицензия', 'Current licence'), body: current + appendixPending }),
-      ui.section({ id: 'scope', tone: 'hero', eyebrow: X('Лицензия мәтіні бойынша', 'По тексту лицензии', 'As worded in the licence'), title: X('Лицензия нені қамтиды', 'Что охватывает лицензия', 'What the licence covers'), lead: X('Қызмет түрі: білім беру қызметі. Лицензияда аталған деңгейлер мен қызметтер:', 'Вид деятельности: образовательная деятельность. Уровни и услуги, перечисленные в лицензии:', 'Activity: education. Levels and services listed in the licence:'), body: covers + coversNote }),
+      ui.section({ id: 'current', eyebrow: X('Негізгі құжат', 'Основной документ', 'Main document'), title: X('Қолданыстағы лицензия', 'Действующая лицензия', 'Current licence'), body: current + pendingLine }),
+      ui.section({ id: 'scope', tone: 'hero', eyebrow: X('Лицензия мәтіні бойынша', 'По тексту лицензии', 'As worded in the licence'), title: X('Лицензия нені қамтиды', 'Что охватывает лицензия', 'What the licence covers'), lead: X('Қызмет түрі: білім беру қызметі. Лицензияда аталған деңгейлер мен қызметтер:', 'Вид деятельности: образовательная деятельность. Уровни и услуги, перечисленные в лицензии:', 'Activity: education. Levels and services listed in the licence:'), body: covers + ui.more({ label: X('Лицензия және мектепте нақты оқытылатын сыныптар', 'Лицензия и классы, которые школа обучает сейчас', 'The licence vs the grades taught now'), icon: 'info', body: coversNote, cls: 'ab-scope-more' }) }),
       ui.section({ id: 'previous', eyebrow: X('Лицензия тарихы', 'История лицензии', 'Licence history'), title: X('2022 жылғы лицензия мен № 001 қосымша', 'Лицензия 2022 года и приложение № 001', 'The 2022 licence and appendix 001'), body: previous }),
       ui.section({ id: 'registration', eyebrow: X('Құрылтай құжаттары', 'Учредительные документы', 'Founding documents'), title: X('Мемлекеттік тіркеу', 'Государственная регистрация', 'State registration'), body: registration }),
       ui.section({ id: 'verify', eyebrow: X('Ашықтық', 'Прозрачность', 'Transparency'), title: X('Лицензияны қалай тексеруге болады', 'Как проверить лицензию', 'How to verify the licence'), body: verify }),
-      ui.section({ id: 'law', tone: 'tint', eyebrow: X('Заң не талап етеді', 'Что требует закон', 'What the law requires'), title: X('Аттестаттау талаптары', 'Требования аттестации', 'Attestation requirements'), body: legal }),
+      ui.section({ id: 'law', tone: 'tint', eyebrow: X('Заң не талап етеді', 'Что требует закон', 'What the law requires'), title: X('Аттестаттау талаптары', 'Требования аттестации', 'Attestation requirements'), lead: X('Аттестаттау кезінде лицензия мен тіркеу құжаттарының заңға сәйкестігі тексеріледі (1-өлшемшарт).', 'При аттестации проверяют, что лицензия и регистрационные документы соответствуют закону (критерий 1).', 'Attestation checks that the licence and registration documents comply with the law (criterion 1).'), body: legal }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
-      collapse,
     ].join('\n');
   },
 };

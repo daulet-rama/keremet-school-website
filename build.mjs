@@ -247,7 +247,7 @@ for (const lang of LANGS) {
           title: String(L(lang, page.title)).replace(/<[^>]*>/g, ''),
           group: g?.id || '',
           groupLabel: g ? L(lang, g.label) : '',
-          text: `${strip(L(lang, page.description))} ${strip(content)}`.slice(0, 8000),
+          text: `${strip(L(lang, page.description))} ${strip(content)}`.slice(0, 40000),
           updated: eff || page.updated || page.published || '',
         });
       }

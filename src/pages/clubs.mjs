@@ -76,7 +76,6 @@ export default {
 <h3 class="ub-club__title">${L(c.title)}</h3>
 <p class="ub-club__text">${L(c.text)}</p>
 <ul class="ub-club__skills" role="list" aria-label="${L(X('Дамытатын дағдылар', 'Развиваемые навыки', 'Skills'))}">${c.skills.map((s) => `<li>${L(s)}</li>`).join('')}</ul>
-<p class="ub-club__foot">${ui.icon('clock', { size: 16 })}<span>${L(X('Кесте мен сыныптар нақтылануда', 'Расписание и классы уточняются', 'Schedule and grades to be confirmed'))}</span></p>
 ${ui.icon(c.icon, { size: 150, cls: 'ub-club__doodle' })}</li>`).join('')}
 <li class="ub-club ub-club--more pattern" data-theme="math" id="club-curriculum">
 <span class="ub-club__kind">${L(X('Үйірме емес — сабақта', 'Не кружок — на уроках', 'Not a club — in lessons'))}</span>
@@ -85,16 +84,16 @@ ${ui.icon(c.icon, { size: 150, cls: 'ub-club__doodle' })}</li>`).join('')}
 <p class="ub-club__text">${L(X('Тереңдетілген және олимпиадалық математика мен Сингапур математикасын мектеп үйірме ретінде емес, оқу бағдарламасы ретінде жариялаған.', 'Углублённую и олимпиадную математику и сингапурскую математику школа заявляет как учебные программы, а не как кружки.', 'The school advertises in-depth and olympiad maths and Singapore maths as teaching programmes, not as clubs.'))}</p>
 <p class="ub-club__foot">${ui.icon('arrow-right', { size: 16 })}<span>${L(X('«Оқу жоспары мен бағдарламалар» бетінде', 'На странице «Учебный план и программы»', 'See the Curriculum page'))}</span></p>
 ${ui.icon('calculator', { size: 150, cls: 'ub-club__doodle' })}</li></ul>`;
-    const freeNote = `<p class="ub-free-note">${ui.icon('info', { size: 20 })}<span>${L(X(
+    const freeNote = ui.more({ tone: 'card', icon: 'info', label: X('Тегін үйірмелер туралы', 'О бесплатных кружках', 'About free clubs'), body: `<p class="ub-free-note">${ui.icon('info', { size: 20 })}<span>${L(X(
       `<strong>Тегін үйірмелер туралы.</strong> Мектептің Instagram парақшасында «Тегін үйірмелер» деп көрсетілген. Әр үйірменің шарттарын (тегін бе, қай сыныптарға, орын саны) мектеп нақтылап жатыр — жазылмас бұрын <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a> нөміріне хабарласыңыз.`,
       `<strong>О бесплатных кружках.</strong> На странице школы в Instagram указано: «Тегін үйірмелер» (бесплатные кружки). Условия каждого кружка (бесплатно ли, для каких классов, число мест) школа уточняет — перед записью позвоните по номеру <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`,
       `<strong>About free clubs.</strong> The school’s Instagram profile says “Тегін үйірмелер” (free clubs). The school is confirming the terms of each club (whether it is free, which grades, how many places), so please call <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a> before signing up.`,
-    ))}</span></p>`;
-    const srcNote = ui.note(X(
+    ))}</span></p>` });
+    const srcNote = ui.more({ icon: 'instagram', label: X('Дереккөз', 'Источник', 'Source'), body: X(
       `Бағыттар мектептің Instagram парақшасындағы «Тегін үйірмелер» деген мәлімет пен 12.08.2025 жарияланған қабылдау хабарландыруы (${ui.extLink(POST, 'instagram.com')}) бойынша көрсетілген. Бағыттардың қысқа сипаттамасы — ата-аналарға арналған түсіндірме.`,
       `Направления указаны по данным страницы школы в Instagram («Тегін үйірмелер» — бесплатные кружки) и объявлению о приёме от 12.08.2025 (${ui.extLink(POST, 'instagram.com')}). Краткие описания — пояснения для родителей.`,
       `Directions are listed from the school’s Instagram profile (“Тегін үйірмелер” — free clubs) and the admission announcement of 12.08.2025 (${ui.extLink(POST, 'instagram.com')}). The short descriptions are ours, for parents.`,
-    ));
+    ) });
 
     // ---------------------------------------------------------------- schedule & coverage
     const rowsData = Array.isArray(S.clubs) ? S.clubs.filter((r) => r && (r.days || r.leader)) : [];
@@ -105,18 +104,19 @@ ${ui.icon('calculator', { size: 150, cls: 'ub-club__doodle' })}</li></ul>`;
         head: [X('Үйірме', 'Кружок', 'Club'), X('Сыныптар', 'Классы', 'Grades'), X('Күндері мен уақыты', 'Дни и время', 'Days and time'), X('Кабинет', 'Кабинет', 'Room'), X('Жетекшісі', 'Руководитель', 'Leader'), X('Қатысушылар', 'Участники', 'Participants')],
         rows: rowsData.map((r) => [L(byId[r.id]?.title || r.title || r.id), L(r.grades || ''), L(r.days || ''), L(r.room || ''), L(r.leader || ''), String(r.participants ?? '')]),
       }) + (S.clubsCoverage ? ui.note(X(`Оқушыларды үйірмелермен қамту: ${S.clubsCoverage}`, `Охват учеников кружками: ${S.clubsCoverage}`, `Pupils attending clubs: ${S.clubsCoverage}`)) : '')
-      : ui.pending({
+      : ui.pendingGroup(lang, [{
         title: X('Үйірмелер кестесі жарияланады', 'Расписание кружков будет опубликовано', 'The club timetable will be published'),
         note: X(
           `2026–2027 оқу жылының кестесі бекітілгеннен кейін мұнда әр үйірменің күндері, уақыты, сыныптары және жетекшісі жарияланады. Оған дейін кестені <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a> нөмірі арқылы біле аласыз.`,
           `Когда расписание на 2026–2027 учебный год будет утверждено, здесь появятся дни, время, классы и руководитель каждого кружка. А пока расписание можно узнать по номеру <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`,
           `Once the 2026–2027 timetable is approved, the days, times, grades and leader of every club will appear here. Until then, ask about the timetable on <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`,
         ),
-      });
+      }, { title: X('Кесте мен сыныптар нақтылануда', 'Расписание и классы уточняются', 'Schedule and grades to be confirmed') }], { title: X('Үйірмелер кестесі дайындалуда', 'Расписание кружков готовится', 'The club timetable is in preparation') })
+        + `<p class="ub-ask">${ui.icon('phone', { size: 18 })}<span>${L(X('Қазір кестені телефон арқылы біліңіз:', 'Пока расписание можно узнать по телефону:', 'For now, ask about the timetable by phone:'))} <a class="ub-nw" href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a></span></p>`;
     const scheduleDocs = ui.docList([
       docById('clubs-timetable'),
       docById('clubs-coverage'),
-    ]);
+    ], { groupPending: true });
 
     // ---------------------------------------------------------------- how to join
     const join = ui.steps([
@@ -142,7 +142,7 @@ ${ui.icon('calculator', { size: 150, cls: 'ub-club__doodle' })}</li></ul>`;
 
     return [
       intro,
-      ui.section({ id: 'directions', eyebrow: X('5 бағыт', '5 направлений', '5 directions'), title: X('Үйірмелер мен бағыттар', 'Кружки и направления', 'Clubs and directions'), lead: X('Әр карточкада — бағыт мазмұны және ол дамытатын дағдылар.', 'На каждой карточке — содержание направления и навыки, которые оно развивает.', 'Each card shows what the club is about and the skills it builds.'), body: freeNote + grid + srcNote }),
+      ui.section({ id: 'directions', eyebrow: X('5 бағыт', '5 направлений', '5 directions'), title: X('Үйірмелер мен бағыттар', 'Кружки и направления', 'Clubs and directions'), lead: X('Әр карточкада — бағыт мазмұны және ол дамытатын дағдылар.', 'На каждой карточке — содержание направления и навыки, которые оно развивает.', 'Each card shows what the club is about and the skills it builds.'), body: grid + `<div class="dz-row ub-row">${freeNote}${srcNote}</div>` }),
       ui.section({ id: 'schedule', tone: 'card', eyebrow: X('Кесте және қамту', 'Расписание и охват', 'Timetable and coverage'), title: X('Үйірмелер кестесі', 'Расписание кружков', 'Club timetable'), body: schedule + scheduleDocs }),
       ui.section({ id: 'join', eyebrow: X('Қалай жазылуға болады', 'Как записаться', 'How to join'), title: X('Үш қарапайым қадам', 'Три простых шага', 'Three simple steps'), body: join }),
       ui.section({ id: 'gallery', eyebrow: X('Фото', 'Фото', 'Photos'), title: X('Үйірме өмірінен', 'Из жизни кружков', 'Club life'), body: photos }),

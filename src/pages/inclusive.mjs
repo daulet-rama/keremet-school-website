@@ -1,7 +1,7 @@
 // Education group — Inclusive education & special educational needs (ORDER-114 §F item 49).
 // Rules of the psych-ped support service: order №92 (29.04.2025, ed. №144-НҚ of 29.05.2026); SEN assessment: order №4;
 // PMPC state service: order №223. Texts read 24.09.2026. Building accessibility: 2GIS (school.mjs).
-import { actItems, actRef, checkedNote } from './curriculum.mjs';
+import { actLegal, actRef, pendLine } from './curriculum.mjs';
 
 const X = (kz, ru, en) => ({ kz, ru, en });
 
@@ -28,13 +28,18 @@ export default {
       ratio: '3:2', align: 'center',
       left: `${ui.eyebrow(X('Әр балаға — өз жолы', 'Каждому ребёнку — свой путь', 'A path for every child'))}
 <h2 class="sec__title">${L(X('Мектеп балаға бейімделеді', 'Школа подстраивается под ребёнка', 'The school adapts to the child'))}</h2>
-${ui.lead(X(
-        'Ерекше білім беру қажеттіліктері (ЕББҚ) бар балалар — білім алу үшін тұрақты немесе уақытша арнайы жағдайларды қажет ететін балалар. Бұл тек мүмкіндігі шектеулі балалар ғана емес: мінез-құлық пен эмоциялық қиындықтар, тілдік, әлеуметтік немесе мәдени кедергілер де ЕББҚ-ға жатады.',
-        'Дети с особыми образовательными потребностями (ООП) — это дети, которым постоянно или временно нужны специальные условия для получения образования. Это не только дети с ограниченными возможностями: к ООП относятся и поведенческие и эмоциональные трудности, языковые, социальные или культурные барьеры.',
-        'Children with special educational needs (SEN) need special conditions for learning, permanently or for a time. This covers not only disability but also behavioural and emotional difficulties and language, social or cultural barriers.'))}
-<p class="edu-src">${L(X('Анықтамалар: ', 'Определения: ', 'Definitions: '))}${ref('sppc')}</p>`,
+${ui.tldr({ points: [
+        { icon: 'heart', text: X('<strong>ЕББҚ</strong> — балаға оқу үшін тұрақты немесе уақытша арнайы жағдай қажет болғанда.', '<strong>ООП</strong> — когда ребёнку постоянно или временно нужны особые условия для учёбы.', '<strong>SEN</strong> means a child needs special conditions to learn, permanently or for a time.') },
+        { icon: 'users', text: X('Тек мүмкіндігі шектеулі балалар ғана емес: эмоциялық, тілдік, әлеуметтік қиындықтар да.', 'Не только инвалидность: также эмоциональные, языковые и социальные трудности.', 'Not only disability: emotional, language and social difficulties too.') },
+        { icon: 'lock', text: X('Кез келген диагностика — тек <strong>ата-ананың жазбаша келісімімен</strong>.', 'Любая диагностика — только с <strong>письменного согласия родителей</strong>.', 'Any diagnostics only with <strong>written parental consent</strong>.') },
+      ] })}`,
       right: '<!--toc-->',
     });
+    const introLead = X(
+        'Ерекше білім беру қажеттіліктері (ЕББҚ) бар балалар — білім алу үшін тұрақты немесе уақытша арнайы жағдайларды қажет ететін балалар. Бұл тек мүмкіндігі шектеулі балалар ғана емес: мінез-құлық пен эмоциялық қиындықтар, тілдік, әлеуметтік немесе мәдени кедергілер де ЕББҚ-ға жатады.',
+        'Дети с особыми образовательными потребностями (ООП) — это дети, которым постоянно или временно нужны специальные условия для получения образования. Это не только дети с ограниченными возможностями: к ООП относятся и поведенческие и эмоциональные трудности, языковые, социальные или культурные барьеры.',
+        'Children with special educational needs (SEN) need special conditions for learning, permanently or for a time. This covers not only disability but also behavioural and emotional difficulties and language, social or cultural barriers.');
+    const introSrc = `<p class="edu-src">${L(X('Анықтамалар: ', 'Определения: ', 'Definitions: '))}${ref('sppc')}</p>`;
 
     const access = ui.stats([
       { icon: 'accessible', value: X('Бар', 'Есть', 'Yes'), label: X('Пандус', 'Пандус', 'Ramp'), note: X('мектеп нақтылап жатыр', 'уточняется школой', 'being confirmed by the school') },
@@ -56,7 +61,8 @@ ${ui.lead(X(
       [X('Қолдау қызметі мамандарының деңгейі', 'Уровень специалистов службы', 'Support-service level'), X('Педагог-психолог, әлеуметтік педагог, арнайы педагог жеке дамыту және түзету-дамыту бағдарламаларымен жұмыс істейді.', 'Педагог-психолог, социальный педагог, специальный педагог работают по индивидуально развивающим и коррекционно-развивающим программам.', 'Psychologist, social pedagogue and special-needs teacher run individual and corrective programmes.')],
       [X('Ұйым деңгейі', 'Уровень организации', 'School level'), X('Тар бейінді мамандар (сурдопедагог, тифлопедагог) тартылады, мүдделі органдармен өзара іс-қимыл жасалады.', 'Привлекаются узкие специалисты (сурдопедагог, тифлопедагог), взаимодействие с заинтересованными органами.', 'Specialists (teachers of the deaf or blind) are involved, with partner agencies.')],
     ].map(([t, s], i) => `<div style="--i:${i}"><b>${i + 1}</b><p><strong>${L(t)}</strong>${L(s)}</p></div>`).join('')}</div>`;
-    const levelsNote = ui.note(X(`Қолдаудың үш деңгейі — ${ref('sppc', '№ 92 қағидалар, 10-т.')}.`, `Три уровня сопровождения — ${ref('sppc', 'правила № 92, п. 10')}.`, `Three levels of support — ${ref('sppc', 'rules No. 92, para. 10')}.`));
+    const levelsNote = ui.legal(X(`Қолдаудың үш деңгейі — ${ref('sppc', '№ 92 қағидалар, 10-т.')}.`, `Три уровня сопровождения — ${ref('sppc', 'правила № 92, п. 10')}.`, `Three levels of support — ${ref('sppc', 'rules No. 92, para. 10')}.`));
+    const algoTitles = [X('Мұғалім байқайды', 'Учитель замечает', 'The teacher notices'), X('Қызметке хабарлайды', 'Сообщает в службу', 'Informs the service'), X('Тереңдетілген зерттеу', 'Углублённое изучение', 'In-depth study'), X('Жеке қолдау бағдарламасы', 'Индивидуальная программа поддержки', 'Individual support plan'), X('Мониторинг', 'Мониторинг', 'Monitoring'), X('Қажет болса — ПМПК', 'При необходимости — ПМПК', 'If needed — PMPC')];
 
     // ------------------------------------------------------------ algorithm
     const algo = ui.steps([
@@ -93,15 +99,11 @@ ${ui.lead(X(
     });
 
     // ------------------------------------------------------------ Keremet (pending)
-    const keremet = ui.grid({ cols: 2, items: [
-      ui.pending({ title: X('Мектептегі қолдау қызметі', 'Служба сопровождения в школе', 'The school’s support service'), note: X('Қызмет құрамы (директор бекіткен бұйрық), мамандар: педагог-психолог, әлеуметтік педагог, логопед, арнайы педагог, педагог-ассистент — бар болса; қабылдау кестесі.', 'Состав службы (приказ директора), специалисты: педагог-психолог, социальный педагог, логопед, специальный педагог, педагог-ассистент — при наличии; график приёма.', 'Service membership (director’s order) and specialists — psychologist, social pedagogue, speech therapist, special-needs teacher, assistant, if any; consultation hours.') }),
-      ui.pending({ title: X('ЕББҚ бар оқушылар және жеке бағдарламалар', 'Обучающиеся с ООП и индивидуальные программы', 'Pupils with SEN and individual plans'), note: X('Жеке деректерсіз жалпы мәлімет: ЕББҚ бар оқушылар саны, әзірленген ЖПҚБ саны, ПМПК ұсынымдарының орындалуы.', 'Обобщённо, без персональных данных: число обучающихся с ООП, количество ИППС, выполнение рекомендаций ПМПК.', 'Aggregate data only: number of pupils with SEN, individual plans, implementation of PMPC recommendations.') }),
-      ui.pending({ title: X('Кедергісіз орта: толық сипаттама', 'Доступная среда: полное описание', 'Accessibility: full description'), note: X('Пандус пен кіреберістен басқа: бейімделген дәретхана, тұтқалар, жарықтандыру, мүмкіндігі шектеулі жандарға арналған тұрақ орны, көмек көрсететін жауапты қызметкер.', 'Помимо пандуса и входа: адаптированный санузел, поручни, освещение, парковочное место для людей с инвалидностью, ответственный сотрудник для помощи.', 'Beyond the ramp: adapted toilet, handrails, lighting, disabled parking bay, a staff member to assist.') }),
-      ui.docList([
-        docById('spps-order'),
-        docById('spps-plan'),
-      ]),
-    ] });
+    const keremet = pendLine(ui, lang, { items: [
+      ({ title: X('Мектептегі қолдау қызметі', 'Служба сопровождения в школе', 'The school’s support service'), note: X('Қызмет құрамы (директор бекіткен бұйрық), мамандар: педагог-психолог, әлеуметтік педагог, логопед, арнайы педагог, педагог-ассистент — бар болса; қабылдау кестесі.', 'Состав службы (приказ директора), специалисты: педагог-психолог, социальный педагог, логопед, специальный педагог, педагог-ассистент — при наличии; график приёма.', 'Service membership (director’s order) and specialists — psychologist, social pedagogue, speech therapist, special-needs teacher, assistant, if any; consultation hours.') }),
+      ({ title: X('ЕББҚ бар оқушылар және жеке бағдарламалар', 'Обучающиеся с ООП и индивидуальные программы', 'Pupils with SEN and individual plans'), note: X('Жеке деректерсіз жалпы мәлімет: ЕББҚ бар оқушылар саны, әзірленген ЖПҚБ саны, ПМПК ұсынымдарының орындалуы.', 'Обобщённо, без персональных данных: число обучающихся с ООП, количество ИППС, выполнение рекомендаций ПМПК.', 'Aggregate data only: number of pupils with SEN, individual plans, implementation of PMPC recommendations.') }),
+      ({ title: X('Кедергісіз орта: толық сипаттама', 'Доступная среда: полное описание', 'Accessibility: full description'), note: X('Пандус пен кіреберістен басқа: бейімделген дәретхана, тұтқалар, жарықтандыру, мүмкіндігі шектеулі жандарға арналған тұрақ орны, көмек көрсететін жауапты қызметкер.', 'Помимо пандуса и входа: адаптированный санузел, поручни, освещение, парковочное место для людей с инвалидностью, ответственный сотрудник для помощи.', 'Beyond the ramp: adapted toilet, handrails, lighting, disabled parking bay, a staff member to assist.') }),
+    ], docs: [docById('spps-order'), docById('spps-plan')] });
 
     // ------------------------------------------------------------ help
     const help = ui.split({
@@ -124,20 +126,31 @@ ${ui.lead(X(
       { id: 'help', label: X('Көмек', 'Помощь', 'Help') },
     ]);
 
+    // ------------------------------------------------------------ layer 1 visuals / layer 2 details
+    const flow = `<ol class="edu-flow" role="list">${algoTitles.map((t) => `<li>${L(t)}</li>`).join('')}</ol>`;
+    const adaptTiles = ui.cards([
+      { icon: 'book', title: X('Бейімделген бағдарламалар', 'Адаптированные программы', 'Adapted programmes') },
+      { icon: 'target', title: X('Бағалаудың өзгертілген тәсілдері', 'Изменённые способы оценивания', 'Adapted assessment') },
+      { icon: 'hourglass', title: X('Икемді әдістер', 'Гибкие методы', 'Flexible methods') },
+      { icon: 'user', title: X('Педагог-ассистент', 'Педагог-ассистент', 'Teaching assistant') },
+      { icon: 'accessible', title: X('Кедергісіз орта', 'Безбарьерная среда', 'Barrier-free environment') },
+      { icon: 'star', title: X('Сынақтардан босату', 'Освобождение от тестирования', 'Exemptions') },
+    ], { cols: 3, cls: 'edu-tiles' });
+    const whoMore = ui.more({ label: X('ЕББҚ дегеніміз не — толығырақ', 'Что такое ООП — подробнее', 'What SEN means — in full'), icon: 'book', tone: 'plain', body: ui.lead(introLead) + introSrc + ui.prose(X(
+        '<p>Психологиялық-педагогикалық қолдау ерекше білім беру қажеттіліктерін бағалау нәтижесі бойынша көрсетіледі. Бағалау тәртібін ерекше білім беру қажеттіліктерін бағалау қағидалары белгілейді.</p>',
+        '<p>Психолого-педагогическое сопровождение оказывается по результатам оценки особых образовательных потребностей, порядок которой устанавливают правила оценки ООП.</p>',
+        '<p>Support is provided after an assessment of special educational needs carried out under the SEN assessment rules.</p>')) });
+
     return [
       intro.replace('<!--toc-->', toc),
       access,
-      ui.section({ id: 'who', eyebrow: X('Ерекше білім беру қажеттіліктері', 'Особые образовательные потребности', 'Special educational needs'), title: X('Кімге қолдау қажет', 'Кому нужна поддержка', 'Who needs support'), body: ui.prose(X(
-        '<p>Психологиялық-педагогикалық қолдау ерекше білім беру қажеттіліктерін бағалау нәтижесі бойынша көрсетіледі. Бағалау тәртібін ерекше білім беру қажеттіліктерін бағалау қағидалары белгілейді.</p>',
-        '<p>Психолого-педагогическое сопровождение оказывается по результатам оценки особых образовательных потребностей, порядок которой устанавливают правила оценки ООП.</p>',
-        '<p>Support is provided after an assessment of special educational needs carried out under the SEN assessment rules.</p>')) + who }),
-      ui.section({ id: 'levels', tone: 'physics', eyebrow: X('Психологиялық-педагогикалық қолдау қызметі', 'Служба психолого-педагогического сопровождения', 'Support service'), title: X('Қолдау қалай ұйымдастырылады', 'Как организовано сопровождение', 'How support is organised'), body: levels + levelsNote + `<h3>${L(X('Қадамдар', 'Шаги', 'Steps'))}</h3>` + algo }),
+      ui.section({ id: 'who', eyebrow: X('Ерекше білім беру қажеттіліктері', 'Особые образовательные потребности', 'Special educational needs'), title: X('Кімге қолдау қажет', 'Кому нужна поддержка', 'Who needs support'), body: who + whoMore }),
+      ui.section({ id: 'levels', tone: 'physics', eyebrow: X('Психологиялық-педагогикалық қолдау қызметі', 'Служба психолого-педагогического сопровождения', 'Support service'), title: X('Қолдау қалай ұйымдастырылады', 'Как организовано сопровождение', 'How support is organised'), body: levels + `<h3>${L(X('Қадамдар', 'Шаги', 'Steps'))}</h3>` + flow + `<div class="dz-row">${ui.more({ label: X('Әр қадам толығырақ', 'Каждый шаг подробно', 'Each step in detail'), icon: 'sliders', count: 6, tone: 'card', body: algo })}${levelsNote}</div>` }),
       consent,
-      ui.section({ id: 'adapt', eyebrow: X('Арнайы жағдайлар', 'Специальные условия', 'Special conditions'), title: X('Оқытудағы бейімдеулер', 'Адаптации в обучении', 'Adaptations in learning'), body: adapt }),
-      ui.section({ id: 'pmpk', eyebrow: X('Мемлекеттік қызмет', 'Государственная услуга', 'State service'), title: X('Психологиялық-медициналық-педагогикалық консультация', 'Психолого-медико-педагогическая консультация', 'PMPC consultation'), body: pmpk }),
-      ui.section({ id: 'keremet', eyebrow: X('Мектептің деректері', 'Данные школы', 'School data'), title: X('«Керемет» мектебінде', 'В школе «Керемет»', 'At Keremet'), body: keremet }),
+      ui.section({ id: 'adapt', eyebrow: X('Арнайы жағдайлар', 'Специальные условия', 'Special conditions'), title: X('Оқытудағы бейімдеулер', 'Адаптации в обучении', 'Adaptations in learning'), body: adaptTiles + ui.more({ label: X('Бейімдеулер туралы толығырақ', 'Подробнее об адаптациях', 'More about the adaptations'), icon: 'book', count: 6, tone: 'plain', body: adapt }) }),
+      ui.section({ id: 'pmpk', eyebrow: X('Мемлекеттік қызмет', 'Государственная услуга', 'State service'), title: X('Психологиялық-медициналық-педагогикалық консультация', 'Психолого-медико-педагогическая консультация', 'PMPC consultation'), lead: X('ПМПК баланы тексеріп, оқыту жағдайлары бойынша ұсынымдар береді; қорытынды ата-ананың қолында болады.', 'ПМПК обследует ребёнка и даёт рекомендации по условиям обучения; заключение остаётся у родителей.', 'The PMPC examines the child and recommends learning conditions; parents keep the conclusion.'), body: `<div class="dz-row edu-pmpk-row">${ui.button({ href: 'https://egov.kz/', label: X('egov.kz порталы', 'Портал egov.kz', 'egov.kz portal'), kind: 'ghost', icon: 'ext', ext: true })}${ui.more({ label: X('ПМПК-ға қалай жүгінуге болады', 'Как обратиться в ПМПК', 'How to apply to the PMPC'), icon: 'medical', tone: 'card', body: pmpk, cls: 'edu-wide' })}</div>` }),
+      ui.section({ id: 'keremet', eyebrow: X('Мектептің деректері', 'Данные школы', 'School data'), title: X('«Керемет» мектебінде', 'В школе «Керемет»', 'At Keremet'), body: `<div class="dz-row edu-row">${keremet}${actLegal(ui, ['law', 'sppc', 'oop', 'pmpk', 'assess'], lang, { id: 'acts' })}</div>` }),
       ui.section({ id: 'help', title: X('Көмек және байланыс', 'Помощь и контакты', 'Help and contacts'), body: help }),
-      ui.section({ eyebrow: 'adilet.zan.kz', title: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), body: ui.linkList(actItems(['law', 'sppc', 'oop', 'pmpk', 'assess'], lang)) + ui.note(checkedNote) }),
     ].join('\n');
   },
 };

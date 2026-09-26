@@ -37,17 +37,18 @@ export default {
       { icon: 'user', value: '24', label: X('Заңның 24-бабы бойынша құқықтарыңыз', 'Ваши права по ст. 24 Закона', 'Your rights under Art. 24'), note: X('білу, түзету, жою, келісімді кері қайтару', 'знать, исправить, удалить, отозвать согласие', 'know, correct, delete, withdraw consent') },
     ], { cls: 'dx-stats' });
 
-    // ------------------------------------------------------------ operator
-    const operator = ui.facts([
+    // ------------------------------------------------------------ operator: key rows visible, full requisites under "More"
+    const opRows = [
       { k: X('Дербес деректер операторы', 'Оператор персональных данных', 'Personal data operator'), v: L(S.legal.fullName) },
+      { k: t('phone'), v: `<a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>` },
       { k: t('bin'), v: S.legal.bin, copy: S.legal.bin },
       { k: t('legalAddress'), v: `${S.addresses.legal.postcode}, ${L(S.addresses.legal.text)}` },
       { k: t('actualAddress'), v: `${S.addresses.actual.postcode}, ${L(S.addresses.actual.text)}` },
       { k: X('Директор', 'Директор', 'Director'), v: L(S.legal.director.name) },
-      { k: t('phone'), v: `<a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>` },
       { k: t('email'), v: mailOk ? ui.schoolEmail() : ui.badge(t('email.pending'), 'warn') },
       { k: X('Дербес деректерді өңдеуді ұйымдастыруға жауапты адам', 'Ответственный за организацию обработки персональных данных', 'Person responsible for personal data processing'), v: `${L(X('тағайындалғаннан кейін көрсетіледі (Заңның 25-бабы)', 'будет указан после назначения (ст. 25 Закона)', 'to be named after appointment (Art. 25)'))} ${ui.badge(X('күтілуде', 'ожидается', 'pending'), 'warn')}` },
-    ]);
+    ];
+    const operator = ui.facts(opRows.slice(0, 2)) + ui.more({ label: X('Оператордың барлық деректемелері', 'Все реквизиты оператора', 'All operator details'), icon: 'building', count: opRows.length - 2, body: ui.facts(opRows.slice(2)) });
 
     // ------------------------------------------------------------ what we collect
     const req = (s) => `${s}<span class="dx-req" aria-hidden="true">*</span>`;
@@ -88,6 +89,14 @@ export default {
         'When you submit a form, the data (together with your IP address) arrives as an e-mail in the school’s mailbox; the site has no database. Access to it must be limited to the staff handling the request. If sending fails, the site offers WhatsApp or e-mail instead — the message is then carried under those services’ own terms.',
       ),
     });
+    // Layer 1: the three forms as tiles; layer 2: the full table (fields, purposes) and where the data goes.
+    const FORMS = [
+      { icon: 'chat', href: href('feedback'), t: X('Кері байланыс', 'Обратная связь', 'Feedback') },
+      { icon: 'user', href: href('director-blog'), t: X('Директорға сұрақ', 'Вопрос директору', 'Question to the director') },
+      { icon: 'users', href: href('admission'), t: X('Қабылдауға өтінім', 'Заявка на приём', 'Admission request') },
+    ];
+    const formTiles = `<ul class="dx-tiles dx-tiles--3" role="list">${FORMS.map((f) => `<li class="dx-tile"><span class="dx-tile__ic" aria-hidden="true">${ui.icon(f.icon, { size: 20 })}</span><a class="dx-tile__t dx-tile__a" href="${f.href}">${L(f.t)}</a></li>`).join('')}</ul>`;
+    const collectBlock = `${ui.lead(X('Деректер тек осы үш нысан арқылы және тек сіздің келісіміңізбен жиналады; олар мектептің поштасына хат болып келеді.', 'Данные собираются только через эти три формы и только с вашего согласия; они приходят письмом на почту школы.', 'Data is collected only through these three forms and only with your consent; it arrives as an e-mail to the school.'))}${formTiles}${ui.more({ label: X('Қандай өрістер және не үшін (кесте)', 'Какие поля и зачем (таблица)', 'Which fields and why (table)'), icon: 'grid', count: 4, tone: 'plain', body: collect + howSent })}`;
 
     // ------------------------------------------------------------ browser storage & third parties
     const storage = ui.table({
@@ -106,10 +115,12 @@ export default {
       { icon: 'pin', title: 'OpenStreetMap', text: X('Карта бар беттерде OpenStreetMap картасы енгізілген; ол ашылғанда браузер карта серверіне сұраныс жібереді.', 'На страницах с картой встроена карта OpenStreetMap; при её показе браузер обращается к серверу карт.', 'Pages with a map embed OpenStreetMap; showing it makes your browser contact the map server.') },
       { icon: 'ext', title: X('Сыртқы сілтемелер', 'Внешние ссылки', 'External links'), text: X('Instagram, WhatsApp, 2GIS, egov.kz, adilet.zan.kz және басқа сайттардың өз құпиялылық саясаттары бар.', 'У Instagram, WhatsApp, 2GIS, egov.kz, adilet.zan.kz и других сайтов свои политики конфиденциальности.', 'Instagram, WhatsApp, 2GIS, egov.kz, adilet.zan.kz and other sites have their own privacy policies.') },
     ], { cols: 3 });
+    const storageBlock = `${ui.lead(X('Cookie, аналитика және жарнама жоқ. Браузерде тек үш баптау сақталады: тіл, нашар көретіндерге арналған нұсқа және анимация.', 'Никаких cookie, аналитики и рекламы. В браузере хранятся только три настройки: язык, версия для слабовидящих и анимация.', 'No cookies, analytics or advertising. Your browser keeps only three settings: language, low-vision version and animation.'))}
+<div class="dz-row">${ui.more({ label: X('Браузердегі баптаулар', 'Настройки в браузере', 'Settings in your browser'), icon: 'sliders', count: 3, tone: 'card', body: storage + storageNote })}${ui.more({ label: X('Сыртқы қызметтер', 'Внешние сервисы', 'Third-party services'), icon: 'globe', count: 3, tone: 'card', body: third })}</div>`;
 
-    // ------------------------------------------------------------ principles (the law)
+    // ------------------------------------------------------------ principles (the law) — all folded
     const principles = ui.accordion([
-      { q: X('Қандай негізде өңдейміз', 'На каком основании мы обрабатываем данные', 'Legal basis'), open: true, a: `<p>${L(X(`Дербес деректер сіздің немесе заңды өкіліңіздің келісімімен жиналады және өңделеді (${law(7)}, ${law(8)}). Нысандағы «келісемін» белгісі — осы келісім; онсыз нысан жіберілмейді.`, `Персональные данные собираются и обрабатываются с согласия субъекта или его законного представителя (${law(7)}, ${law(8)}). Отметка «согласен» в форме — это согласие; без неё форма не отправляется.`, `Personal data is collected and processed with the consent of the data subject or their legal representative (${law(7)}, ${law(8)}). The consent tick box in each form is that consent; the form cannot be sent without it.`))}</p>` },
+      { q: X('Қандай негізде өңдейміз', 'На каком основании мы обрабатываем данные', 'Legal basis'), a: `<p>${L(X(`Дербес деректер сіздің немесе заңды өкіліңіздің келісімімен жиналады және өңделеді (${law(7)}, ${law(8)}). Нысандағы «келісемін» белгісі — осы келісім; онсыз нысан жіберілмейді.`, `Персональные данные собираются и обрабатываются с согласия субъекта или его законного представителя (${law(7)}, ${law(8)}). Отметка «согласен» в форме — это согласие; без неё форма не отправляется.`, `Personal data is collected and processed with the consent of the data subject or their legal representative (${law(7)}, ${law(8)}). The consent tick box in each form is that consent; the form cannot be sent without it.`))}</p>` },
       { q: X('Тек нақты мақсат үшін', 'Только для конкретной цели', 'Purpose limitation'), a: `<p>${L(X(`Деректер тек жоғарыдағы кестеде көрсетілген мақсаттарға қажетті көлемде жиналады. Жариялау, жарнама немесе сату үшін пайдаланылмайды (${law(7)}, 8-тармақ; ${law(12)}).`, `Данные собираются только в объёме, нужном для целей из таблицы выше. Они не используются для рекламы, продажи или публикации (${law(7)}, п. 8; ${law(12)}).`, `Only the data needed for the purposes in the table above is collected. It is not used for advertising, sale or publication (${law(7)}(8); ${law(12)}).`))}</p>` },
       { q: X('Қайда және қанша уақыт сақталады', 'Где и сколько хранятся', 'Where and how long data is kept'), a: `<p>${L(X(`Заң бойынша дербес деректер Қазақстан Республикасының аумағындағы базада сақталады және оларды жинау мақсатына қол жеткізілгенге дейін сақталады; мақсатқа жеткеннен кейін жойылады (${law(12)}, ${law(18)}).`, `По закону персональные данные хранятся в базе на территории Республики Казахстан и до достижения целей их сбора; после этого они уничтожаются (${law(12)}, ${law(18)}).`, `By law, personal data is stored in a database located in Kazakhstan until the purpose of collection is achieved, and is then destroyed (${law(12)}, ${law(18)}).`))}</p>${ui.pending({ title: X('Нақтыланатын мәліметтер', 'Уточняемые сведения', 'Details to be confirmed'), note: X('Хостинг пен пошта серверінің орналасқан жері, өтініштер хаттарын (IP мекенжайымен бірге) сақтаудың нақты мерзімдері, хаттарға кімнің қол жеткізе алатыны және HTTPS қосылуы мектептің ішкі ережесі бекітіліп, сайт хостингке орналастырылғаннан кейін көрсетіледі.', 'Место размещения хостинга и почтового сервера, конкретные сроки хранения писем с обращениями (вместе с IP-адресом), круг лиц с доступом к ним и подключение HTTPS будут указаны после утверждения внутреннего положения школы и размещения сайта на хостинге.', 'The hosting and mail-server location, the exact retention period for request e-mails (including the IP address), who has access to them and the HTTPS setup will be stated once the school approves its internal policy and the site is hosted.') })}` },
       { q: X('Үшінші тұлғаларға беру', 'Передача третьим лицам', 'Sharing with third parties'), a: `<p>${L(X(`Заңда көзделген жағдайларды қоспағанда, нысандағы деректер үшінші тұлғаларға берілмейді. Шетелге трансшекаралық беру тек ${law(16)} талаптарына сәйкес мүмкін.`, `Данные из форм не передаются третьим лицам, кроме случаев, предусмотренных законом. Трансграничная передача возможна только в соответствии со ${law(16)}.`, `Form data is not shared with third parties except where the law requires. Cross-border transfer is possible only as permitted by ${law(16)}.`))}</p>` },
@@ -118,15 +129,16 @@ export default {
       { q: X('Қорғау шаралары', 'Меры защиты', 'Security measures'), a: `<p>${L(X('Нысандар спамнан қорғалған (жасырын өріс, жіберу жиілігін шектеу), капча қолданылмайды. Талаптар: сайт тек HTTPS хаттамасы арқылы жұмыс істеуі тиіс, ал өтініштер хаттарына тек жауапты қызметкерлер ғана қол жеткізуі тиіс. Бұл шаралардың іске асырылуы жоғарыдағы «Нақтыланатын мәліметтер» блогында расталады.', 'Формы защищены от спама (скрытое поле, ограничение частоты отправки), без капчи. Требования: сайт должен работать только по протоколу HTTPS, а доступ к письмам с обращениями предоставляется только ответственным сотрудникам. Выполнение этих мер будет подтверждено в блоке «Уточняемые сведения» выше.', 'Forms are protected from spam (hidden field, rate limiting) without a captcha. Requirements: the site must run over HTTPS only, and access to request e-mails is given only to responsible staff. Their implementation will be confirmed in the “Details to be confirmed” block above.'))}</p>` },
     ]);
 
-    // ------------------------------------------------------------ rights
-    const rights = ui.cards([
+    // ------------------------------------------------------------ rights: 6 tiles (layer 1) + wording with articles (layer 2)
+    const RIGHTS = [
       { icon: 'eye', title: X('Білу', 'Знать', 'Know'), text: X('Мектепте сіздің қандай деректеріңіз бар, олар қайдан, не үшін және қанша уақыт өңделетінін білу (24-бап).', 'Знать, какие ваши данные есть у школы, откуда, зачем и как долго они обрабатываются (ст. 24).', 'Know what data the school holds about you, its source, purpose and processing period (Art. 24).') },
       { icon: 'doc', title: X('Танысу — тегін', 'Ознакомиться — бесплатно', 'Access free of charge'), text: X('Өз деректеріңізбен өтеусіз танысу (24-бап).', 'Безвозмездно ознакомиться со своими данными (ст. 24).', 'See your own data free of charge (Art. 24).') },
       { icon: 'check', title: X('Түзету', 'Исправить', 'Correct'), text: X('Растайтын құжаттар болса, деректерді өзгерту және толықтыру. Оператор мұны 1 жұмыс күні ішінде орындайды (25-бап).', 'Изменить и дополнить данные при подтверждающих документах. Оператор делает это в течение 1 рабочего дня (ст. 25).', 'Have data changed or completed with supporting documents — within 1 working day (Art. 25).') },
       { icon: 'lock', title: X('Бұғаттау және жою', 'Блокировать и удалить', 'Block and delete'), text: X('Заң бұзылып жиналған деректерді бұғаттауды және жоюды талап ету (24-бап).', 'Требовать блокирования и удаления данных, собранных с нарушением закона (ст. 24).', 'Demand blocking and deletion of data collected unlawfully (Art. 24).') },
       { icon: 'arrow-left', title: X('Келісімді кері қайтару', 'Отозвать согласие', 'Withdraw consent'), text: X('Оператор 15 жұмыс күні ішінде өңдеуді тоқтатады немесе дәлелді бас тарту береді (8-бап, 7-тармақ).', 'Оператор в течение 15 рабочих дней прекращает обработку или даёт мотивированный отказ (п. 7 ст. 8).', 'The operator stops processing within 15 working days or gives a reasoned refusal (Art. 8(7)).') },
       { icon: 'scale', title: X('Қорғау', 'Защита', 'Protection'), text: X('Құқықтарыңызды қорғау, оның ішінде зиянды өтеу; шағымдану заңда белгіленген тәртіппен (24, 30-баптар).', 'Защита прав, в том числе возмещение вреда; обжалование — в порядке, установленном законом (ст. 24, 30).', 'Protection of your rights, including compensation; appeals as set by law (Arts. 24, 30).') },
-    ], { cols: 3 });
+    ];
+    const rights = `<ul class="dx-tiles dx-tiles--3" role="list">${RIGHTS.map((r) => `<li class="dx-tile"><span class="dx-tile__ic" aria-hidden="true">${ui.icon(r.icon, { size: 20 })}</span><span class="dx-tile__t">${L(r.title)}</span></li>`).join('')}</ul>${ui.more({ label: X('Құқықтар толығырақ (мерзімдер, баптар)', 'Права подробнее (сроки, статьи закона)', 'Your rights in detail (time limits, articles)'), icon: 'scale', count: RIGHTS.length, body: ui.cards(RIGHTS, { cols: 3 }) })}`;
     const exercise = ui.steps([
       { title: X('Өтініш жазыңыз', 'Напишите запрос', 'Write to us'), text: mailOk
         ? X(`<a href="${href('feedback')}">Кері байланыс нысаны</a> арқылы, электрондық пошта (${ui.schoolEmail()}) арқылы немесе мектепке жазбаша.`, `Через <a href="${href('feedback')}">форму обратной связи</a>, по электронной почте (${ui.schoolEmail()}) или письменно в школу.`, `Via the <a href="${href('feedback')}">feedback form</a>, by e-mail (${ui.schoolEmail()}) or in writing to the school.`)
@@ -135,11 +147,15 @@ export default {
       { title: X('Жауап алыңыз', 'Получите ответ', 'Get an answer'), text: X('Мектеп заңда белгіленген мерзімде жауап береді; бас тартқан жағдайда дәлелді жауап береді.', 'Школа отвечает в сроки, установленные законом; при отказе — мотивированно.', 'The school answers within the legal time limits; any refusal is reasoned.') },
     ]);
 
-    const docs = ui.docList(docsByGroup('privacy'));
-    const version = ui.callout({
-      type: 'warn', icon: 'info',
-      title: X('Саясаттың редакциясы', 'Редакция политики', 'Policy version'),
-      text: X(`Осы беттегі редакция: ${fmt.date('2026-09-24')}. Ол сайттың нақты жұмысын сипаттайды. Мектеп басшылығы бекіткен «Дербес деректерді қорғау туралы ереже» PDF түрінде жүктеледі; өзгерістер осы бетте күні көрсетіліп жарияланады.`, `Редакция на этой странице: ${fmt.date('2026-09-24')}. Она описывает фактическую работу сайта. Утверждённое руководством школы «Положение о защите персональных данных» будет загружено в PDF; изменения публикуются на этой странице с датой.`, `Version on this page: ${fmt.date('2026-09-24')}. It describes how the site actually works. The school’s approved “Personal data protection policy” will be uploaded as a PDF; changes are published here with their date.`),
+    const docs = ui.docList(docsByGroup('privacy'), { groupPending: true });
+    const version = ui.more({
+      icon: 'info', tone: 'card',
+      summary: X(`<strong>Саясаттың редакциясы:</strong> ${fmt.date('2026-09-24')}. Ол сайттың нақты жұмысын сипаттайды.`, `<strong>Редакция политики:</strong> ${fmt.date('2026-09-24')}. Она описывает фактическую работу сайта.`, `<strong>Policy version:</strong> ${fmt.date('2026-09-24')}. It describes how the site actually works.`),
+      body: ui.callout({
+        type: 'warn', icon: 'info',
+        title: X('Саясаттың редакциясы', 'Редакция политики', 'Policy version'),
+        text: X(`Осы беттегі редакция: ${fmt.date('2026-09-24')}. Ол сайттың нақты жұмысын сипаттайды. Мектеп басшылығы бекіткен «Дербес деректерді қорғау туралы ереже» PDF түрінде жүктеледі; өзгерістер осы бетте күні көрсетіліп жарияланады.`, `Редакция на этой странице: ${fmt.date('2026-09-24')}. Она описывает фактическую работу сайта. Утверждённое руководством школы «Положение о защите персональных данных» будет загружено в PDF; изменения публикуются на этой странице с датой.`, `Version on this page: ${fmt.date('2026-09-24')}. It describes how the site actually works. The school’s approved “Personal data protection policy” will be uploaded as a PDF; changes are published here with their date.`),
+      }),
     });
 
     const related = ui.linkList([
@@ -166,9 +182,9 @@ export default {
       }),
       summary,
       ui.split({ ratio: '1:2', left: `<div class="dx-sticky">${toc}</div>`, right: ui.section({ id: 'operator', eyebrow: X('Кім өңдейді', 'Кто обрабатывает', 'Who processes'), title: X('Дербес деректер операторы', 'Оператор персональных данных', 'Personal data operator'), body: operator }) }),
-      ui.section({ id: 'collect', eyebrow: X('Нысандар', 'Формы', 'Forms'), title: X('Қандай деректер жиналады және не үшін', 'Какие данные собираются и зачем', 'What we collect and why'), body: collect + howSent }),
-      ui.section({ id: 'storage', eyebrow: X('Техникалық', 'Технически', 'Technical'), title: X('Браузер және сыртқы қызметтер', 'Браузер и внешние сервисы', 'Your browser and third-party services'), body: ui.split({ ratio: '3:2', align: 'start', left: storage, right: storageNote }) + `<h3 class="dx-subh">${L(X('Сыртқы қызметтер', 'Внешние сервисы', 'Third-party services'))}</h3>` + third }),
-      ui.section({ id: 'rules', tone: 'tint', eyebrow: X('Заң талаптары', 'Требования закона', 'What the law requires'), title: X('Өңдеу қағидаттары', 'Принципы обработки', 'Processing principles'), body: principles }),
+      ui.section({ id: 'collect', eyebrow: X('Нысандар', 'Формы', 'Forms'), title: X('Қандай деректер жиналады және не үшін', 'Какие данные собираются и зачем', 'What we collect and why'), body: collectBlock }),
+      ui.section({ id: 'storage', eyebrow: X('Техникалық', 'Технически', 'Technical'), title: X('Браузер және сыртқы қызметтер', 'Браузер и внешние сервисы', 'Your browser and third-party services'), body: storageBlock }),
+      ui.section({ id: 'rules', tone: 'tint', eyebrow: X('Заң талаптары', 'Требования закона', 'What the law requires'), title: X('Өңдеу қағидаттары', 'Принципы обработки', 'Processing principles'), lead: X('Заң талаптары — тақырыптар бойынша; керегін ашыңыз.', 'Требования закона — по темам; откройте нужную.', 'What the law requires, by topic — open the one you need.'), body: principles }),
       ui.section({ id: 'rights', eyebrow: X('Заңның 24-бабы', 'Статья 24 Закона', 'Article 24'), title: X('Сіздің құқықтарыңыз', 'Ваши права', 'Your rights'), body: rights + `<h3 class="dx-subh">${L(X('Құқығыңызды қалай пайдалануға болады', 'Как воспользоваться правами', 'How to exercise your rights'))}</h3>` + exercise }),
       ui.section({ id: 'policy-docs', title: X('Құжаттар және редакция', 'Документы и редакция', 'Documents and version'), body: docs + version }),
       ui.section({ title: X('Пайдалы сілтемелер', 'Полезные ссылки', 'Useful links'), body: related }),

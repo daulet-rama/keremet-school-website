@@ -48,11 +48,11 @@ export default {
     // ---------------------------------------------------------------- flag & emblem
     const symCard = ({ cls, img, alt, w, h, tag, name, desc, chips, links }) => `<article class="ab-sym__card">
 <div class="ab-sym__art ab-sym__art--${cls}"><span class="ab-sym__tag">${tag}</span><img src="${asset(img)}" alt="${L(alt)}" width="${w}" height="${h}" loading="lazy"></div>
-<div class="ab-sym__body"><h3 class="ab-sym__name">${L(name)}</h3><p class="ab-sym__desc">${L(desc)}</p><div class="ab-sym__facts">${chips.map((c) => pill('law', c)).join('')}</div><p class="ab-src">${links}</p></div></article>`;
+<div class="ab-sym__body"><h3 class="ab-sym__name">${L(name)}</h3><div class="ab-sym__facts">${chips.map((c) => pill('law', c)).join('')}</div>${ui.more({ label: X('Ресми сипаттамасы', 'Официальное описание', 'Official description'), icon: 'doc', tone: 'tint', body: `<p class="ab-sym__desc">${L(desc)}</p><p class="ab-rule__law">${L(X(`Конституциялық заң, ${art(1)}`, `Конституционный закон, ${art(1)}`, `Constitutional Law, ${art(1)}`))}</p>` })}<p class="ab-src">${links}</p></div></article>`;
     const flag = symCard({
       cls: 'flag', img: 'img/symbols/flag-kazakhstan.svg', w: 1000, h: 500,
       alt: X('Қазақстан Республикасының Мемлекеттік Туы: көгілдір матада алтын түсті күн, қыран және ұлттық өрнек', 'Государственный Флаг Республики Казахстан: на голубом полотнище золотые солнце, парящий орёл и национальный орнамент', 'State Flag of Kazakhstan: a golden sun, soaring eagle and national ornament on a sky-blue field'),
-      tag: pill('ok', X(`Конституциялық заң, ${art(1)}`, `Конституционный закон, ${art(1)}`, `Constitutional Law, ${art(1)}`), 'check'),
+      tag: pill('ok', X('Ресми рәміз', 'Официальный символ', 'Official symbol'), 'check'),
       name: X('Мемлекеттік Ту', 'Государственный Флаг', 'State Flag'),
       desc: X(
         'Ортасында шұғылалы күн, оның астында қалықтап ұшқан қыран бейнеленген тік бұрышты көгілдір түсті мата. Тудың сабының тұсында ұлттық өрнек тік жолақ түрінде нақышталған. Күн, оның шұғыласы, қыран және ұлттық өрнек бейнесі алтын түстес. Тудың ені мен ұзындығының арақатынасы — 1:2.',
@@ -64,7 +64,7 @@ export default {
     const emblem = symCard({
       cls: 'emblem', img: 'img/symbols/emblem-kazakhstan.svg', w: 400, h: 400,
       alt: X('Қазақстан Республикасының Мемлекеттік Елтаңбасы: көгілдір аядағы алтын шаңырақ, қанатты пырақтар, бес бұрышты жұлдыз және QAZAQSTAN жазуы', 'Государственный Герб Республики Казахстан: золотой шанырак на голубом фоне, крылатые кони, пятиконечная звезда и надпись QAZAQSTAN', 'State Emblem of Kazakhstan: a golden shanyrak on blue, winged horses, a five-pointed star and the word QAZAQSTAN'),
-      tag: pill('ok', X(`Конституциялық заң, ${art(1)}`, `Конституционный закон, ${art(1)}`, `Constitutional Law, ${art(1)}`), 'check'),
+      tag: pill('ok', X('Ресми рәміз', 'Официальный символ', 'Official symbol'), 'check'),
       name: X('Мемлекеттік Елтаңба', 'Государственный Герб', 'State Emblem'),
       desc: X(
         'Дөңгелек нысанды, көгілдір түс аясындағы шаңырақ (киіз үйдің жоғарғы күмбез тәрізді бөлігі), шаңырақты айнала күн сәулесіндей тарап уықтар шаншылған. Шаңырақтың оң жағы мен сол жағында аңыздардағы қанатты пырақтар бейнесі орналасқан. Жоғарғы бөлігінде — бес бұрышты көлемді жұлдыз, төменгі бөлігінде — «QAZAQSTAN» деген жазу. Барлық бейнелер алтын түстес.',
@@ -73,7 +73,7 @@ export default {
       chips: [X('Қабылданды: 1992', 'Принят: 1992', 'Adopted: 1992'), X('Авторлары: Ж. Мәлібеков, Ш. Уәлиханов', 'Авторы: Ж. Малибеков, Ш. Уалиханов', 'Designers: Zh. Malibekov, Sh. Ualikhanov')],
       links: `${L(X('Дереккөз', 'Источник', 'Source'))}: ${ui.extLink(AKORDA('kazakhstan_emblem', akLang), 'akorda.kz')}`,
     });
-    const symbolsNote = ui.note(X(
+    const symbolsNote = (X(
       'Ту мен Елтаңбаның эталондары Қазақстан Республикасы Президентінің Резиденциясында сақталады (1-бап). Сайттағы бейнелер ақпараттық мақсатта берілген; ресми файлдарды akorda.kz сайтынан жүктеп алуға болады.',
       'Эталоны Флага и Герба хранятся в Резиденции Президента Республики Казахстан (ст. 1). Изображения на сайте приведены в информационных целях; официальные файлы можно скачать на akorda.kz.',
       'The reference standards of the Flag and Emblem are kept at the Residence of the President (Art. 1). The images here are for information; official files can be downloaded from akorda.kz.'));
@@ -93,15 +93,19 @@ ${anthemText}${translation}
 <p class="ab-anthem__foot"><span>${L(X('Мәтін: «Қазақстан Республикасының мемлекеттік рәміздері туралы» Конституциялық заңның 3-қосымшасы', 'Текст: приложение 3 к Конституционному закону «О государственных символах Республики Казахстан»', 'Text: Appendix 3 to the Constitutional Law “On State Symbols of the Republic of Kazakhstan”'))}</span><span>${ui.extLink(LAW, 'adilet.zan.kz')} · ${ui.extLink(AKORDA('kazakhstan_anthem', akLang), X('akorda.kz — ноталары', 'akorda.kz — ноты', 'akorda.kz — sheet music'))}</span></p></div>`;
     const anthemAbout = ui.split({
       ratio: '1:1', align: 'start',
-      left: `<div class="prose">${L(X(
-        '<p>Қазіргі Гимн 2006 жылы қабылданды. Оның негізіне Шәмші Қалдаяқовтың 1956 жылы Жұмекен Нәжімеденовтің сөзіне жазған «Менің Қазақстаным» патриоттық әні алынды.</p><p>Гимн мемлекеттік тілде — бекітілген мәтіні мен музыкалық редакциясына дәлме-дәл сәйкес орындалады (9-бап, 3-т.).</p>',
-        '<p>Действующий Гимн принят в 2006 году. В его основу легла патриотическая песня «Менің Қазақстаным», написанная Шамши Калдаяковым в 1956 году на стихи Жумекена Нажимеденова.</p><p>Гимн исполняется на государственном (казахском) языке в точном соответствии с утверждённым текстом и музыкальной редакцией (ст. 9, п. 3). Официальный русский перевод текста на akorda.kz не публикуется, поэтому текст приводится на казахском языке.</p>',
-        '<p>The current anthem was adopted in 2006. It is based on the patriotic song “Menin Qazaqstanym”, written by Shamshi Kaldayakov in 1956 to words by Zhumeken Nazhimedenov.</p><p>The anthem is performed in the state (Kazakh) language exactly as the approved text and music (Art. 9(3)).</p>'))}</div>`,
-      right: ui.callout({ type: 'info', icon: 'heart', title: X('Гимн орындалғанда', 'Во время исполнения Гимна', 'When the anthem is played'), text: X('Қатысушылар оны орнынан тұрып айтады (тыңдайды), Қазақстан азаматтары оң қолын жүрек тұсына қояды (9-бап, 1-т.).', 'Присутствующие поют (выслушивают) его стоя, граждане Казахстана прикладывают правую руку к сердцу (ст. 9, п. 1).', 'Everyone stands to sing or listen; citizens of Kazakhstan place their right hand on their heart (Art. 9(1)).') }),
+      left: ui.more({
+        summary: X('Қазіргі Гимн 2006 жылы қабылданды.', 'Действующий Гимн принят в 2006 году.', 'The current anthem was adopted in 2006.'),
+        body: X(
+        '<p>Оның негізіне Шәмші Қалдаяқовтың 1956 жылы Жұмекен Нәжімеденовтің сөзіне жазған «Менің Қазақстаным» патриоттық әні алынды.</p><p>Гимн мемлекеттік тілде — бекітілген мәтіні мен музыкалық редакциясына дәлме-дәл сәйкес орындалады (9-бап, 3-т.).</p>',
+        '<p>В его основу легла патриотическая песня «Менің Қазақстаным», написанная Шамши Калдаяковым в 1956 году на стихи Жумекена Нажимеденова.</p><p>Гимн исполняется на государственном (казахском) языке в точном соответствии с утверждённым текстом и музыкальной редакцией (ст. 9, п. 3). Во время исполнения присутствующие встают, граждане прикладывают правую руку к сердцу (ст. 9, п. 1). Официальный русский перевод текста на akorda.kz не публикуется, поэтому текст приводится на казахском языке.</p>',
+        '<p>It is based on the patriotic song “Menin Qazaqstanym”, written by Shamshi Kaldayakov in 1956 to words by Zhumeken Nazhimedenov.</p><p>The anthem is performed in the state (Kazakh) language exactly as the approved text and music (Art. 9(3)). Everyone stands while it is played; citizens place their right hand on their heart (Art. 9(1)).</p>'),
+      }),
+      right: ui.callout({ type: 'info', icon: 'heart', title: X('Гимн орындалғанда', 'Во время исполнения Гимна', 'When the anthem is played'), text: X('Қатысушылар оны орнынан тұрып айтады (тыңдайды), Қазақстан азаматтары оң қолын жүрек тұсына қояды.', 'Присутствующие поют (выслушивают) его стоя, граждане Казахстана прикладывают правую руку к сердцу.', 'Everyone stands to sing or listen; citizens of Kazakhstan place their right hand on their heart.') }),
     });
 
     // ---------------------------------------------------------------- rules
-    const rule = (icon, t, d, a) => `<li class="ab-rule"><span class="ab-rule__ico">${ui.icon(icon, { size: 22 })}</span><p class="ab-rule__t">${L(t)}</p><p class="ab-rule__d">${L(d)}</p><p class="ab-rule__law">${L(a)}</p></li>`;
+    // Each rule is a card whose explanation and article open on click (native <details>: keyboard, Ctrl+F, print).
+    const rule = (icon, t, d, a) => `<li><details class="ab-rule"><summary class="ab-rule__s"><span class="ab-rule__ico">${ui.icon(icon, { size: 22 })}</span><span class="ab-rule__t">${L(t)}</span><span class="ab-rule__chev" aria-hidden="true"></span></summary><div class="ab-rule__b"><p class="ab-rule__d">${L(d)}</p><p class="ab-rule__law">${L(a)}</p></div></details></li>`;
     const rules = `<ul class="ab-rules" role="list">
 ${rule('shield', X('Құрметтеу — әркімнің міндеті', 'Уважать символы обязан каждый', 'Everyone must respect them'), X('Қазақстан азаматтары және Республика аумағында жүрген адамдар мемлекеттік рәміздерді құрметтеуге міндетті.', 'Граждане Казахстана и лица, находящиеся на территории Республики, обязаны уважать государственные символы.', 'Citizens and everyone present in Kazakhstan must respect the state symbols.'), X('13-бап, 1-т.', 'ст. 13, п. 1', 'Art. 13(1)'))}
 ${rule('flag', X('Ту көтерілгенде', 'При подъёме Флага', 'When the flag is raised'), X('Туды салтанатты көтеру Гимнмен қатар жүреді, қатысушылар жүздерін Туға қарай бұрады.', 'Торжественный подъём Флага сопровождается Гимном, присутствующие поворачиваются лицом к Флагу.', 'A ceremonial flag-raising is accompanied by the anthem; everyone turns to face the flag.'), X('9-бап, 1-т.', 'ст. 9, п. 1', 'Art. 9(1)'))}
@@ -117,15 +121,15 @@ ${rule('scale', X('Басқа тулармен бірге', 'Вместе с д�
     const atSchool = ui.split({
       ratio: '1:1', align: 'start',
       left: ui.banner({ theme: 'hero', icon: 'flag', eyebrow: X('4 маусым', '4 июня', '4 June'), title: X('Мемлекеттік рәміздер күні', 'День государственных символов', 'Day of State Symbols'), text: X('1992 жылғы 4 маусымда тәуелсіз Қазақстанның Туы мен Елтаңбасы бекітілді. Мектептің салтанатты рәсімдері мен іс-шаралары туралы — іс-шаралар күнтізбесінде.', '4 июня 1992 года были утверждены Флаг и Герб независимого Казахстана. О торжественных церемониях и мероприятиях школы — в календаре событий.', 'On 4 June 1992 the Flag and Emblem of independent Kazakhstan were approved. For the school’s ceremonies and events, see the events calendar.'), href: href('events'), label: X('Іс-шаралар күнтізбесі', 'Календарь событий', 'Events calendar') }),
-      right: ui.pending({ title: X('Мектептегі рәміздер бұрышы', 'Уголок государственных символов в школе', 'The school’s state-symbols corner'), note: X('Мектептегі мемлекеттік рәміздер орналастырылған орынның фотосы (13-бап, 2-т.), салтанатты рәсімдердің фотолары және рәміздерге арналған мектеп іс-шараларының тізбесі (өткізілген күні, атауы) жүктеледі.', 'Будут загружены фото места в школе, где размещены государственные символы (ст. 13, п. 2), фото торжественных церемоний и перечень школьных мероприятий, посвящённых символам (дата, название).', 'Photos of the place in the school where the state symbols are displayed (Art. 13(2)), photos of ceremonies and a list of the school’s symbol-related events (date, title) will be uploaded.') }),
+      right: `<div class="ab-symcorner"><span class="ab-symcorner__ico" aria-hidden="true">${ui.icon('flag', { size: 28 })}</span><h3 class="ab-symcorner__t">${L(X('Мектептегі рәміздер бұрышы', 'Уголок символов в школе', 'The school’s symbols corner'))}</h3><p class="ab-symcorner__x">${L(X('Ту, Елтаңба және Гимн мәтіні — көрнекті орында.', 'Флаг, Герб и текст Гимна — на видном месте.', 'Flag, emblem and anthem text on display.'))}</p>${ui.pendingGroup(lang, [{ title: X('Мектептегі рәміздер бұрышы', 'Уголок государственных символов в школе', 'The school’s state-symbols corner'), note: X('Мектептегі мемлекеттік рәміздер орналастырылған орынның фотосы (13-бап, 2-т.), салтанатты рәсімдердің фотолары және рәміздерге арналған мектеп іс-шараларының тізбесі (өткізілген күні, атауы) жүктеледі.', 'Будут загружены фото места в школе, где размещены государственные символы (ст. 13, п. 2), фото торжественных церемоний и перечень школьных мероприятий, посвящённых символам (дата, название).', 'Photos of the place in the school where the state symbols are displayed (Art. 13(2)), photos of ceremonies and a list of the school’s symbol-related events (date, title) will be uploaded.') }], { title: X('Фотолар дайындалуда', 'Фото готовятся', 'Photos in preparation') })}</div>`,
     });
 
-    const sources = ui.linkList([
-      { href: LAW, icon: 'scale', label: X('«Қазақстан Республикасының мемлекеттік рәміздері туралы» 2007 жылғы 4 маусымдағы № 258-III Конституциялық заң', 'Конституционный закон РК от 4 июня 2007 года № 258-III «О государственных символах Республики Казахстан»', 'Constitutional Law No. 258-III of 4 June 2007 “On State Symbols” (Russian/Kazakh)') },
-      { href: AKORDA('kazakhstan_flag', akLang), icon: 'flag', label: X('Ту — akorda.kz', 'Флаг — akorda.kz', 'Flag — akorda.kz') },
-      { href: AKORDA('kazakhstan_emblem', akLang), icon: 'shield', label: X('Елтаңба — akorda.kz', 'Герб — akorda.kz', 'Emblem — akorda.kz') },
-      { href: AKORDA('kazakhstan_anthem', akLang), icon: 'mic', label: X('Гимн — akorda.kz', 'Гимн — akorda.kz', 'Anthem — akorda.kz') },
-    ]);
+    const sources = ui.legal([
+      { href: LAW, title: X('«Қазақстан Республикасының мемлекеттік рәміздері туралы» 2007 жылғы 4 маусымдағы № 258-III Конституциялық заң', 'Конституционный закон РК от 4 июня 2007 года № 258-III «О государственных символах Республики Казахстан»', 'Constitutional Law No. 258-III of 4 June 2007 “On State Symbols” (Russian/Kazakh)') },
+      { href: AKORDA('kazakhstan_flag', akLang), title: X('Ту — akorda.kz', 'Флаг — akorda.kz', 'Flag — akorda.kz') },
+      { href: AKORDA('kazakhstan_emblem', akLang), title: X('Елтаңба — akorda.kz', 'Герб — akorda.kz', 'Emblem — akorda.kz') },
+      { href: AKORDA('kazakhstan_anthem', akLang), title: X('Гимн — akorda.kz', 'Гимн — akorda.kz', 'Anthem — akorda.kz') },
+    ], { title: X('Заң және ресми дереккөздер', 'Закон и официальные источники', 'Law and official sources'), note: symbolsNote, id: 'sources' });
     const related = ui.linkList([
       { href: href('about'), icon: 'school', label: X('Мектеп туралы', 'О школе', 'About the school') },
       { href: href('upbringing'), icon: 'heart', label: X('Тәрбие жұмысы', 'Воспитательная работа', 'Upbringing') },
@@ -136,7 +140,6 @@ ${rule('scale', X('Басқа тулармен бірге', 'Вместе с д�
       { id: 'anthem', label: X('Мемлекеттік Гимн', 'Государственный Гимн', 'State Anthem') },
       { id: 'rules', label: X('Рәміздерді құрметтеу ережелері', 'Правила уважения к символам', 'Rules of respect') },
       { id: 'school', label: X('Мектепте', 'В школе', 'At school') },
-      { id: 'sources', label: X('Ресми дереккөздер', 'Официальные источники', 'Official sources') },
     ]);
     const intro = ui.split({
       ratio: '2:1', align: 'start', cls: 'ab-intro',
@@ -145,17 +148,16 @@ ${rule('scale', X('Басқа тулармен бірге', 'Вместе с д�
         'Мемлекеттік рәміздер — еліміздің егемендігі мен бірлігінің белгісі. Оларды құрметтеуге және мән-мағынасын түсінуге тәрбиелеу — мектептің міндеттерінің бірі.',
         'Государственные символы — знак суверенитета и единства страны. Воспитывать уважение к ним и понимание их смысла — одна из задач школы.',
         'The state symbols stand for the country’s sovereignty and unity. Teaching respect for them and what they mean is one of the school’s tasks.'))}</p>
-<p class="ab-src">${L(X('Құқықтық негіз', 'Правовая основа', 'Legal basis'))}: ${ui.extLink(LAW, X('№ 258-III Конституциялық заң', 'Конституционный закон № 258-III', 'Constitutional Law No. 258-III'))}</p>`,
+${sources}`,
       right: toc,
     });
 
     return [
       intro,
-      ui.section({ id: 'flag-emblem', eyebrow: X('1-бап', 'Статья 1', 'Article 1'), title: X('Мемлекеттік Ту және Мемлекеттік Елтаңба', 'Государственный Флаг и Государственный Герб', 'State Flag and State Emblem'), body: `<div class="ab-sym">${flag}${emblem}</div>${symbolsNote}` }),
-      ui.section({ id: 'anthem', eyebrow: X('3-қосымша', 'Приложение 3', 'Appendix 3'), title: X('Мемлекеттік Гимн', 'Государственный Гимн', 'State Anthem'), body: anthem + anthemAbout }),
-      ui.section({ id: 'rules', eyebrow: X('Конституциялық заң', 'Конституционный закон', 'Constitutional Law'), title: X('Рәміздерді құрметтеу ережелері', 'Правила уважительного отношения к символам', 'Rules for honouring the symbols'), body: rules }),
+      ui.section({ id: 'flag-emblem', eyebrow: X('1992 жылдан', 'С 1992 года', 'Since 1992'), title: X('Мемлекеттік Ту және Мемлекеттік Елтаңба', 'Государственный Флаг и Государственный Герб', 'State Flag and State Emblem'), body: `<div class="ab-sym">${flag}${emblem}</div>` }),
+      ui.section({ id: 'anthem', eyebrow: X('Сөзі мен әні', 'Слова и музыка', 'Words and music'), title: X('Мемлекеттік Гимн', 'Государственный Гимн', 'State Anthem'), body: anthem + anthemAbout }),
+      ui.section({ id: 'rules', eyebrow: X('Құрмет', 'Уважение', 'Respect'), title: X('Рәміздерді құрметтеу ережелері', 'Правила уважительного отношения к символам', 'Rules for honouring the symbols'), lead: X('Сегіз негізгі ереже — толығырақ оқу үшін карточканы басыңыз.', 'Восемь главных правил — нажмите на карточку, чтобы прочитать подробнее.', 'Eight key rules — tap a card to read more.'), body: rules }),
       ui.section({ id: 'school', eyebrow: X('Keremet-те', 'В Keremet', 'At Keremet'), title: X('Мектептегі рәміздер', 'Символы в школе', 'The symbols at school'), body: atSchool }),
-      ui.section({ id: 'sources', title: X('Ресми дереккөздер', 'Официальные источники', 'Official sources'), body: sources }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');
   },

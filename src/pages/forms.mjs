@@ -46,9 +46,11 @@ export default {
         doc: docById('withdrawal-application'),
         online: `<a class="sa-form__more" href="${href('admission')}#leaving">${L(X('Шығу тәртібі', 'Порядок выбытия', 'How leaving works'))}${ui.icon('arrow-right', { size: 16 })}</a>` },
     ];
+    const isPend = (d) => d && !d.file && !d.url;
+    const pendDoc = (d) => `<p class="sa-form__title">${L(d.title)}</p>${d.note ? `<p class="sa-form__note">${L(d.note)}</p>` : ''}<p class="sa-form__status">${ui.icon('hourglass', { size: 14 })}<span>${t('doc.pending')}</span></p>`;
     const templates = `<ul class="sa-forms" role="list">${forms.map((f) => `<li class="sa-form sa-form--${f.id}" id="${f.id}">
 <div class="sa-form__head"><span class="sa-form__icon">${ui.icon(f.icon, { size: 22 })}</span><span class="sa-form__tag">${L(f.tag)}</span></div>
-<div class="sa-form__doc">${ui.docList([f.doc])}</div>
+<div class="sa-form__doc"${isPend(f.doc) ? ' data-pending' : ''}>${isPend(f.doc) ? pendDoc(f.doc) : ui.docList([f.doc])}</div>
 <div class="sa-form__svc"><p class="sa-form__svclabel">${L(X('Онлайн / қайда', 'Онлайн / где', 'Online / where'))}</p><div class="sa-form__btns">${f.online}</div></div>
 </li>`).join('')}</ul>`;
 
@@ -73,10 +75,15 @@ ${L(X('___ сыныпқа ______ оқыту тілімен қабылдауың�
 
     return [
       ui.section({ id: 'templates', eyebrow: X('Жүктеп алу', 'Скачать', 'Download'), title: X('Өтініш үлгілері', 'Образцы заявлений', 'Templates'), lead: X(
-        `Әр үлгінің жанында — сол өтінішті онлайн беруге арналған ресми қызмет. Мектеп бекіткен үлгілер жүктелгенге дейін төмендегі құрылымды пайдалануға болады. Қызметтердің тәртібі ${ui.extLink(R564, 'Қабылдаудың үлгілік қағидаларында')} бекітілген.`,
-        `Рядом с каждым образцом — официальная услуга, чтобы подать то же заявление онлайн. Пока утверждённые школой образцы не загружены, можно воспользоваться структурой ниже. Порядок услуг утверждён ${ui.extLink(R564, 'Типовыми правилами приёма')}.`,
-        `Next to each template is the official service for filing the same request online. Until the school’s approved templates are uploaded, you can use the outline below. The procedures are set by the ${ui.extLink(R564, 'Standard Admission Rules')}.`,
-      ), body: templates }),
+        'Әр үлгінің жанында — сол өтінішті онлайн беруге арналған ресми қызмет. Мектеп бекіткен үлгілер жүктелгенге дейін төмендегі құрылымды пайдалануға болады.',
+        'Рядом с каждым образцом — официальная услуга, чтобы подать то же заявление онлайн. Пока утверждённые школой образцы не загружены, можно воспользоваться структурой ниже.',
+        'Next to each template is the official service for filing the same request online. Until the school’s approved templates are uploaded, you can use the outline below.',
+      ), body: templates + `<div class="dz-row sa-after">${ui.legal([
+        { href: R564, title: X('Қабылдаудың үлгілік қағидалары (ҚР БҒМ бұйрығы)', 'Типовые правила приёма (приказ МОН РК)', 'Standard Admission Rules (MES order)'), number: '564', date: '2018-10-12' },
+      ], { note: X(
+        `Қызметтердің тәртібі ${ui.extLink(R564, 'Қабылдаудың үлгілік қағидаларында')} бекітілген.`,
+        `Порядок услуг утверждён ${ui.extLink(R564, 'Типовыми правилами приёма')}.`,
+        `The procedures are set by the ${ui.extLink(R564, 'Standard Admission Rules')}.`) })}</div>` }),
       ui.section({ id: 'fill', eyebrow: X('Қағаз түрінде', 'На бумаге', 'On paper'), title: X('Өтінішті қалай толтыру керек', 'Как заполнить заявление', 'How to fill in an application'), body: ui.split({ ratio: '1:1', align: 'center', cls: 'sa-split', left: sheet, right: `${howFill}${ui.note(X('Сол жақтағы сурет — өтініштің құрылымын түсіндіретін схема, ресми бланк емес.', 'Изображение слева — схема, поясняющая структуру заявления, а не официальный бланк.', 'The picture on the left is an outline of the structure, not an official form.'))}` }) }),
       ui.callout({ type: 'info', icon: 'phone', title: X('Көмек керек пе?', 'Нужна помощь?', 'Need help?'), text: X(
         `Өтінішті толтыру бойынша сұрақтарыңызды мектепке қойыңыз: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a> (WhatsApp да бар).`,

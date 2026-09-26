@@ -28,44 +28,38 @@ export default {
     const wait = pill('wait', X('Нақтылануда', 'Уточняется', 'To be confirmed'), 'hourglass');
 
     // ---------------------------------------------------------------- what & why
-    const why = ui.split({
-      ratio: '3:2', align: 'start',
-      left: `<div class="prose">${L(X(
-        `<p>Даму жоспары мектептің қазіргі жағдайын талдауға сүйеніп, бірнеше жылға арналған мақсаттарды, оларға жету жолдарын және нәтижені өлшейтін <strong>мақсатты индикаторларды</strong> белгілейді.</p>
-<p>Мемлекеттік аттестаттауда № 114-НҚ бұйрықтың 4-өлшемшарты бойынша <em>«МЖМБС талаптарына сәйкес білім сапасын қамтамасыз етуге және оқыту нәтижелеріне қол жеткізуге бағытталған білім беру ұйымын дамыту жоспарының болуы және іске асырылуы»</em> бағаланады.</p>
-<p>Қамқоршылық кеңес мектепті дамытудың басым бағыттарын келіседі (№ 355 бұйрық, 2-қосымша, 14-т. 1) тармақша).</p>`,
-        `<p>План развития опирается на анализ текущего состояния школы и определяет цели на несколько лет, пути их достижения и <strong>целевые индикаторы</strong>, по которым измеряется результат.</p>
-<p>При государственной аттестации по критерию 4 приказа № 114-НҚ оценивается <em>«наличие и реализация плана развития организации образования, направленного на обеспечение качества образования и достижение результатов обучения в соответствии с требованиями ГОСО»</em>.</p>
-<p>Попечительский совет согласовывает приоритетные направления развития школы (приказ № 355, приложение 2, п. 14 пп. 1).</p>`,
-        `<p>The development plan builds on an analysis of the school’s current state and sets goals for several years, the steps to reach them and the <strong>target indicators</strong> used to measure progress.</p>
-<p>In the state attestation, criterion 4 of Order No. 114-NK assesses <em>“the existence and implementation of a development plan aimed at ensuring the quality of education and achieving learning outcomes in line with the state education standards”</em>.</p>
-<p>The Board of Trustees agrees the school’s development priorities (Order No. 355, Annex 2, para. 14(1)).</p>`))}</div>
-${ui.linkList([
-        { href: ADILET('V2600038645', lang), icon: 'scale', label: X('№ 114-НҚ бұйрық, 2-қосымша, 4-өлшемшарт', 'Приказ № 114-НҚ, приложение 2, критерий 4', 'Order No. 114-NK, Annex 2, criterion 4') },
-        { href: ADILET('V1700015584', lang), icon: 'scale', label: X('№ 355 бұйрық (Қамқоршылық кеңес)', 'Приказ № 355 (попечительский совет)', 'Order No. 355 (Board of Trustees)') },
-      ])}`,
-      right: `<p class="ab-kicker">${L(X('4-өлшемшарт · бағалау шкаласы', 'Критерий 4 · шкала оценки', 'Criterion 4 · scoring scale'))}</p>
-<ol class="ab-ladder" reversed>${[
+    // Layer 1: what the plan is (one paragraph). Layer 2: criterion 4 and the Board's role (⚖ chip) and the scale.
+    const why = `<div class="prose ab-why">${L(X(
+        `<p>Даму жоспары мектептің қазіргі жағдайын талдауға сүйеніп, бірнеше жылға арналған мақсаттарды, оларға жету жолдарын және нәтижені өлшейтін <strong>мақсатты индикаторларды</strong> белгілейді.</p>`,
+        `<p>План развития опирается на анализ текущего состояния школы и определяет цели на несколько лет, пути их достижения и <strong>целевые индикаторы</strong>, по которым измеряется результат.</p>`,
+        `<p>The development plan builds on an analysis of the school’s current state and sets goals for several years, the steps to reach them and the <strong>target indicators</strong> used to measure progress.</p>`))}</div>
+<div class="dz-row">${ui.legal([
+        { href: ADILET('V2600038645', lang), title: X('№ 114-НҚ бұйрық, 2-қосымша, 4-өлшемшарт', 'Приказ № 114-НҚ, приложение 2, критерий 4', 'Order No. 114-NK, Annex 2, criterion 4') },
+        { href: ADILET('V1700015584', lang), title: X('№ 355 бұйрық (Қамқоршылық кеңес)', 'Приказ № 355 (попечительский совет)', 'Order No. 355 (Board of Trustees)') },
+      ], { note: X(
+        `<p>Мемлекеттік аттестаттауда № 114-НҚ бұйрықтың 4-өлшемшарты бойынша <em>«МЖМБС талаптарына сәйкес білім сапасын қамтамасыз етуге және оқыту нәтижелеріне қол жеткізуге бағытталған білім беру ұйымын дамыту жоспарының болуы және іске асырылуы»</em> бағаланады.</p><p>Қамқоршылық кеңес мектепті дамытудың басым бағыттарын келіседі (№ 355 бұйрық, 2-қосымша, 14-т. 1) тармақша).</p>`,
+        `<p>При государственной аттестации по критерию 4 приказа № 114-НҚ оценивается <em>«наличие и реализация плана развития организации образования, направленного на обеспечение качества образования и достижение результатов обучения в соответствии с требованиями ГОСО»</em>.</p><p>Попечительский совет согласовывает приоритетные направления развития школы (приказ № 355, приложение 2, п. 14 пп. 1).</p>`,
+        `<p>In the state attestation, criterion 4 of Order No. 114-NK assesses <em>“the existence and implementation of a development plan aimed at ensuring the quality of education and achieving learning outcomes in line with the state education standards”</em>.</p><p>The Board of Trustees agrees the school’s development priorities (Order No. 355, Annex 2, para. 14(1)).</p>`) })}
+${ui.more({ label: X('4-өлшемшарт · бағалау шкаласы', 'Критерий 4 · шкала оценки', 'Criterion 4 · scoring scale'), icon: 'target', count: 4, tone: 'card', body: `<ol class="ab-ladder" reversed>${[
         ['s5', 5, X('жоспар бекітілген; өзекті; оқу нәтижелерімен және МЖМБС талаптарымен байланысты мақсатты индикаторларды қамтиды; іске асыру нәтижелері расталған', 'план утверждён; актуален; содержит целевые индикаторы, связанные с результатами обучения и ГОСО; результаты реализации подтверждены', 'approved, current, with indicators tied to learning outcomes and the standards; results evidenced')],
         ['s4', 4, X('жоспар бар және іске асырылуда; көрсеткіштер ішінара қол жеткізілген', 'план имеется и реализуется; показатели частично достигнуты', 'plan exists and is being implemented; indicators partly met')],
         ['s3', 3, X('жоспар формалды; жүйелі іске асыру жоқ немесе нәтиже расталмаған', 'план формален; нет системной реализации или достижение не подтверждено', 'formal plan; no systematic implementation or unproven results')],
         ['s2', 2, X('жоспар жоқ немесе іске асырылмайды', 'план отсутствует либо не реализуется', 'no plan, or it is not implemented')],
-      ].map(([c, n, txt]) => `<li class="${c}"><span class="ab-ladder__score" aria-hidden="true">${n}</span><div><p class="ab-ladder__lvl">${n} ${L(X('балл', n === 5 ? 'баллов' : 'балла', 'points'))}</p><p class="ab-ladder__txt">${L(txt)}</p></div></li>`).join('')}</ol>`,
-    });
+      ].map(([c, n, txt]) => `<li class="${c}"><span class="ab-ladder__score" aria-hidden="true">${n}</span><div><p class="ab-ladder__lvl">${n} ${L(X('балл', n === 5 ? 'баллов' : 'балла', 'points'))}</p><p class="ab-ladder__txt">${L(txt)}</p></div></li>`).join('')}</ol>` })}</div>`;
 
     // ---------------------------------------------------------------- the plan document
-    const plan = ui.split({
-      ratio: '1:1', align: 'start',
-      left: ui.facts([
+    const planDoc = docById('development-plan');
+    // Facts in two columns, then the document (once uploaded) and ONE pending line under them — no empty column.
+    const plan = [ui.facts([
         { k: X('Жоспар кезеңі', 'Период плана', 'Plan period'), v: wait },
         { k: X('Бекітілген күні және бұйрық', 'Дата и приказ об утверждении', 'Approval date and order'), v: wait },
         { k: X('Қамқоршылық кеңеспен келісу', 'Согласование с попечительским советом', 'Agreed with the Board of Trustees'), v: wait },
         { k: X('Жауапты', 'Ответственный', 'Responsible'), v: `${L(X('Директор', 'Директор', 'Director'))} — ${L(S.legal.director.name)}` },
         { k: X('Соңғы есеп', 'Последний отчёт', 'Latest report'), v: wait },
-      ]),
-      right: `${ui.docList([docById('development-plan')].filter(Boolean))}
-${ui.pending({ title: X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'), note: X('Бекітілген даму жоспары (PDF, қол қойылған және мөрмен), оның кезеңі, бекіту туралы бұйрықтың нөмірі мен күні және Қамқоршылық кеңестің келісу хаттамасы.', 'Утверждённый план развития (PDF, с подписью и печатью), период, номер и дата приказа об утверждении и протокол согласования попечительским советом.', 'The approved development plan (signed and stamped PDF), its period, the approval order number and date, and the Board of Trustees’ minutes agreeing it.') })}`,
-    });
+      ], { cols: 2 }),
+      `${planDoc && planDoc.file ? ui.docList([planDoc]) : ''}
+${ui.pendingGroup(lang, [planDoc && !planDoc.file && { title: planDoc.title, note: X('Құжат жүктеледі', 'Документ будет загружен', 'Document to be uploaded') }, { title: X('Жоспар жүктелуде', 'План загружается', 'Plan being uploaded'), note: X('Мектептің бекітілген даму жоспары мен есептері осы бетте жарияланады.', 'Утверждённый план развития школы и отчёты будут опубликованы на этой странице.', 'The school’s approved development plan and reports will be published on this page.') }, { title: X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'), note: X('Бекітілген даму жоспары (PDF, қол қойылған және мөрмен), оның кезеңі, бекіту туралы бұйрықтың нөмірі мен күні және Қамқоршылық кеңестің келісу хаттамасы.', 'Утверждённый план развития (PDF, с подписью и печатью), период, номер и дата приказа об утверждении и протокол согласования попечительским советом.', 'The approved development plan (signed and stamped PDF), its period, the approval order number and date, and the Board of Trustees’ minutes agreeing it.') }], { title: X('Жоспар және оған қатысты мәліметтер дайындалуда', 'План и сведения к нему готовятся', 'The plan and its details are in preparation') })}`,
+    ].join('\n');
 
     // ---------------------------------------------------------------- recommended structure
     const structure = `${ui.cards([
@@ -79,21 +73,27 @@ ${ui.pending({ title: X('Жарияланатын мәліметтер', 'Что
 ${ui.note(X('Бұл — ұсынылатын құрылым (тәжірибе), заңмен бекітілген нысан емес.', 'Это рекомендуемая структура (практика), а не утверждённая законом форма.', 'This is a recommended structure (common practice), not a form prescribed by law.'))}`;
 
     // ---------------------------------------------------------------- indicators linked to attestation
-    const indicators = ui.table({
-      caption: X('Аттестаттау өлшемшарттарымен байланысты индикаторлар', 'Индикаторы, связанные с критериями аттестации', 'Indicators linked to attestation criteria'),
-      head: [X('Индикатор', 'Индикатор', 'Indicator'), X('Өлшемшарт', 'Критерий', 'Criterion'), X('5 балл шегі (№ 114-НҚ)', 'Порог 5 баллов (№ 114-НҚ)', '5-point threshold (No. 114-NK)'), X('Базалық мән', 'Базовое значение', 'Baseline'), X('Мақсатты мән', 'Целевое значение', 'Target')],
-      rows: [
+    const indRows = [
         [X('Бейіні бойынша педагогикалық білімі бар педагогтер үлесі', 'Доля педагогов с педагогическим образованием по профилю', 'Teachers with a subject-relevant teaching qualification'), '5', '100%', wait, wait],
         [X('Педагог-сарапшы, зерттеуші, шебер санаты бар педагогтер үлесі', 'Доля педагогов-экспертов, исследователей, мастеров', 'Share of expert, researcher and master teachers'), '6', X('толық жинақты: бастауыш &gt;&nbsp;45%, негізгі және жалпы орта &gt;&nbsp;55%<br>шағын жинақты: бастауыш &gt;&nbsp;30%, негізгі және жалпы орта &gt;&nbsp;35%', 'полнокомплектная: начальное &gt;&nbsp;45%, основное и общее среднее &gt;&nbsp;55%<br>малокомплектная: начальное &gt;&nbsp;30%, основное и общее среднее &gt;&nbsp;35%', 'full-size school: primary &gt;&nbsp;45%, secondary &gt;&nbsp;55%<br>small school: primary &gt;&nbsp;30%, secondary &gt;&nbsp;35%'), wait, wait],
         [X('3 жылда кемінде бір рет біліктілігін арттырған педагогтер', 'Педагоги, повысившие квалификацию не реже раза в 3 года', 'Teachers trained at least once in 3 years'), '7', '100%', wait, wait],
         [X('4-сынып компьютерлік тестілеуіндегі оң жауаптар үлесі', 'Доля положительных ответов на КТ в 4 классе', 'Correct answers in the grade-4 computer test'), '39', '85–100%', wait, wait],
         [X('edu.kz аймағындағы ресми сайт, өзекті ақпарат', 'Официальный сайт в зоне edu.kz, актуальная информация', 'Official site on edu.kz with current information'), '38', X('жұмыс істейді, ақпарат өзекті', 'функционирует, информация актуальна', 'live and up to date'), wait, wait],
-      ],
+    ];
+    const indicators = ui.table({
+      caption: X('Аттестаттау өлшемшарттарымен байланысты индикаторлар', 'Индикаторы, связанные с критериями аттестации', 'Indicators linked to attestation criteria'),
+      head: [X('Индикатор', 'Индикатор', 'Indicator'), X('Базалық мән', 'Базовое значение', 'Baseline'), X('Мақсатты мән', 'Целевое значение', 'Target')],
+      rows: indRows.map(([ind, , , base, target]) => [ind, base, target]),
     });
-    const indNote = ui.note(X(
+    const thresholds = ui.table({
+      caption: X('Индикаторлар және № 114-НҚ бұйрықтың өлшемшарттары', 'Индикаторы и критерии приказа № 114-НҚ', 'Indicators and Order No. 114-NK criteria'), captionHidden: true, compact: true,
+      head: [X('Индикатор', 'Индикатор', 'Indicator'), X('Өлшемшарт', 'Критерий', 'Criterion'), X('5 балл шегі (№ 114-НҚ)', 'Порог 5 баллов (№ 114-НҚ)', '5-point threshold (No. 114-NK)')],
+      rows: indRows.map(([ind, crit, thr]) => [ind, crit, thr]),
+    });
+    const indNote = ui.legal(`<p>${L(X(
       '5 балл шектері № 114-НҚ бұйрықтың 2-қосымшасынан алынды (6-өлшемшарт бойынша толық жинақты және шағын жинақты мектептерге әртүрлі шектер белгіленген; мектептің санаты нақтылануда). Мектептің базалық және мақсатты мәндері жоспар бекітілгеннен кейін толтырылады.',
       'Пороги 5 баллов взяты из приложения 2 к приказу № 114-НҚ (по критерию 6 для полнокомплектных и малокомплектных школ установлены разные пороги; категория школы уточняется). Базовые и целевые значения школы будут заполнены после утверждения плана.',
-      'The 5-point thresholds come from Annex 2 to Order No. 114-NK (criterion 6 sets different thresholds for full-size and small schools; the school’s category is being confirmed). The school’s baseline and target values will be added once the plan is approved.'));
+      'The 5-point thresholds come from Annex 2 to Order No. 114-NK (criterion 6 sets different thresholds for full-size and small schools; the school’s category is being confirmed). The school’s baseline and target values will be added once the plan is approved.'))}</p>${thresholds}`, { title: X('Шектер қайдан алынған', 'Откуда взяты пороги', 'Where the thresholds come from') });
 
     // ---------------------------------------------------------------- cycle
     const cycle = `<ol class="ab-cycle">${[
@@ -108,11 +108,11 @@ ${ui.note(X('Бұл — ұсынылатын құрылым (тәжірибе), 
       docById('development-report-2024-2025'),
       docById('development-report-2025-2026'),
       docById('development-monitoring-2026-2027'),
-    ]);
-    const reportsNote = ui.note(X(
+    ], { groupPending: true });
+    const reportsNote = ui.legal(X(
       'Өзін-өзі бағалау алдыңғы екі оқу жылы мен ағымдағы оқу жылын қамтиды (№ 114-НҚ, 15-т.), сондықтан сайтта осы кезеңдердің есептері орналастырылады.',
       'Самооценка охватывает два предыдущих учебных года и текущий (приказ № 114-НҚ, п. 15), поэтому на сайте размещаются отчёты за эти периоды.',
-      'Self-assessment covers the two previous school years and the current one (Order No. 114-NK, para. 15), so reports for these periods are published here.'));
+      'Self-assessment covers the two previous school years and the current one (Order No. 114-NK, para. 15), so reports for these periods are published here.'), { title: X('Неліктен осы кезеңдер', 'Почему эти периоды', 'Why these periods') });
 
     const related = ui.linkList([
       { href: href('self-assessment'), icon: 'check', label: X('Өзін-өзі бағалау', 'Самооценка', 'Self-assessment'), note: X('8 бағыт, 39 өлшемшарт', '8 направлений, 39 критериев', '8 areas, 39 criteria') },
@@ -132,7 +132,7 @@ ${ui.note(X('Бұл — ұсынылатын құрылым (тәжірибе), 
       ratio: '2:1', align: 'start', cls: 'ab-intro',
       left: `${ui.eyebrow(X('Стратегия', 'Стратегия', 'Strategy'))}
 <p class="lead">${L(X('Даму жоспары мектептің қайда бара жатқанын және табысты немен өлшейтінін көрсетеді. Жоспар мен оның орындалуы туралы есептер ата-аналар мен комиссия үшін ашық жарияланады.', 'План развития показывает, куда движется школа и чем она измеряет успех. План и отчёты о его выполнении открыто публикуются для родителей и комиссии.', 'The development plan shows where the school is heading and how it measures success. The plan and progress reports are published openly for parents and the attestation commission.'))}</p>
-${ui.pending({ title: X('Жоспар жүктелуде', 'План загружается', 'Plan being uploaded'), note: X('Мектептің бекітілген даму жоспары мен есептері осы бетте жарияланады.', 'Утверждённый план развития школы и отчёты будут опубликованы на этой странице.', 'The school’s approved development plan and reports will be published on this page.') })}`,
+${ui.chips([{ icon: 'target', label: X('5 индикатор', '5 индикаторов', '5 indicators') }, { icon: 'calendar', label: X('Циклдің 4 кезеңі', '4 этапа цикла', '4-step cycle') }, { icon: 'doc', label: X('Жоспардың 6 бөлімі', '6 разделов плана', '6 plan sections') }])}`,
       right: toc,
     });
 

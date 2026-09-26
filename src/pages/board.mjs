@@ -44,13 +44,14 @@ export default {
     const done = pill('ok', X('Жарияланды', 'Опубликовано', 'Published'), 'check');
 
     // ---------------------------------------------------------------- key numbers
+    const numNorms = [];
     const nums = `<div class="ab-bignums">${[
       ['3', X('жыл — өкілеттік мерзімі', 'года — срок полномочий', 'years — term of office'), 4],
       ['≥ 1', X('отырыс тоқсан сайын', 'заседание в квартал', 'meeting every quarter'), 16],
       ['10', X('күн бұрын — ата-аналар жиналысы туралы хабарландыру', 'дней — уведомление о собрании родителей', 'days’ notice of the parents’ meeting'), 11],
       ['2/3', X('мүше — отырыстың кворумы', 'членов — кворум заседания', 'of members — quorum'), 22],
       ['≤ 11', X('ата-ана — әр параллельден біреуден', 'родителей — по одному от параллели', 'parents — one per grade level'), 10],
-    ].map(([v, l, p]) => `<div class="ab-bignum"><b>${v}</b><span>${L(l)}</span><small>${L(X(`${p}-т.`, `п. ${p}`, `para. ${p}`))}</small></div>`).join('')}</div>`;
+    ].map(([v, l, p]) => (numNorms.push({ title: `${v} ${L(l)}`, note: pt(p) }), `<div class="ab-bignum"><b>${v}</b><span>${L(l)}</span></div>`)).join('')}</div>`;
     const principles = ui.chips([
       X('Тәуелсіздік', 'Независимость', 'Independence'), X('Мүшелердің өтеусіз қызметі', 'Безвозмездность', 'Unpaid membership'),
       X('Еріктілік', 'Добровольность', 'Voluntariness'), X('Ашықтық', 'Прозрачность', 'Transparency'), X('Жариялылық', 'Гласность и публичность', 'Openness and publicity'),
@@ -77,15 +78,29 @@ export default {
       { k: X('Құрамды бекіткен орган', 'Кем утверждён состав', 'Approved by'), v: B.approved ? [L(B.approved.body), B.approved.number && `№ ${B.approved.number}`, B.approved.date && fmt.date(B.approved.date)].filter(Boolean).join(' · ') : `${wait}<span class="muted">${L(X('білім беру саласындағы уәкілетті орган немесе жергілікті атқарушы орган (13-т.)', 'уполномоченный орган или местный исполнительный орган в области образования (п. 13)', 'the education authority or local executive body (para. 13)'))}</span>` },
     ]);
 
+    // Layer 1: seats per category as big-number tiles; layer 2: the full table (para. 10) and the officers.
+    const seats = `<ul class="ab-seats" role="list">${[
+      ['users', X('Ата-аналар', 'Родители', 'Parents'), '≤ 11'],
+      ['graduation', X('Педагог-ардагер', 'Ветеран педтруда', 'Veteran teacher'), '1'],
+      ['building', X('Мемлекеттік органдар', 'Госорганы', 'Public bodies'), '1–3'],
+      ['handshake', X('ҮЕҰ', 'НПО', 'NGOs'), '1–2'],
+      ['heart', X('Қайырымдылар', 'Меценаты', 'Donors'), '1–2'],
+      ['mic', X('БАҚ', 'СМИ', 'Media'), '1'],
+      ['star', X('Оқушылар', 'Ученики', 'Pupils'), '1–2'],
+    ].map(([ic, l, n]) => `<li class="ab-seat"><span class="ab-seat__ic" aria-hidden="true">${ui.icon(ic, { size: 18 })}</span><b class="ab-seat__n">${n}</b><span class="ab-seat__l">${L(l)}</span></li>`).join('')}</ul>`;
+    const compMore = ui.more({ label: X('Құрам кестесі, төраға және хатшы', 'Таблица состава, председатель и секретарь', 'Membership table, chair and secretary'), icon: 'users', count: 7, tone: 'card', open: members.length > 0, body: comp + officers });
+
     // ---------------------------------------------------------------- election timeline
-    const election = ui.timeline([
+    const electionSteps = [
       { date: X('1–10 қыркүйек', '1–10 сентября', '1–10 September'), title: X('Сайлау туралы хабарландыру', 'Объявление об избрании', 'Election announced'), text: X('Уәкілетті орган немесе жергілікті атқарушы орган қазақ және орыс тілдерінде хабарландыру жариялайды; құжаттар 20 күнтізбелік күн қабылданады (8-т.).', 'Уполномоченный или местный исполнительный орган публикует объявление на казахском и русском языках; документы принимаются 20 календарных дней (п. 8).', 'The authority publishes the announcement in Kazakh and Russian; documents are accepted for 20 calendar days (para. 8).') },
       { date: X('≥ 10 күн бұрын', 'за ≥ 10 дней', '≥ 10 days before'), title: X('Ата-аналарды хабардар ету', 'Уведомление родителей', 'Parents notified'), text: X('Мектеп ата-аналарға жиналыстың күні, уақыты және орны туралы хабарлама жібереді және хабарландыруды стендте және/немесе ресми сайтта орналастырады (11-т. 1) тт.).', 'Школа направляет родителям уведомление с датой, временем и местом собрания и размещает объявление на стенде и/или официальном сайте (п. 11 пп. 1).', 'The school notifies parents of the date, time and place of the meeting and posts the notice on the board and/or the official website (para. 11(1)).') },
       { date: X('Жиналыс күні', 'День собрания', 'Meeting day'), title: X('Кандидаттарды сайлау', 'Выдвижение и голосование', 'Nomination and vote'), text: X('Әр сынып параллелінен бір кандидат; ашық немесе жасырын дауыс беру; нәтиже хаттамамен ресімделеді (11-т. 2)–5) тт.).', 'По одному кандидату от параллели классов; открытое или тайное голосование; итоги оформляются протоколом (п. 11 пп. 2–5).', 'One candidate per grade level; open or secret ballot; results recorded in minutes (para. 11(2–5)).') },
       { date: X('3 жұмыс күні ішінде', 'в течение 3 рабочих дней', 'within 3 working days'), title: X('Тізімді жіберу', 'Направление списка', 'List submitted'), text: X('Сайланған кандидаттардың тізімі құжаттарымен бірге уәкілетті органға жіберіледі (11-т. 6) тт.).', 'Список избранных кандидатов с документами направляется в уполномоченный орган (п. 11 пп. 6).', 'The list of elected candidates and their documents goes to the authority (para. 11(6)).') },
       { date: X('30 қазанға дейін', 'до 30 октября', 'by 30 October'), title: X('Комиссияның шешімі', 'Решение комиссии', 'Commission decision'), text: X('Комиссия құжаттарды 7 жұмыс күнінде қарап, 10 жұмыс күнінде кандидаттарды сайлайды; сайлау 30 қазаннан кешіктірілмей аяқталады (12-т.).', 'Комиссия рассматривает документы за 7 рабочих дней и избирает кандидатов в течение 10 рабочих дней; избрание завершается не позднее 30 октября (п. 12).', 'The commission reviews documents within 7 working days and elects members within 10; the election ends by 30 October (para. 12).') },
       { date: X('3 жұмыс күні ішінде', 'в течение 3 рабочих дней', 'within 3 working days'), title: X('Құрамды бекіту және жариялау', 'Утверждение и публикация состава', 'Membership approved and published'), text: X('Құрам бекітіледі, тізім органның және мектептің ресми интернет-ресурсында орналастырылады (13-т.).', 'Состав утверждается, список размещается на официальных интернет-ресурсах органа и школы (п. 13).', 'The membership is approved and the list is posted on the authority’s and the school’s websites (para. 13).') },
-    ]);
+    ];
+    const election = ui.timeline(electionSteps);
+    const flow = `<ol class="ab-flow">${electionSteps.map((st, i) => `<li><span class="ab-flow__n" aria-hidden="true">${i + 1}</span><p class="ab-flow__when">${L(st.date)}</p><p class="ab-flow__t">${L(st.title)}</p></li>`).join('')}</ol>`;
     const candidateDocs = ((items) => `<ol class="ab-check ab-check--plain">${items.map((x, i) => `<li><span class="ab-check__ico" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><div><p class="ab-check__t">${L(x)}</p></div></li>`).join('')}</ol>`)([
       X('Өтініш (еркін нысанда)', 'Заявление (в произвольной форме)', 'Application (free form)'),
       X('Жеке басын куәландыратын құжаттың көшірмесі', 'Копия документа, удостоверяющего личность', 'Copy of an identity document'),
@@ -96,7 +111,7 @@ export default {
 
     // ---------------------------------------------------------------- functions (para 14)
     const functions = ui.accordion([
-      { open: true, q: X('Даму және басқару', 'Развитие и управление', 'Development and governance'), a: `<ul class="bullets">${[
+      { q: X('Даму және басқару', 'Развитие и управление', 'Development and governance'), a: `<ul class="bullets">${[
         X('мектепті дамытудың басым бағыттарын келіседі', 'согласует приоритетные направления развития школы', 'agrees the school’s development priorities'),
         X('бюджетті қалыптастыру кезінде ұсыныстар әзірлейді', 'вырабатывает предложения при формировании бюджета', 'makes proposals when the budget is drawn up'),
         X('жарғы мен ішкі тәртіп ережелеріне өзгерістерді келіседі', 'согласует изменения в устав и правила внутреннего распорядка', 'agrees changes to the charter and internal rules'),
@@ -122,19 +137,21 @@ export default {
     ]);
 
     // ---------------------------------------------------------------- what is published here
-    const item = (icon, title, text, p, live) => `<li><span class="ab-check__ico">${ui.icon(icon, { size: 20 })}</span><div><p class="ab-check__t">${L(title)}</p><p class="ab-check__d">${L(text)} · <span class="mono">${pt(p)}</span></p></div><span class="ab-check__s">${live ? `<a href="#${live}">${done}</a>` : soon}</span></li>`;
-    const published = `<ul class="ab-check" role="list">
+    const pubNorms = [];
+    const item = (icon, title, text, p, live) => (pubNorms.push({ title, note: `${L(text)} · <span class="mono">${pt(p)}</span>` }), `<li><span class="ab-check__ico">${ui.icon(icon, { size: 20 })}</span><div><p class="ab-check__t">${L(title)}</p></div><span class="ab-check__s">${live ? `<a href="#${live}">${done}</a>` : soon}</span></li>`);
+    const published = `<ul class="ab-check ab-check--grid" role="list">
 ${item('calendar', X('Ата-аналар жиналысы туралы хабарландыру', 'Объявление о собрании родителей', 'Notice of the parents’ meeting'), X('кандидаттарды ұсыну үшін, кемінде 10 күнтізбелік күн бұрын', 'для выдвижения кандидатов, не менее чем за 10 календарных дней', 'to nominate candidates, at least 10 calendar days ahead'), '11', B.announcement && 'meetings')}
 ${item('users', X('Бекітілген құрам', 'Утверждённый состав', 'Approved membership'), X('мүшелердің толық аты-жөні және санаты', 'ФИО членов полностью и категория', 'members’ full names and categories'), '13', members.length && 'composition')}
 ${item('book', X('Оқу жылына арналған жұмыс жоспары', 'План работы на учебный год', 'Work plan for the school year'), X('кеңес жоспар бойынша жұмыс істейді', 'совет работает по плану', 'the board works to a plan'), '15')}
 ${item('clock', X('Әр отырыстың анонсы', 'Анонс каждого заседания', 'Notice of every meeting'), X('күні, уақыты және орны; отырыстар тоқсанына кемінде бір рет', 'дата, время и место; заседания не реже раза в квартал', 'date, time and place; at least one meeting per quarter'), '17', meetingsData.length && 'meetings')}
 ${item('doc', X('Шешімдер мен хаттамалар', 'Решения и протоколы', 'Decisions and minutes'), X('хатшы кеңестің шешімдерін сайтта орналастырады', 'секретарь размещает решения совета на сайте', 'the secretary posts decisions on the website'), '27', decisions.length && 'documents')}
 ${item('coins', X('Жылдық есеп', 'Годовой отчёт', 'Annual report'), X('қаржы жылының қорытындысы бойынша, қайырымдылық көмекті пайдалануды қоса', 'по итогам финансового года, включая использование благотворительной помощи', 'after each financial year, including the use of charitable aid'), '31')}
-</ul>`;
+</ul>
+${ui.legal(pubNorms, { title: X('Не және қашан жарияланады · № 355 бұйрық', 'Что и когда публикуется · приказ № 355', 'What is published and when · Order No. 355'), note: X('№ 355 бұйрыққа сәйкес мектеп сайтында міндетті түрде орналастырылатын ақпарат.', 'Сведения, которые по приказу № 355 обязательно размещаются на сайте школы.', 'Information that Order No. 355 requires the school to post online.') })}`;
 
     // ---------------------------------------------------------------- meetings schedule (pending)
     // No data yet → one pending block (the full table is rendered only once dates exist).
-    const notice = B.announcement ? `<div class="ab-notice" role="note"><p class="ab-kicker">${L(X('Ата-аналар жиналысы туралы хабарландыру (11-т.)', 'Объявление о собрании родителей (п. 11)', 'Notice of the parents’ meeting (para. 11)'))}</p>
+    const notice = B.announcement ? `<div class="ab-notice" role="note"><p class="ab-kicker">${L(X('Ата-аналар жиналысы туралы хабарландыру', 'Объявление о собрании родителей', 'Notice of the parents’ meeting'))}</p>
 <p class="ab-notice__when">${ui.icon('calendar', { size: 18 })} ${when(B.announcement)}${B.announcement.place ? ` · ${L(B.announcement.place)}` : ''}</p>${B.announcement.text ? `<p>${L(B.announcement.text)}</p>` : ''}${B.announcement.posted ? `<p class="muted small">${L(X('Жарияланған күні', 'Дата публикации', 'Posted'))}: ${fmt.date(B.announcement.posted)}</p>` : ''}</div>` : '';
     const qName = (q) => (q ? L(X(`${q}-тоқсан`, `${['I', 'II', 'III', 'IV'][q - 1] || q} четверть`, `Term ${q}`)) : '—');
     const decisionCell = (m) => {
@@ -148,11 +165,11 @@ ${item('coins', X('Жылдық есеп', 'Годовой отчёт', 'Annual 
       caption: X(`${B.schoolYear} оқу жылындағы отырыстар`, `Заседания в ${B.schoolYear} учебном году`, `Meetings in ${B.schoolYear}`),
       head: [X('Тоқсан', 'Четверть', 'Term'), X('Күні мен уақыты', 'Дата и время', 'Date and time'), X('Орны', 'Место', 'Place'), X('Күн тәртібі', 'Повестка', 'Agenda'), X('Шешім', 'Решение', 'Decision')],
       rows: meetingsData.map((m) => [qName(m.quarter), when(m), m.place || '—', m.agenda || '—', decisionCell(m)]),
-    }) : notice + `<div class="ab-empty">${ui.pending({
+    }) : notice + ui.pendingGroup(lang, [{
       title: X('2026–2027 оқу жылындағы отырыстар кестесі жарияланады', 'График заседаний на 2026–2027 учебный год будет опубликован', 'The 2026–2027 meeting schedule will be published'),
       note: X('Әр тоқсан бойынша (I–IV): отырыстың күні мен уақыты, орны, күн тәртібі және қабылданған шешім (хаттама).', 'По каждой четверти (I–IV): дата и время заседания, место, повестка и принятое решение (протокол).', 'For each quarter (I–IV): date and time, place, agenda and the decision taken (minutes).'),
-    })}</div>`;
-    const meetNote = ui.note(X('Отырыстар бейнеконференцбайланыс режимінде өткізілуі мүмкін (16-т.); отырыстарға азаматтық қоғамның бақылаушылары қатысады (18-т.).', 'Заседания могут проводиться по видеоконференцсвязи (п. 16); в заседаниях участвуют наблюдатели от гражданского общества (п. 18).', 'Meetings may be held by video link (para. 16); civil-society observers take part (para. 18).'));
+    }], { title: X('2026–2027 отырыстар кестесі дайындалуда', 'График заседаний 2026–2027 готовится', '2026–2027 meeting schedule in preparation') });
+    const meetNote = ui.more({ label: X('Отырыстар қалай өтеді', 'Как проходят заседания', 'How meetings are held'), icon: 'info', body: X('Отырыстар бейнеконференцбайланыс режимінде өткізілуі мүмкін (16-т.); отырыстарға азаматтық қоғамның бақылаушылары қатысады (18-т.).', 'Заседания могут проводиться по видеоконференцсвязи (п. 16); в заседаниях участвуют наблюдатели от гражданского общества (п. 18).', 'Meetings may be held by video link (para. 16); civil-society observers take part (para. 18).') });
 
     // ---------------------------------------------------------------- charity
     const charity = ui.split({
@@ -160,9 +177,9 @@ ${item('coins', X('Жылдық есеп', 'Годовой отчёт', 'Annual 
       left: ui.callout({
         type: 'ok', icon: 'shield',
         title: X('Қайырымдылық көмек — тек ерікті', 'Благотворительная помощь — только добровольно', 'Charitable aid is strictly voluntary'),
-        text: X('Қайырымдылық көмек ерікті түрде, өтеусіз көрсетіледі және тек Қамқоршылық кеңестің шешімі бойынша жұмсалады (28-т.). Мемлекеттік емес мектеп үшін түсімдер екінші деңгейдегі банктегі шотқа есепке алынады (29-т. 2) тт.).', 'Благотворительная помощь оказывается добровольно и безвозмездно и расходуется исключительно по решению попечительского совета (п. 28). Для негосударственной школы поступления зачисляются на счёт в банке второго уровня (п. 29 пп. 2).', 'Charitable aid is given voluntarily and free of charge, and is spent only by decision of the Board (para. 28). For a non-state school it is credited to a commercial bank account (para. 29(2)).'),
-      }),
-      right: `<p class="ab-kicker">${L(X('Қаражат жұмсалатын мақсаттар (30-т.)', 'На что расходуется (п. 30)', 'What it can be spent on (para. 30)'))}</p>
+        text: X('Өтеусіз беріледі және тек кеңестің шешімі бойынша жұмсалады.', 'Безвозмездно и расходуется только по решению совета.', 'Free of charge, and spent only by decision of the board.'),
+      }) + ui.legal(X('Қайырымдылық көмек ерікті түрде, өтеусіз көрсетіледі және тек Қамқоршылық кеңестің шешімі бойынша жұмсалады (28-т.). Мемлекеттік емес мектеп үшін түсімдер екінші деңгейдегі банктегі шотқа есепке алынады (29-т. 2) тт.). Жұмсау мақсаттары — 30-т.', 'Благотворительная помощь оказывается добровольно и безвозмездно и расходуется исключительно по решению попечительского совета (п. 28). Для негосударственной школы поступления зачисляются на счёт в банке второго уровня (п. 29 пп. 2). Цели расходования — п. 30.', 'Charitable aid is given voluntarily and free of charge, and is spent only by decision of the Board (para. 28). For a non-state school it is credited to a commercial bank account (para. 29(2)). Permitted uses — para. 30.')),
+      right: `<p class="ab-kicker">${L(X('Қаражат жұмсалатын мақсаттар', 'На что расходуется', 'What it can be spent on'))}</p>
 ${`<ul class="ab-check ab-check--plain" role="list">${[
         { icon: 'heart', title: X('Оқушыларды әлеуметтік қолдау', 'Социальная поддержка обучающихся', 'Social support for pupils') },
         { icon: 'building', title: X('Материалдық-техникалық базаны жетілдіру', 'Совершенствование материально-технической базы', 'Improving facilities') },
@@ -176,7 +193,7 @@ ${`<ul class="ab-check ab-check--plain" role="list">${[
       ...docsByGroup('board'),
       ...decisions.map((m) => ({ title: m.decision.title || X(`Қамқоршылық кеңес отырысының шешімі, ${fmt.date(m.date)}`, `Решение заседания попечительского совета, ${fmt.date(m.date)}`, `Board meeting decision, ${fmt.date(m.date)}`), file: m.decision.file || null, url: m.decision.url || null, number: m.decision.number, date: m.decision.date || m.date })),
       docById('charity-report'),
-    ].filter(Boolean));
+    ].filter(Boolean), { collapse: 3, groupPending: true });
 
     const related = ui.linkList([
       { href: href('structure'), icon: 'sitemap', label: X('Басқару құрылымы', 'Структура управления', 'Governance structure'), note: X('Барлық алқалы органдар', 'Все коллегиальные органы', 'All collegial bodies') },
@@ -202,17 +219,17 @@ ${`<ul class="ab-check ab-check--plain" role="list">${[
         'Қамқоршылық кеңеске ата-аналар, қоғам және мемлекеттік органдардың өкілдері кіреді. Кеңес мүшелері өтеусіз негізде жұмыс істейді, ал оның отырыстары мен шешімдері мектеп сайтында жарияланады.',
         'В попечительский совет входят родители, представители общественности и государственных органов. Члены совета работают на безвозмездной основе, а его заседания и решения публикуются на сайте школы.',
         'The Board of Trustees brings together parents, the community and public authorities. Members serve without pay, and the board’s meetings and decisions are published on the school website.'))}</p>
-<p class="ab-src">${L(X('Негізгі акт', 'Основной акт', 'Governing act'))}: ${ui.extLink(LAW, X('ҚР БҒМ 27.07.2017 № 355 бұйрығы (2026 жылғы 25 мамырдағы № 137-НҚ өзгерістерімен)', 'Приказ МОН РК от 27.07.2017 № 355 (с изменениями от 25.05.2026 № 137-НҚ)', 'Order No. 355 of 27.07.2017 (as amended by No. 137-NK of 25.05.2026)'))}</p>`,
+${ui.legal([{ href: LAW, title: X('ҚР БҒМ 27.07.2017 № 355 бұйрығы (2026 жылғы 25 мамырдағы № 137-НҚ өзгерістерімен)', 'Приказ МОН РК от 27.07.2017 № 355 (с изменениями от 25.05.2026 № 137-НҚ)', 'Order No. 355 of 27.07.2017 (as amended by No. 137-NK of 25.05.2026)'), note: X('Негізгі акт; 2-қосымша — орта білім беру ұйымдарына арналған қағидалар.', 'Основной акт; приложение 2 — правила для организаций среднего образования.', 'Governing act; Annex 2 sets the rules for secondary schools.') }])}`,
       right: toc,
     });
 
     return [
       intro,
-      ui.section({ id: 'about-board', tone: 'hero', eyebrow: X('Қағидаттар', 'Принципы', 'Principles'), title: X('Кеңес туралы қысқаша', 'Коротко о совете', 'The board at a glance'), body: nums + principles }),
-      ui.section({ id: 'composition', eyebrow: X('Кім кіреді', 'Кто входит', 'Who sits on it'), title: X('Кеңестің құрамы', 'Состав совета', 'Membership'), lead: X('Мектеп кеңесінің құрамы бекітілгеннен кейін осы жерде мүшелердің толық аты-жөнімен жарияланады.', 'После утверждения состав совета школы будет опубликован здесь с полными ФИО членов.', 'Once approved, the membership of the school’s board will be published here with members’ full names.'), body: comp + officers }),
-      ui.section({ id: 'election', eyebrow: X('Сайлау', 'Избрание', 'Election'), title: X('Кеңес қалай сайланады', 'Как избирается совет', 'How the board is elected'), body: ui.split({ ratio: '3:2', align: 'start', left: election, right: `<h3>${L(X('Кандидат ұсынатын құжаттар (9-т.)', 'Документы кандидата (п. 9)', 'Candidate documents (para. 9)'))}</h3>${candidateDocs}${ui.button({ href: href('feedback'), label: X('Кандидатура туралы сұрақ қою', 'Задать вопрос о выдвижении', 'Ask about standing'), kind: 'ghost', icon: 'arrow-right' })}` }) }),
-      ui.section({ id: 'functions', eyebrow: X('14-тармақ', 'Пункт 14', 'Paragraph 14'), title: X('Кеңестің функциялары', 'Функции совета', 'What the board does'), body: functions }),
-      ui.section({ id: 'published', tone: 'tint', eyebrow: X('Ашықтық', 'Открытость', 'Transparency'), title: X('Сайтта не жарияланады', 'Что публикуется на сайте', 'What we publish on this site'), lead: X('№ 355 бұйрыққа сәйкес мектеп сайтында міндетті түрде орналастырылатын ақпарат.', 'Сведения, которые по приказу № 355 обязательно размещаются на сайте школы.', 'Information that Order No. 355 requires the school to post online.'), body: published }),
+      ui.section({ id: 'about-board', tone: 'hero', eyebrow: X('Қағидаттар', 'Принципы', 'Principles'), title: X('Кеңес туралы қысқаша', 'Коротко о совете', 'The board at a glance'), body: `${nums}${principles}<div class="dz-row ab-nums__dz">${ui.legal(numNorms, { title: X('Сандар қайдан алынған · № 355 бұйрық', 'Откуда эти цифры · приказ № 355', 'Where these numbers come from · Order No. 355') })}</div>` }),
+      ui.section({ id: 'composition', eyebrow: X('Кім кіреді', 'Кто входит', 'Who sits on it'), title: X('Кеңестің құрамы', 'Состав совета', 'Membership'), lead: X('Мектеп кеңесінің құрамы бекітілгеннен кейін осы жерде мүшелердің толық аты-жөнімен жарияланады.', 'После утверждения состав совета школы будет опубликован здесь с полными ФИО членов.', 'Once approved, the membership of the school’s board will be published here with members’ full names.'), body: seats + compMore }),
+      ui.section({ id: 'election', eyebrow: X('Сайлау', 'Избрание', 'Election'), title: X('Кеңес қалай сайланады', 'Как избирается совет', 'How the board is elected'), body: `${flow}<div class="dz-row ab-flow__dz">${ui.more({ label: X('Кезеңдер толығырақ', 'Подробно об этапах', 'Each step in detail'), icon: 'calendar', count: electionSteps.length, tone: 'card', body: election })}${ui.more({ label: X('Кандидат ұсынатын құжаттар', 'Документы кандидата', 'Candidate documents'), icon: 'doc', count: 5, tone: 'card', body: candidateDocs + `<p class="muted small">${pt(9)}</p>` })}${ui.button({ href: href('feedback'), label: X('Кандидатура туралы сұрақ қою', 'Задать вопрос о выдвижении', 'Ask about standing'), kind: 'ghost', icon: 'arrow-right', size: 's' })}</div>` }),
+      ui.section({ id: 'functions', eyebrow: X('Кеңес не істейді', 'Чем занимается совет', 'Its role'), title: X('Кеңестің функциялары', 'Функции совета', 'What the board does'), body: `${functions}<div class="dz-row">${ui.legal(X('Кеңестің функциялары № 355 бұйрықтың 2-қосымшасындағы Қағидалардың 14-тармағында белгіленген.', 'Функции совета установлены пунктом 14 Правил (приложение 2 к приказу № 355).', 'The board’s functions are set out in paragraph 14 of the Rules (Annex 2 to Order No. 355).'))}</div>` }),
+      ui.section({ id: 'published', tone: 'tint', eyebrow: X('Ашықтық', 'Открытость', 'Transparency'), title: X('Сайтта не жарияланады', 'Что публикуется на сайте', 'What we publish on this site'), lead: X('Кеңестің жұмысы туралы ата-аналар осы жерден біле алады.', 'Здесь родители могут следить за работой совета.', 'Where parents can follow the board’s work.'), body: published }),
       ui.section({ id: 'meetings', eyebrow: X('Анонстар', 'Анонсы', 'Notices'), title: X('Отырыстар кестесі', 'График заседаний', 'Meeting schedule'), body: meetings + meetNote }),
       ui.section({ id: 'charity', eyebrow: X('Қаражат', 'Средства', 'Funds'), title: X('Қайырымдылық көмек', 'Благотворительная помощь', 'Charitable aid'), body: charity }),
       ui.section({ id: 'documents', eyebrow: X('Құжаттар', 'Документы', 'Documents'), title: X('Кеңестің құжаттары', 'Документы совета', 'Board documents'), body: docs }),

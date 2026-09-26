@@ -204,3 +204,37 @@ html[data-a11y="on"] .fb-about { border: 2px solid var(--a-fg) !important; }
   .fb-toc-m { display: block; }
 }
 .fb-ch__pend { font-weight: 600; font-size: .98rem; color: var(--surface-muted); }
+
+/* compact layer (SPEC §6.1): legal chips / "more" rows under blocks */
+.fb-proc-more, .fb-appeal-law, .fb-off-law { margin-top: clamp(16px, 2.2vw, 24px); }
+.fb-appeal-law > .dz, .fb-off-law > .dz, .fb-defs > .dz { margin: 0; }
+.fb-aside__panel .dz--more > .dz__body { margin-top: 10px; padding: 14px 18px; border-radius: var(--r-m); background: var(--t-card, var(--surface)); }
+.fb-resp__side { align-content: start; }
+.fb-resp__side > .dz, .fb-resp__side > .pending { margin: 0; }
+/* procedure at a glance: 4 stages in a row (the step texts are under "What happens at each stage") */
+.fb-flow { list-style: none; margin: clamp(18px, 2.6vw, 28px) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: none; }
+.fb-flow__i { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--r-l); background: var(--t-card, var(--surface)); border: 1px solid var(--t-line, var(--line)); color: var(--t-ink, var(--text)); min-width: 0; }
+.fb-flow__i + .fb-flow__i::before { content: ""; position: absolute; left: -11px; top: 50%; width: 12px; height: 2px; background: var(--t-accent, var(--deco)); opacity: .7; }
+.fb-flow__ic { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--t-accent, var(--deco)) 20%, transparent); color: var(--t-accent-text, var(--deco-ink)); }
+.fb-flow__n { font: 700 .72rem/1 var(--font-mono); color: var(--t-accent-text, var(--deco-ink)); }
+.fb-flow__t { font-weight: 700; font-size: .98rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 719px) { .fb-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fb-flow__i:nth-child(3)::before { display: none; } .fb-flow__i { padding: 12px; gap: 10px; } .fb-flow__n { display: none; } }
+@media (max-width: 379px) { .fb-flow { grid-template-columns: 1fr; } .fb-flow__i::before { display: none; } }
+html[data-a11y="on"] .fb-flow__i { border: 2px solid var(--a-fg) !important; }
+html[data-a11y="on"] .fb-flow__i::before { display: none; }
+html[data-a11y="on"] .fb-flow { grid-template-columns: 1fr; }
+.fb-ways > .dz { margin: 0; }
+.fb-ways { display: grid; gap: 10px; } .fb-ways__btns { gap: 8px; }
+.fb-resp__now { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--t-ink); font-size: .95rem; }
+.fb-resp__now .ico { color: var(--t-accent-text); flex: none; }
+.fb-resp__now a { font-weight: 700; color: var(--t-accent-text); white-space: nowrap; }
+.fb-resp > .dz { margin: 0; align-self: flex-start; }
+.fb-need { margin-top: 12px; }
+.fb-sv-law { margin-top: clamp(16px, 2.2vw, 24px); }
+.fb-sv-law > .dz { margin: 0; }
+.fb-letter .dz { margin: 0; }
+/* "What happens at each stage" body: the 4 stage cards in one row (2×2 on narrower screens) */
+.fb-proc-more .dz[open] > .dz__body:has(> .steps) { max-width: none; }
+@media (min-width: 900px) { .fb-proc-more .dz__body > .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 480px) and (max-width: 899px) { .fb-proc-more .dz__body > .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+html[data-a11y="on"] .fb-proc-more .dz__body > .steps { grid-template-columns: 1fr; }

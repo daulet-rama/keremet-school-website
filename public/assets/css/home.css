@@ -332,7 +332,20 @@ html.day-pin .day__head { transition: opacity .5s; }
 .dir__n { position: absolute; top: 10px; right: 14px; font: 700 .7rem/1 var(--font-display); color: var(--c); opacity: .5; }
 .dir__icon { grid-area: icon; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--c); }
 .dir__title { grid-area: title; position: relative; font: 600 1.02rem/1.3 var(--font-display); letter-spacing: -.01em; }
-.dir__note { grid-area: note; position: relative; font-size: .86rem; color: var(--t-muted); line-height: 1.4; }
+.dir__note { grid-area: note; position: relative; display: none; font-size: .86rem; color: var(--t-muted); line-height: 1.4; }
+/* layer 1 = the area names only (the one-line note is the link's tooltip + accessible description, kept in the HTML) */
+.dir__a { grid-template-areas: "icon title arrow"; padding: 14px 18px 14px 14px; }
+.dir__icon { width: 46px; height: 46px; border-radius: 14px; }
+html[data-a11y="on"] .dir__a { grid-template-areas: "icon title arrow" "icon note arrow"; }
+html[data-a11y="on"] .dir__note, html[data-a11y="on"] .lvp__note { display: block; }
+/* low-vision mode on phones: icon + arrow on top, the (large) text gets the full card width */
+@media (max-width: 599px) {
+  html[data-a11y="on"] .dir__a { grid-template-columns: auto 1fr auto; grid-template-areas: "icon . arrow" "title title title" "note note note"; gap: 8px; }
+  html[data-a11y="on"] .lvp__a { grid-template-columns: auto 1fr auto; }
+  html[data-a11y="on"] .lvp__t, html[data-a11y="on"] .lvp__note { grid-column: 1 / -1; grid-row: auto; }
+  html[data-a11y="on"] .lvp__icon { grid-row: 1; }
+  html[data-a11y="on"] .lvp__arrow { grid-row: 1; grid-column: 3; }
+}
 .dir__arrow { grid-area: arrow; color: var(--c); transition: transform .4s var(--ease-out); }
 .dir__a:hover .dir__arrow { transform: translateX(4px); }
 
@@ -381,7 +394,7 @@ html.day-pin .day__head { transition: opacity .5s; }
 .adm__steps { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
 .adm__steps .step { background: #FBF8F1; }
 .adm__steps .step__n { -webkit-text-stroke-color: var(--violet); }
-.adm__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.adm__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
 .adm__side { display: flex; flex-direction: column; min-width: 0; padding: clamp(18px, 2.6vw, 30px); border-radius: var(--r-l); background: var(--ink); color: #EEF1FF; --surface: rgba(255, 255, 255, .06); --surface-ink: #EEF1FF; --surface-muted: rgba(238, 241, 255, .72); --surface-line: rgba(238, 241, 255, .14); --deco: var(--sun); --deco-ink: var(--sun); --t-accent-text: #FFC857; }
 .adm__side .blk__h3 { color: #fff; }
 .adm__side .blk__h3 + * { margin-bottom: 26px; }
@@ -393,13 +406,13 @@ html.day-pin .day__head { transition: opacity .5s; }
 .quick span { min-width: 0; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; }
 html[data-a11y="on"][data-a11y-font="2"] .quick, html[data-a11y="on"][data-a11y-font="3"] .quick { grid-template-columns: 1fr; }
 @media (max-width: 599px) { html[data-a11y="on"] .quick { grid-template-columns: 1fr; } }
+/* narrow phones: icon above the label so long words (Безопасность / Қауіпсіздік) are never split mid-word */
+@media (max-width: 420px) {
+  .quick a { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; }
+  .quick span { overflow-wrap: normal; hyphens: manual; -webkit-hyphens: manual; }
+}
 
 /* news + trio */
-.trio { display: grid; gap: clamp(16px, 2vw, 24px); }
-@media (min-width: 1000px) { .trio { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.trio__cell { min-width: 0; padding: clamp(18px, 2.2vw, 26px); border-radius: var(--r-l); background: #FBF8F1; border: 1px solid var(--t-line); }
-.trio__cell { display: flex; flex-direction: column; }
-.trio__cell > .blk__links { margin-top: auto; padding-top: 14px; }
 .trio__text { color: var(--t-muted); font-size: .95rem; line-height: 1.5; text-wrap: pretty; }
 .hdocs, .hev { display: grid; gap: 8px; }
 .hdoc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 10px 10px 12px; border-radius: var(--r-m); background: #fff; border: 1px solid var(--t-line); }
@@ -417,8 +430,14 @@ html[data-a11y="on"][data-a11y-font="2"] .quick, html[data-a11y="on"][data-a11y-
 .hev__d span { font-size: .72rem; font-weight: 600; color: #EEF1FF; }
 .hev__t { font-weight: 600; font-size: .95rem; line-height: 1.3; }
 .hev__k { margin-top: 2px; font-size: .78rem; font-weight: 600; letter-spacing: .04em; color: var(--t-muted); }
-.lv__links a { background: #fff; }
-.lv__links .link-list__note { font-size: .84rem; }
+/* projects & school life: compact label tiles (the note is the tooltip / accessible description; shown in low-vision mode) */
+.lvp { display: grid; gap: 8px; }
+.lvp__a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 10px 14px 10px 10px; border-radius: var(--r-m); background: #fff; border: 1px solid var(--t-line); color: var(--t-ink); font-weight: 600; line-height: 1.3; text-decoration: none; transition: border-color .3s, transform .4s var(--ease-out), box-shadow .4s var(--ease-out); }
+.lvp__a:hover { border-color: rgba(108, 92, 231, .45); transform: translateY(-2px); box-shadow: 0 14px 30px -22px rgba(108, 92, 231, .8); }
+.lvp__icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: rgba(108, 92, 231, .1); color: var(--violet, #6C5CE7); }
+.lvp__note { display: none; grid-column: 2 / 3; font-size: .84rem; font-weight: 400; color: var(--t-muted); }
+.lvp__arrow { color: var(--violet, #6C5CE7); transition: transform .4s var(--ease-out); }
+.lvp__a:hover .lvp__arrow { transform: translateX(3px); }
 
 /* ------------------------------------------------------------------ CONTACTS */
 .st--contacts { padding-block: clamp(72px, 10vw, 140px) clamp(40px, 6vw, 80px); }
@@ -550,3 +569,96 @@ html[data-a11y="on"] .subj::before, html[data-a11y="on"] .hero__card::before { d
 
 /* phones: keep the "try it" button away from the fixed round pause button (bottom-left) */
 @media (max-width: 899px) { .st__trick { display: flex; width: fit-content; margin-left: auto; } }
+
+/* ================================================================== COMPACT OFFICIAL PART (SPEC §6.1)
+   Layer 1 = short, visual (key numbers, icons, tiles); layer 2 = ui.more / ui.legal / ui.pendingGroup / ui.tabs.
+   Nothing is removed from the HTML — only folded. The wow journey above (hero → day) is untouched. */
+/* "Expand all" lives in the head of #levels (home.js moves it from the top of <main>, where the 3D hero is) */
+.blk__head-main { max-width: 70ch; }
+.hb-xall:empty { display: none; }
+.hb-xall .xall { position: static; margin: 0; }
+.hb-xall .xall__btn { background: #fff; border-color: var(--t-line); }
+
+/* levels: licence key-number card (the full list of licensed levels is in the disclosure) */
+.lvk { display: flex; flex-direction: column; gap: 16px; min-width: 0; align-self: start; }
+.lvk__top { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 14px 16px; }
+.lvk__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--ink); color: var(--sun); }
+.lvk__num { font: 800 clamp(2.6rem, 2rem + 2vw, 3.6rem)/.9 var(--font-display); letter-spacing: -.04em; color: var(--violet, #6C5CE7); font-variant-numeric: tabular-nums; }
+.lvk__label { font: 600 1.05rem/1.3 var(--font-display); }
+.lvk__meta { margin-top: 3px; font: 500 .8rem/1.4 var(--font-mono); color: var(--t-muted); overflow-wrap: anywhere; }
+.lvk__meta a { color: var(--t-link); }
+.lvk__tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.lvk__tags li { padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid rgba(108, 92, 231, .35); font-size: .86rem; font-weight: 600; color: var(--t-ink); }
+.lvk__more .dz__body .blk__note { margin-top: 12px; }
+@media (max-width: 420px) { .lvk__top { grid-template-columns: auto minmax(0, 1fr); } .lvk__top .lvk__txt { grid-column: 1 / -1; } }
+
+/* admission: four key facts as number cards */
+.akeys { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.adm__top { display: flex; flex-direction: column; gap: clamp(16px, 2vw, 24px); }
+@media (min-width: 900px) { .akeys { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* desktop: the key cards sit in the left column (2 × 2) beside the dark «Родителям» card, so both columns end together */
+@media (min-width: 1000px) {
+  .adm__main .akeys { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* the quick links grow into tiles (icon on top, label below) and fill the dark card down to the egov teaser */
+  .adm__side .quick { flex: 1; grid-auto-rows: 1fr; }
+  .adm__side .quick a { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 16px; }
+}
+.akey { --c: #6C5CE7; position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 16px 16px 18px; border-radius: var(--r-l); background: linear-gradient(160deg, color-mix(in srgb, var(--c) 9%, #fff), #FBF8F1 70%); border: 1px solid color-mix(in srgb, var(--c) 22%, transparent); overflow: hidden; }
+.akey--2 { --c: #C77700; } .akey--3 { --c: #0A7BBF; } .akey--4 { --c: #0B8F6A; }
+.akey__ic { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 6px; border-radius: 12px; background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c); }
+.akey__v { font: 700 clamp(1.18rem, 1rem + .7vw, 1.5rem)/1.1 var(--font-display); letter-spacing: -.02em; color: var(--t-ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.akey__k { font-size: .86rem; line-height: 1.35; color: var(--t-muted); }
+.adm__dz { margin-top: 2px; }
+.adm__dz .adm__steps { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.adm__main > .dz--pending, .adm__main > .pending { margin-top: 0; }
+.adm__side { gap: 18px; }
+.adm__side .blk__h3 + * { margin-bottom: 0; }
+.adm__egov { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; margin-top: auto; padding: 14px 16px; border-radius: var(--r-m); background: linear-gradient(120deg, rgba(255, 182, 39, .2), rgba(255, 182, 39, .06)); border: 1px solid rgba(255, 182, 39, .45); color: #fff; text-decoration: none; font-weight: 600; transition: background .3s, transform .4s var(--ease-out); }
+.adm__egov:hover { background: rgba(255, 182, 39, .26); transform: translateY(-2px); }
+.adm__egov-n { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: var(--sun); color: var(--ink); font: 800 1.3rem/1 var(--font-display); }
+.adm__egov-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; line-height: 1.25; }
+.adm__egov-t small { font: 500 .78rem/1.2 var(--font-mono); color: rgba(238, 241, 255, .7); }
+.adm__egov > .ico { color: var(--sun); }
+
+/* news: the "Official information" block — one card with tabs */
+.off { position: relative; padding: clamp(18px, 2.6vw, 32px); border-radius: var(--r-l); background: linear-gradient(150deg, #FBF8F1, #F3F0FF); border: 1px solid var(--t-line); }
+.off__head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.off__icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: var(--ink); color: var(--sun); }
+.off__title { font: 600 clamp(1.15rem, 1rem + .5vw, 1.45rem)/1.2 var(--font-display); letter-spacing: -.01em; }
+.off .tabs__list { background: #fff; }
+.off .tabs__tab[aria-selected="true"] { background: var(--ink); color: #fff; }
+.off .tabs__tab[aria-selected="true"] .ico { color: var(--sun); }
+.off .tabs__tab[aria-selected="true"] .tabs__n { background: var(--sun); color: var(--ink); }
+.off .tabs__panels { margin-top: 16px; }
+.off__h { margin-bottom: 10px; font: 700 .74rem/1.2 var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--t-accent-text); }
+.off .blk__links { margin-top: 12px; }
+@media (min-width: 900px) {
+  .off .hdocs, .off .hev, .off__chan { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .off__egov { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.off__egov a { background: #fff; }
+.off__chan .chan__a { background: #fff; }
+.off__chan .chan__a:hover { background: #FFF8E6; }
+.off__chan .chan__arrow { color: var(--t-accent-text); }
+.off .trio__text { max-width: 70ch; }
+/* phones: the five tabs are one swipeable row (snap + a fade on the edge that still has tabs behind it) */
+@media (max-width: 699px) {
+  .off .tabs__list { flex-wrap: nowrap; width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: 5px;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); }
+  .off .tabs__list[data-end] { -webkit-mask-image: none; mask-image: none; }
+  .off .tabs__tab { flex: none; scroll-snap-align: start; padding: 8px 14px; font-size: .88rem; white-space: nowrap; }
+  .off .tabs__tab .ico { display: none; }
+}
+html[data-a11y="on"] .off .tabs__list { display: flex; flex-wrap: wrap; width: 100%; border-radius: 18px; }
+
+/* low-vision mode (big fonts): key cards one per row, the egov teaser stacks */
+@media (max-width: 899px) { html[data-a11y="on"] .akeys { grid-template-columns: 1fr; } }
+html[data-a11y="on"] .adm__egov { grid-template-columns: 1fr; justify-items: start; }
+html[data-a11y="on"] .adm__egov > .ico { display: none; }
+html[data-a11y="on"] .lvk__top { grid-template-columns: auto minmax(0, 1fr); }
+html[data-a11y="on"] .lvk__top .lvk__txt { grid-column: 1 / -1; }
+
+/* contacts: folded notes in the dark card */
+.ct__dz { margin-top: 18px; }
+.ct__dz .dz--card > .dz__body { background: rgba(255, 255, 255, .06); }
+.ct__a11y > a:not(.a11y-text-link) { display: inline-flex; align-items: center; gap: 8px; color: var(--t-link); }

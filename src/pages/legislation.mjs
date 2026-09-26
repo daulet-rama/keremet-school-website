@@ -155,6 +155,7 @@ export default {
   render(lang, { ui, L, t, href, fmt }) {
     const laws = ACTS.filter((a) => a.kind === 'law').length;
     const orders = ACTS.length - laws;
+    const kindLabel = (a) => (a.kind === 'law' ? X('Заң', 'Закон', 'Law') : X('Бұйрық', 'Приказ', 'Order'));
     const langLinks = (a) => {
       const items = [
         { l: 'kz', label: lang === 'en' ? 'KAZ' : 'ҚАЗ', url: `${ADILET}/kaz/docs/${a.code}`, name: X('қазақша мәтін', 'текст на казахском', 'Kazakh text') },
@@ -163,33 +164,32 @@ export default {
       if (a.en) items.push({ l: 'en', label: 'ENG', url: `${ADILET}/eng/docs/${a.code}`, name: X('ағылшынша аударма', 'перевод на английский', 'English translation') });
       return items.map((i) => `<a class="dx-act__lang" href="${i.url}" target="_blank" rel="noopener" data-ext hreflang="${i.l === 'kz' ? 'kk' : i.l}"><span aria-hidden="true">${i.label}</span><span class="sr-only">${L(i.name)}: ${ui.esc(L(a.short))}</span><span class="sr-only"> ${t('extNewTab')}</span>${ui.icon('ext', { size: 14 })}</a>`).join('');
     };
-    const card = (a) => {
+    // Layer 1 = one line per act: short title (link to the official text) · kind · number · date · language links.
+    // Layer 2 = "Подробнее": full official title, why it matters for the school, issuer, MoJ registration, Adilet code.
+    const row = (a) => {
       const main = adiletUrl(a, lang);
       const reg = a.reg ? `<div class="dx-act__row"><dt>${L(X('ҚР Әділет министрлігінде тіркелді', 'Зарегистрирован в Минюсте РК', 'Registered with the Ministry of Justice'))}</dt><dd>${fmt.date(a.reg.date)}, № ${a.reg.no}</dd></div>` : '';
       const note = a.shortened ? `<p class="dx-act__note">${L(X('Ресми атауы қысқартылып берілген — толық атауы adilet.zan.kz сайтында.', 'Официальное наименование приведено в сокращении — полное на adilet.zan.kz.', 'The official title is shortened here — see adilet.zan.kz for the full title.'))}</p>` : '';
       const page = a.page ? `<a class="dx-act__more" href="${href(a.page)}">${ui.icon('arrow-right', { size: 16 })}<span>${L(X('Сайттағы тиісті бөлім', 'Раздел сайта по теме', 'Related section of this site'))}</span></a>` : '';
-      const enNote = lang === 'en' && !a.en ? `<span class="dx-act__hint">${L(X('', '', 'official texts in Kazakh and Russian; English title is an unofficial translation'))}</span>` : '';
-      return `<li class="dx-act dx-act--${a.kind}" data-dx-item data-cat="${a.cat}">
-<div class="dx-act__head"><span class="dx-act__kind">${ui.icon(a.kind === 'law' ? 'scale' : 'doc', { size: 16 })}<span>${L(a.kind === 'law' ? X('Заң', 'Закон', 'Law') : X('Бұйрық', 'Приказ', 'Order'))}</span></span><span class="dx-act__no">№ ${a.number}</span></div>
-<h3 class="dx-act__title"><a href="${main}" target="_blank" rel="noopener" data-ext><span class="dx-act__short">${L(a.short)}</span><span class="sr-only"> ${t('extNewTab')}</span></a></h3>
-<dl class="dx-act__meta">${a.kind === 'order' ? `<div class="dx-act__row dx-act__row--wide"><dt>${L(X('Түрі және қабылдаған орган', 'Вид и орган', 'Type and issuer'))}</dt><dd>${L(a.issuer)}</dd></div>` : ''}<div class="dx-act__row"><dt>${L(X('Күні мен нөмірі', 'Дата и номер', 'Date and number'))}</dt><dd><time datetime="${a.date}">${fmt.date(a.date)}</time>, № ${a.number}</dd></div>${reg}<div class="dx-act__row"><dt>${L(X('«Әділет» коды', 'Код в «Әділет»', 'Adilet code'))}</dt><dd><code>${a.code}</code></dd></div></dl>
-<details class="dx-act__fold" open data-dx-fold><summary>${ui.icon('info', { size: 16 })}<span>${L(X('Толық атауы және мектеп үшін маңызы', 'Полное название и значение для школы', 'Full title and why it matters'))}</span></summary><p class="dx-act__full">${a.kind === 'law' ? L(X(`Қазақстан Республикасының ${a.title.kz} Заңы`, `Закон Республики Казахстан ${a.title.ru}`, `Law of the Republic of Kazakhstan ${a.title.en}`)) : L(a.title)}</p><p class="dx-act__why">${L(a.why)}</p>${note}</details>
-<div class="dx-act__foot"><span class="dx-act__langs" role="group" aria-label="${ui.esc(L(X('Ресми мәтін тілдері', 'Языки официального текста', 'Official text languages')))}">${langLinks(a)}</span>${enNote}${page}</div></li>`;
+      const enNote = lang === 'en' && !a.en ? `<p class="dx-act__hint">${L(X('', '', 'official texts in Kazakh and Russian; English title is an unofficial translation'))}</p>` : '';
+      const meta = `<dl class="dx-act__meta">${a.kind === 'order' ? `<div class="dx-act__row dx-act__row--wide"><dt>${L(X('Түрі және қабылдаған орган', 'Вид и орган', 'Type and issuer'))}</dt><dd>${L(a.issuer)}</dd></div>` : ''}<div class="dx-act__row"><dt>${L(X('Күні мен нөмірі', 'Дата и номер', 'Date and number'))}</dt><dd><time datetime="${a.date}">${fmt.date(a.date)}</time>, № ${a.number}</dd></div>${reg}<div class="dx-act__row"><dt>${L(X('«Әділет» коды', 'Код в «Әділет»', 'Adilet code'))}</dt><dd><code>${a.code}</code></dd></div></dl>`;
+      return `<li class="dx-law dx-law--${a.kind}" data-dx-item data-cat="${a.cat}">
+<span class="dx-law__ic" aria-hidden="true">${ui.icon(a.kind === 'law' ? 'scale' : 'doc', { size: 18 })}</span>
+<div class="dx-law__main"><p class="dx-law__t"><a href="${main}" target="_blank" rel="noopener" data-ext>${L(a.short)}<span class="sr-only"> ${t('extNewTab')}</span></a></p>
+<details class="dx-law__more"><summary class="dx-law__s"><span class="dx-law__m"><span class="dx-law__k">${L(kindLabel(a))}</span> · № ${a.number} · <time datetime="${a.date}">${fmt.date(a.date)}</time></span><span class="dx-law__tog">${L(X('Толығырақ', 'Подробнее', 'Details'))}</span></summary>
+<div class="dx-law__body"><p class="dx-act__full">${a.kind === 'law' ? L(X(`Қазақстан Республикасының ${a.title.kz} Заңы`, `Закон Республики Казахстан ${a.title.ru}`, `Law of the Republic of Kazakhstan ${a.title.en}`)) : L(a.title)}</p><p class="dx-act__why">${L(a.why)}</p>${meta}${note}${enNote}${page}</div></details></div>
+<span class="dx-act__langs dx-law__langs" role="group" aria-label="${ui.esc(L(X('Ресми мәтін тілдері', 'Языки официального текста', 'Official text languages')))}">${langLinks(a)}</span></li>`;
     };
-
-    // On phones the full title + "why it matters" block starts folded (open without JS / on wider screens).
-    const foldScript = `<script>(function(){if(!window.matchMedia||!matchMedia('(max-width: 599px)').matches)return;[].forEach.call(document.querySelectorAll('[data-dx-fold]'),function(d){d.open=false;});})();</script>`;
 
     // ------------------------------------------------------------ intro
     const intro = ui.split({
       ratio: '3:2', align: 'center',
       left: `${ui.eyebrow(X('Құқықтық негіз', 'Правовая основа', 'Legal basis'))}
 <h2 class="sec__title">${L(X('Мектеп қандай заңдар бойынша жұмыс істейді', 'По каким законам работает школа', 'The rules the school works by'))}</h2>
-${ui.lead(X(
-        'Мұнда «Керемет» мектебінің оқу-тәрбие жұмысын, қабылдауын, бағалауын, сайтын және дербес деректерді қорғауын реттейтін негізгі нормативтік құқықтық актілер жинақталған. Әр актінің толық деректемелері мен «Әділет» ақпараттық-құқықтық жүйесіндегі ресми мәтініне сілтеме берілген.',
-        'Здесь собраны основные нормативные правовые акты, которые регулируют учебно-воспитательную работу школы «Керемет», приём, оценивание, работу сайта и защиту персональных данных. Для каждого акта указаны полные реквизиты и ссылка на официальный текст в информационно-правовой системе «Әділет».',
-        'This page lists the main laws and ministerial orders that govern Keremet School’s teaching, admission, assessment, website and personal-data protection, with full requisites and a link to the official text in the Adilet legal information system.',
-      ))}`,
+${ui.tldr({ points: [
+        { icon: 'scale', text: X('«Керемет» мектебінің оқу-тәрбие жұмысын, қабылдауын, бағалауын, сайтын және дербес деректерді қорғауын реттейтін негізгі заңдар мен бұйрықтар.', 'Основные законы и приказы, которые регулируют учебно-воспитательную работу школы «Керемет», приём, оценивание, работу сайта и защиту персональных данных.', 'The main laws and ministerial orders that govern Keremet School’s teaching, admission, assessment, website and personal-data protection.') },
+        { icon: 'doc', text: X('Әр актінің толық деректемелері және «Әділет» ақпараттық-құқықтық жүйесіндегі <strong>ресми мәтініне сілтеме</strong>.', 'Для каждого акта — полные реквизиты и <strong>ссылка на официальный текст</strong> в информационно-правовой системе «Әділет».', 'Each act has its full requisites and a <strong>link to the official text</strong> in the Adilet legal information system.') },
+      ] })}`,
       right: ui.panel({ theme: 'hero', cls: 'dx-adilet', body: `<span class="dx-adilet__icon">${ui.icon('scale', { size: 34 })}</span><p class="dx-adilet__k">${L(X('Ресми дереккөз', 'Официальный источник', 'Official source'))}</p><p class="dx-adilet__t">adilet.zan.kz</p><p class="dx-adilet__s">${L(X(`Барлық сілтемелер мен деректемелер ${fmt.date(VERIFIED)} тексерілді`, `Все ссылки и реквизиты проверены ${fmt.date(VERIFIED)}`, `All links and requisites checked on ${fmt.date(VERIFIED)}`))}</p>${ui.button({ href: 'https://adilet.zan.kz/', label: X('«Әділет» ашу', 'Открыть «Әділет»', 'Open Adilet'), kind: 'gold', size: 's' })}` }),
     });
     const statsRow = ui.stats([
@@ -205,7 +205,18 @@ ${ui.lead(X(
 <div class="dx-toolbar__chips" role="group" aria-label="${ui.esc(L(X('Санат бойынша сүзу', 'Фильтр по разделу', 'Filter by category')))}"><button type="button" class="dx-chip" data-dx-cat="*" aria-pressed="true">${L(X('Барлығы', 'Все', 'All'))} <b>${ACTS.length}</b></button>${CATS.map((c) => `<button type="button" class="dx-chip" data-dx-cat="${c.id}" aria-pressed="false">${ui.icon(c.icon, { size: 16 })}<span>${L(c.label)}</span> <b>${ACTS.filter((a) => a.cat === c.id).length}</b></button>`).join('')}</div>
 <p class="dx-toolbar__count" aria-live="polite">${L(X('Көрсетілді', 'Показано', 'Showing'))}: <b data-dx-count>${ACTS.length}</b> / ${ACTS.length}</p></div>`;
 
-    const groups = CATS.map((c) => `<section class="dx-cat" data-dx-group aria-labelledby="cat-${c.id}"><h2 class="dx-cat__title" id="cat-${c.id}"><span class="dx-cat__icon">${ui.icon(c.icon, { size: 22 })}</span>${L(c.label)}</h2><ul class="dx-acts" role="list">${ACTS.filter((a) => a.cat === c.id).map(card).join('')}</ul></section>`).join('');
+    // Layer 1 = one card per topic (icon, name, how many laws / orders, the first short titles); layer 2 = its acts.
+    const catCard = (c) => {
+      const acts = ACTS.filter((a) => a.cat === c.id);
+      const nLaw = acts.filter((a) => a.kind === 'law').length, nOrd = acts.length - nLaw;
+      const pills = [
+        nLaw ? `<span class="dx-lc__pill dx-lc__pill--law">${ui.icon('scale', { size: 14 })}${L(X(`${nLaw} заң`, `законов: ${nLaw}`, `${nLaw} law${nLaw > 1 ? 's' : ''}`))}</span>` : '',
+        nOrd ? `<span class="dx-lc__pill">${ui.icon('doc', { size: 14 })}${L(X(`${nOrd} бұйрық`, `приказов: ${nOrd}`, `${nOrd} order${nOrd > 1 ? 's' : ''}`))}</span>` : '',
+      ].join('');
+      const preview = acts.slice(0, 3).map((a) => L(a.short)).join(' · ') + (acts.length > 3 ? ` · +${acts.length - 3}` : '');
+      return `<details class="dx-lc dx-lc--${c.id}" id="cat-${c.id}" data-dx-group data-cat="${c.id}"><summary class="dx-lc__s"><span class="dx-lc__ic" aria-hidden="true">${ui.icon(c.icon, { size: 24 })}</span><span class="dx-lc__main"><span class="dx-lc__t">${L(c.label)}</span><span class="dx-lc__meta">${pills}</span><span class="dx-lc__p">${preview}</span></span><b class="dx-lc__n">${acts.length}</b><span class="dx-lc__chev" aria-hidden="true"></span></summary><div class="dx-lc__body"><ul class="dx-laws" role="list">${acts.map(row).join('')}</ul></div></details>`;
+    };
+    const groups = `<div class="dx-lcs">${CATS.map(catCard).join('')}</div>`;
     const empty = `<p class="dx-empty" data-dx-empty hidden>${ui.icon('info', { size: 18 })}<span>${L(X('Сұрау бойынша акт табылмады. Басқа сөзбен іздеп көріңіз.', 'По запросу актов не найдено. Попробуйте другое слово.', 'No acts match. Try another word.'))}</span></p>`;
 
     // ------------------------------------------------------------ summary table (requisites at a glance, printable)
@@ -213,7 +224,7 @@ ${ui.lead(X(
       caption: X('Деректемелердің жиынтық кестесі', 'Сводная таблица реквизитов', 'Requisites at a glance'),
       head: [X('Акт', 'Акт', 'Act'), X('Күні', 'Дата', 'Date'), X('Нөмірі', 'Номер', 'No.'), X('Әділет министрлігінде тіркелуі', 'Регистрация в Минюсте', 'MoJ registration'), X('Ресми мәтін', 'Официальный текст', 'Official text')],
       rows: ACTS.map((a) => [
-        `<span>${L(a.short)}<br><span class="muted">${L(a.kind === 'law' ? X('Заң', 'Закон', 'Law') : X('Бұйрық', 'Приказ', 'Order'))}</span></span>`,
+        `<span>${L(a.short)}<br><span class="muted">${L(kindLabel(a))}</span></span>`,
         fmt.date(a.date), a.number,
         a.reg ? `${fmt.date(a.reg.date)}, № ${a.reg.no}` : '—',
         ui.extLink(adiletUrl(a, lang), a.code),
@@ -227,6 +238,8 @@ ${ui.lead(X(
       { title: X('Қолданыстағы редакция', 'Действующая редакция', 'Current wording'), text: X('«Әділет» өзгерістер енгізілген соңғы редакцияны көрсетеді; өзгерістер тарихы «Өзгерістер тарихы» қойындысында.', '«Әділет» показывает актуальную редакцию с внесёнными изменениями; история — во вкладке «История изменений».', 'Adilet shows the up-to-date wording with all amendments; see the “History of changes” tab.') },
       { title: X('Тізімді жаңарту', 'Обновление перечня', 'Keeping the list current'), text: X('Мектеп тізімді жаңа акт шыққанда немесе акт күшін жойғанда, әрі кемінде жылына бір рет — 1 қыркүйекке дейін тексереді.', 'Школа проверяет перечень при выходе нового акта или утрате силы, и не реже раза в год — до 1 сентября.', 'The school reviews the list whenever an act is adopted or repealed, and at least yearly before 1 September.') },
     ]);
+    const enCallout = ui.callout({ type: 'info', title: X('Ағылшын тіліндегі атаулар туралы', 'Об английских названиях', 'About English titles'), text: X('Ресми мәтіндер қазақ және орыс тілдерінде. Ағылшынша атаулар — ресми емес аударма; «Әділетте» ағылшынша аудармасы бар актілер үшін ENG сілтемесі берілген.', 'Официальные тексты — на казахском и русском языках. Английские названия — неофициальный перевод; для актов, у которых в «Әділет» есть перевод, дана ссылка ENG.', 'Official texts exist in Kazakh and Russian. English titles are unofficial translations unless an ENG link to Adilet’s own translation is shown.') });
+    const tools = `<div class="dz-row">${ui.more({ label: X(`Барлық ${ACTS.length} актінің деректемелері (кесте)`, `Реквизиты всех ${ACTS.length} актов (таблица)`, `Requisites of all ${ACTS.length} acts (table)`), icon: 'grid', tone: 'card', body: summary })}${ui.more({ label: X('Тізімді қалай пайдалану керек', 'Как пользоваться перечнем', 'How to use this list'), icon: 'info', count: 3, tone: 'card', body: how + enCallout })}</div>`;
 
     const official = ui.linkList([
       { href: 'https://adilet.zan.kz/', icon: 'scale', label: X('«Әділет» ақпараттық-құқықтық жүйесі', 'ИПС «Әділет»', 'Adilet legal information system'), note: 'adilet.zan.kz' },
@@ -242,21 +255,13 @@ ${ui.lead(X(
       { href: href('finance'), icon: 'coins', label: X('Қаржылық есептер', 'Финансовые отчёты', 'Financial reports') },
     ]);
 
-    const toc = ui.toc([
-      ...CATS.map((c) => ({ id: `cat-${c.id}`, label: c.label })),
-      { id: 'summary', label: X('Жиынтық кесте', 'Сводная таблица', 'Summary table') },
-      { id: 'how', label: X('Қалай пайдалану керек', 'Как пользоваться', 'How to use') },
-      { id: 'official', label: X('Ресми ресурстар', 'Официальные ресурсы', 'Official resources') },
-    ]);
-
     return [
       intro,
       statsRow,
-      ui.split({ ratio: '1:2', left: `<div class="dx-sticky">${toc}</div>`, right: `<div class="dx-filter" data-dx-filter>${toolbar}${groups}${empty}</div>` }),
-      ui.section({ id: 'summary', eyebrow: X('Басып шығаруға ыңғайлы', 'Удобно для печати', 'Print-friendly'), title: X('Жиынтық кесте', 'Сводная таблица', 'Summary table'), body: ui.accordion([{ q: X(`Барлық ${ACTS.length} актінің деректемелерін көрсету`, `Показать реквизиты всех ${ACTS.length} актов`, `Show the requisites of all ${ACTS.length} acts`), a: summary }]) }),
-      ui.section({ id: 'how', tone: 'tint', eyebrow: X('Анықтама', 'Справка', 'Guide'), title: X('Қалай пайдалану керек', 'Как пользоваться перечнем', 'How to use this list'), body: how + ui.callout({ type: 'info', title: X('Ағылшын тіліндегі атаулар туралы', 'Об английских названиях', 'About English titles'), text: X('Ресми мәтіндер қазақ және орыс тілдерінде. Ағылшынша атаулар — ресми емес аударма; «Әділетте» ағылшынша аудармасы бар актілер үшін ENG сілтемесі берілген.', 'Официальные тексты — на казахском и русском языках. Английские названия — неофициальный перевод; для актов, у которых в «Әділет» есть перевод, дана ссылка ENG.', 'Official texts exist in Kazakh and Russian. English titles are unofficial translations unless an ENG link to Adilet’s own translation is shown.') }) }),
+      ui.section({ id: 'acts', eyebrow: X('Тақырыптар бойынша', 'По темам', 'By topic'), title: X('Актілер тізбесі', 'Перечень актов', 'List of acts'), lead: X('Тақырыпты ашыңыз: әр акт — бір жол, ресми мәтінге сілтемесімен.', 'Откройте тему: каждый акт — одна строка со ссылкой на официальный текст.', 'Open a topic: one line per act, with a link to the official text.'), body: `<div class="dx-filter" data-dx-filter>${toolbar}${groups}${empty}</div>` }),
+      ui.section({ id: 'summary', tone: 'tint', eyebrow: X('Басып шығаруға ыңғайлы', 'Удобно для печати', 'Print-friendly'), title: X('Жиынтық кесте және анықтама', 'Сводная таблица и справка', 'Summary table and guide'), body: tools }),
       ui.split({ ratio: '1:1', left: ui.section({ id: 'official', title: X('Ресми ресурстар', 'Официальные ресурсы', 'Official resources'), body: official }), right: ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }) }),
-      dxFilterScript() + foldScript,
+      dxFilterScript(),
     ].join('\n');
   },
 };

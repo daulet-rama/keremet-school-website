@@ -44,21 +44,20 @@ ${audience('book', X('Педагогтер', 'Педагоги', 'Teachers'), X(
     // ---------------------------------------------------------------- principles (generic, legally grounded)
     const principles = ui.cards([
       { icon: 'heart', title: X('Ерікті қатысу', 'Добровольное участие', 'Voluntary'), text: X('Сауалнамаға қатысу — міндет емес; кез келген сұраққа жауап бермеуге болады.', 'Участие в опросе — не обязанность; на любой вопрос можно не отвечать.', 'Taking part is never compulsory; you may skip any question.') },
-      { icon: 'lock', title: X('Дербес деректерді қорғау', 'Защита персональных данных', 'Data protection'), text: X(`Кәмелетке толмағандардың деректерін өңдеу үшін заңды өкілдерінің келісімі қажет (${pdLaw}). Мектеп деректерді қалай өңдейтіні — <a href="${href('privacy')}">құпиялылық саясатында</a>.`, `Для обработки данных несовершеннолетних нужно согласие их законных представителей (${pdLaw}). Как школа обрабатывает данные — в <a href="${href('privacy')}">политике конфиденциальности</a>.`, `Processing minors’ data requires their legal representatives’ consent (${pdLaw}). How the school handles data is set out in the <a href="${href('privacy')}">privacy policy</a>.`) },
+      { icon: 'lock', title: X('Дербес деректерді қорғау', 'Защита персональных данных', 'Data protection'), text: X(`Балалардың деректері — тек ата-ананың келісімімен. Толығырақ — <a href="${href('privacy')}">құпиялылық саясатында</a>.`, `Данные детей — только с согласия родителей. Подробнее — в <a href="${href('privacy')}">политике конфиденциальности</a>.`, `Children’s data only with parental consent. Details in the <a href="${href('privacy')}">privacy policy</a>.`) },
       { icon: 'grid', title: X('Жиынтық нәтижелер', 'Обобщённые итоги', 'Aggregated results'), text: X('Жарияланатын қорытындыларда тек жалпы сандар мен үлестер көрсетіледі, жеке жауаптар жарияланбайды.', 'В публикуемых итогах — только общие цифры и доли, без индивидуальных ответов.', 'Published results show only totals and shares, never individual answers.') },
       { icon: 'target', title: X('Нәтиже → шешім', 'Итог → решение', 'Result → action'), text: X('Әр есептің соңында мектептің қорытындыға сай қандай шаралар қабылдағаны көрсетіледі.', 'В конце каждого отчёта указывается, какие меры школа приняла по итогам.', 'Each report ends with what the school decided to do about the results.') },
-    ], { cols: 4, variant: 'feature' });
+    ], { cols: 4, variant: 'feature' }) + `<div class="fb-sv-law">${ui.legal([{ title: X('«Дербес деректер және оларды қорғау туралы» Заң', 'Закон «О персональных данных и их защите»', 'Law on Personal Data and its Protection'), href: PD_LAW, note: X(`Кәмелетке толмағандардың деректерін өңдеу үшін заңды өкілдерінің келісімі қажет (${pdLaw}). Мектеп деректерді қалай өңдейтіні — <a href="${href('privacy')}">құпиялылық саясатында</a>.`, `Для обработки данных несовершеннолетних нужно согласие их законных представителей (${pdLaw}). Как школа обрабатывает данные — в <a href="${href('privacy')}">политике конфиденциальности</a>.`, `Processing minors’ data requires their legal representatives’ consent (${pdLaw}). How the school handles data is set out in the <a href="${href('privacy')}">privacy policy</a>.`) }])}</div>`;
 
     // ---------------------------------------------------------------- results (pending slots)
-    const results = ui.docList(['parents', 'pupils', 'teachers'].map((k) => docById(`survey-${k}-2026-2027`)).filter(Boolean));
-    const resultsPending = ui.pending({
-      title: X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'),
-      note: X(
+    const results = ui.docList(['parents', 'pupils', 'teachers'].map((k) => docById(`survey-${k}-2026-2027`)).filter(Boolean), { groupPending: true });
+    const resultsTitle = X('Әр есепте не жарияланады', 'Что будет в каждом отчёте', 'What each report will contain');
+    // An explanation of what each report will hold (not a missing item) → a plain "More" disclosure, not the pending style.
+    const resultsPending = ui.more({ icon: 'doc', label: resultsTitle, body: `<p><strong>${L(X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'))}.</strong> ${L(X(
         'Әр өткізілген сауалнама бойынша: тақырыбы мен мақсаты, өткізілген мерзімі, қатысушылар саны, негізгі нәтижелер (кесте немесе диаграмма) және қабылданған шаралар — PDF немесе сайт бетіндегі мәтін түрінде.',
         'По каждому проведённому опросу: тема и цель, сроки, число участников, основные результаты (таблица или диаграмма) и принятые меры — в виде PDF или текста на странице.',
         'For each survey: topic and purpose, dates, number of participants, key results (table or chart) and the actions taken — as a PDF or as text on this page.',
-      ),
-    });
+      ))}</p>` });
 
     // ---------------------------------------------------------------- how a survey cycle works
     const cycle = ui.steps([
@@ -78,7 +77,7 @@ ${audience('book', X('Педагогтер', 'Педагоги', 'Teachers'), X(
     return [
       ui.split({ ratio: '1:2', align: 'start', left: toc, right: ui.section({ id: 'who', eyebrow: X('Үш тарап — бір мектеп', 'Три стороны — одна школа', 'Three voices — one school'), title: X('Кімнің пікірін сұраймыз', 'Чьё мнение мы спрашиваем', 'Whose views we ask for'), body: audiences }) }),
       ui.section({ id: 'current', eyebrow: X('Қазір', 'Сейчас', 'Now'), title: X('Белсенді сауалнамалар', 'Актуальные опросы', 'Current surveys'), body: current }),
-      ui.section({ id: 'results', tone: 'chemistry', eyebrow: L(year), title: X('Сауалнама нәтижелері', 'Результаты анкетирования', 'Survey results'), body: results + resultsPending }),
+      ui.section({ id: 'results', tone: 'chemistry', eyebrow: L(year), title: X('Сауалнама нәтижелері', 'Результаты анкетирования', 'Survey results'), lead: X('Үш сауалнаманың қорытындылары осында жарияланады.', 'Итоги трёх опросов будут опубликованы здесь.', 'The results of the three surveys will be published here.'), body: `<div class="dz-row">${results.replace(/^<div class="docs-group">([\s\S]*)<\/div>$/, '$1')}${resultsPending}</div>` }),
       ui.section({ id: 'principles', eyebrow: X('Қалай өтеді', 'Как это устроено', 'How it works'), title: X('Сауалнама қалай өткізіледі', 'Как проводится анкетирование', 'How surveys are run'), lead: X('Сауалнама циклі мен негізгі қағидаттар. Мектептің сауалнама жүргізу тәртібі бекітілгеннен кейін осы жерде нақтыланады.', 'Цикл опроса и основные принципы. После утверждения порядка анкетирования в школе он будет уточнён здесь.', 'The survey cycle and core principles. Once the school approves its survey procedure, the details will be given here.'), body: cycle + principles }),
       ui.section({ title: t('nav.inSection'), body: ui.linkList([
         { href: href('feedback'), icon: 'chat', label: X('Өтініш жолдау', 'Обращения', 'Appeals & feedback'), note: X('Ұсынысыңызды жазыңыз', 'Напишите предложение', 'Send a suggestion') },

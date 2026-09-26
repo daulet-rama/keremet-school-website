@@ -100,7 +100,7 @@ export default {
 |---|---|
 | Layout | `section({title,id,body,tone,eyebrow,lead,actions,width})`, `grid({cols,items})`, `split({left,right,ratio,reverse,align})`, `toc(items)`, `panel({theme,body})` |
 | Content | `cards`, `stats`/`stat`, `facts`, `table`, `accordion`, `timeline`, `steps`, `callout`, `quote`, `banner`, `linkList`, `people`/`personCard`, `gallery`, `chips`, `badge`, `lead`, `prose`, `note`, `divider` |
-| Data blocks | `docList(items,{thumbs})`, `pending(lang,note)`, `slot(value,render,pending)` (a `school.mjs` TODO slot: the value, or the pending block while it is empty), `schoolEmail()`, `newsCard`/`newsList`, `contactList({admission})`, `requisites()`, `mapEmbed(lat,lng,{zoom,height})`, `form({kind:'feedback'\|'blog'\|'admission'})` |
+| Data blocks | `docList(items,{thumbs,collapse,groupPending})`, `pending(lang,note)`, `pendingGroup(lang,items)`, `slot(value,render,pending)` (a `school.mjs` TODO slot: the value, or the pending block while it is empty), `schoolEmail()`, `newsCard`/`newsList`, `contactList({admission})`, `requisites()`, `mapEmbed(lat,lng,{zoom,height})`, `form({kind:'feedback'\|'blog'\|'admission'})` |
 | Atoms | `button({href,label,kind,icon,iconLeft,size})`, `extLink(href,label)`, `icon(name)` (see `ICON_NAMES`), `logo({size,mono,withText})`, `shanyrakArt()`, `ornament()`, `band()`, `eyebrow()`, `esc()` |
 
 - **Ornament.** The ram-horn ornament is no longer tiled as wallpaper on dark surfaces. Use `ui.band()` (or `<div class="orn-band" aria-hidden="true">`): a textile-border strip that fades at both ends; its colour is `--band-color` (default: the theme accent) and its opacity `--band-o`. The page hero, mega-menu intro and footer already carry one.
@@ -114,6 +114,25 @@ export default {
 - `'dark'`
 - **any theme id**, which gives a patterned panel in that subject's colours.
 
+### Compact pages: progressive disclosure
+
+Keep every official item in the HTML, but show only a short human layer. Put the details behind native `<details>` toggles. The reference page is `src/pages/license.mjs`.
+
+| Need | Component | Renders |
+|---|---|---|
+| Page-top summary | `ui.tldr({ points: [{ icon: 'shield', text: X(…) }, …] })` | "Қысқаша / Коротко / In short" strip with icons |
+| Long explanation | `ui.more({ summary: X(…), body: X('<p>…</p>', …) })` | teaser + "Толығырақ / Подробнее / More ▾" (`label`, `icon`, `count`, `tone:'plain'\|'card'\|'tint'` optional) |
+| Legal basis, norm quotes, adilet links | `ui.legal([{ title, number?, date?, href?, note? }], { note? })` or `ui.legal(X('<p>…</p>', …))` | chip "⚖ Құқықтық негіз / Правовая основа / Legal basis 3 ▾" |
+| Long document list | `ui.docList(docs, { collapse: 3, groupPending: true })` | 3 rows + "Барлығын көрсету (N) / Показать все (N)"; missing files → one "N документов будут загружены ▾" line |
+| Several "information is being updated" slots | `ui.pendingGroup(lang, [X(…), { title, note }])` | one line "5 материалов готовятся ▾" (1 item → one slim line) |
+| Alternative views | `ui.tabs([{ label, body, icon?, count? }], { label })` | accessible tabs; without JS all panels show |
+
+Some usage notes:
+
+- **Side by side.** Wrap closed chips in `<div class="dz-row">…</div>`. An opened chip takes the full row.
+- **Pending line.** `ui.pending(…)` keeps its signature. It now renders one slim line, "⌛ Ақпарат толықтырылуда · note".
+- **Expand all.** `main.js` adds the "Барлығын ашу / Развернуть всё / Expand all" button once a page has 3 or more closed disclosures. It also opens everything for printing and opens the disclosure that contains a `#hash` target. Add `class="no-xall"` to a `<details>` to exclude it.
+- **Measuring.** Check the result with the density script, which reports visible and total words per page against the baseline build.
 ### Themes
 
 The theme ids are `hero`, `math`, `physics`, `chemistry`, `biology`, `geography`, `languages`, `informatics`, `arts`, `day` and `paper`.

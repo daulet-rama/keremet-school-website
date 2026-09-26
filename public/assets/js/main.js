@@ -4,7 +4,7 @@
    (animated, focus trap) · language switch memory · a11y panel (persisted) · motion pause
    (dispatches window 'keremet:motion' {paused}) · reveal-on-scroll · external links · search page ·
    forms (validation, honeypot, POST, WhatsApp/mailto fallback) · back-to-top · responsive tables ·
-   copy-to-clipboard.
+   copy-to-clipboard · tabs (ui.tabs) · disclosures: "Expand all", print opens all, #hash opens ancestors.
    Public API: window.Keremet = { lang, motionPaused(), a11yOn(), setMotion(paused), t(key) }
    Events: 'keremet:motion' {paused} · 'keremet:a11y' {state}
    ===================================================================================== */
@@ -528,6 +528,113 @@ $$('form[data-form]').forEach((form) => {
     // wider screens: the group headings are plain headings, not toggles
     cols.forEach((c) => c.querySelector('summary')?.addEventListener('click', (e) => { if (!ftrMQ.matches) e.preventDefault(); }));
   }
+}
+
+/* ---------------------------------------------------------------- tabs (ui.tabs) */
+// No JS: every panel is shown with its heading. Here: a real tablist (automatic activation, ← → Home End);
+// inactive panels get hidden="until-found" so Ctrl+F still finds their text (beforematch selects the tab).
+const TABS = new WeakMap();
+$$('[data-tabs]').forEach((root) => {
+  const tabs = $$('[role="tab"]', root).filter((t) => t.closest('[data-tabs]') === root);
+  const panels = tabs.map((t) => d.getElementById(t.getAttribute('aria-controls')));
+  if (!tabs.length) return;
+  const select = (i, focus = false) => {
+    tabs.forEach((t, j) => {
+      const on = i === j;
+      t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1;
+      const p = panels[j]; if (!p) return;
+      if (on || root.classList.contains('is-all')) p.removeAttribute('hidden'); else p.setAttribute('hidden', 'until-found');
+    });
+    root.dataset.selected = String(i);
+    if (focus) tabs[i].focus();
+  };
+  TABS.set(root, { select, panels });
+  root.classList.add('is-ready');
+  select(Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true')));
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(i));
+    t.addEventListener('keydown', (e) => {
+      const n = tabs.length;
+      const k = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key];
+      if (k === undefined) return;
+      e.preventDefault(); select((k + n) % n, true);
+    });
+  });
+  panels.forEach((p, i) => p?.addEventListener('beforematch', () => select(i)));
+});
+
+/* ---------------------------------------------------------------- disclosures: expand all · print · #hash */
+// ui.more / legal / pendingGroup / docList({collapse}) / accordion are native <details>. With ≥ 3 closed ones on a
+// page, a small "Барлығын ашу / Развернуть всё / Expand all" button appears at the top of the page body (for the
+// attestation commission); pressing it again restores the previous state. Printing opens everything and restores
+// afterwards. A #hash that points inside a closed disclosure / hidden tab opens it (and its ancestors).
+{
+  const pageBody = d.querySelector('.page-body') || d.querySelector('main');
+  const EXCLUDE = '.form, [data-search-page], .no-xall';
+  const allDetails = () => (pageBody ? $$('details', pageBody).filter((el) => !el.closest(EXCLUDE)) : []);
+  let expanded = false;
+  function setAll(open) {
+    allDetails().forEach((el) => {
+      if (open) {
+        if (el.dataset.xallWas == null) el.dataset.xallWas = el.open ? '1' : '0';
+        const nm = el.getAttribute('name'); // exclusive accordions: a shared name would keep only one open
+        if (nm) { el.dataset.xallName = nm; el.removeAttribute('name'); }
+        el.open = true;
+      } else {
+        if (el.dataset.xallWas != null) { el.open = el.dataset.xallWas === '1'; delete el.dataset.xallWas; }
+        if (el.dataset.xallName) { el.setAttribute('name', el.dataset.xallName); delete el.dataset.xallName; }
+      }
+    });
+    $$('[data-tabs].is-ready', pageBody || d).forEach((root) => {
+      root.classList.toggle('is-all', open);
+      const t = TABS.get(root); if (t) t.select(Number(root.dataset.selected) || 0);
+    });
+    expanded = open;
+  }
+  const closedCount = () => allDetails().filter((el) => !el.open).length;
+  if (pageBody && closedCount() >= 3) {
+    const ICON = '<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m7 9 5-5 5 5M7 15l5 5 5-5"/></svg>';
+    const wrap = d.createElement('div');
+    wrap.className = 'xall';
+    wrap.innerHTML = `<button type="button" class="xall__btn" aria-pressed="false">${ICON}<span class="xall__txt"></span></button>`;
+    const btn = wrap.firstElementChild, txt = btn.querySelector('.xall__txt');
+    const label = () => { txt.textContent = tr(expanded ? 'disc.collapseAll' : 'disc.expandAll'); btn.setAttribute('aria-pressed', String(expanded)); };
+    label();
+    btn.addEventListener('click', () => { setAll(!expanded); label(); live(txt.textContent); });
+    pageBody.prepend(wrap);
+    window.addEventListener('keremet:xall', label);
+  }
+  let printOpened = false;
+  window.addEventListener('beforeprint', () => { if (!expanded) { setAll(true); printOpened = true; } });
+  window.addEventListener('afterprint', () => { if (printOpened) { setAll(false); printOpened = false; window.dispatchEvent(new Event('keremet:xall')); } });
+
+  function reveal(hash, { scroll = true } = {}) {
+    let id = (hash || '').replace(/^#/, '');
+    try { id = decodeURIComponent(id); } catch { /* keep raw */ }
+    const el = id && d.getElementById(id);
+    if (!el) return;
+    let changed = false;
+    if (el.tagName === 'DETAILS' && !el.open) { el.open = true; changed = true; }
+    for (let p = el.parentElement; p; p = p.parentElement) {
+      if (p.tagName === 'DETAILS' && !p.open) { p.open = true; changed = true; }
+      if (p.getAttribute('role') === 'tabpanel' && p.hasAttribute('hidden')) {
+        const root = p.closest('[data-tabs]'); const t = root && TABS.get(root);
+        if (t) { t.select(t.panels.indexOf(p)); changed = true; }
+      }
+    }
+    if (el.getAttribute('role') === 'tabpanel' && el.hasAttribute('hidden')) {
+      const root = el.closest('[data-tabs]'); const t = root && TABS.get(root);
+      if (t) { t.select(t.panels.indexOf(el)); changed = true; }
+    }
+    if (changed && scroll) requestAnimationFrame(() => el.scrollIntoView({ block: 'start', behavior: 'auto' }));
+  }
+  if (location.hash) reveal(location.hash);
+  window.addEventListener('hashchange', () => reveal(location.hash));
+  // a link to the hash that is already in the URL fires no hashchange
+  d.addEventListener('click', (e) => {
+    const a = e.target instanceof Element && e.target.closest('a[href^="#"]');
+    if (a && a.hash && a.hash === location.hash) reveal(a.hash);
+  });
 }
 
 /* ---------------------------------------------------------------- public API */

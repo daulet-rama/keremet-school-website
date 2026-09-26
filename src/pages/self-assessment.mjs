@@ -779,14 +779,29 @@ function renderOverview(lang, ctx) {
   const docs = K.allDocs(), ds = K.stat(docs);
   const reports = K.reportsIn(K.allN), scored = K.scoredIn(K.allN);
 
+  // SPEC §6.1 — layer 1: plain summary, the 8 areas, the criteria map and the scale stay visible; layer 2: the
+  // definition, the official evaluation-sheet form, the Rules quotes and the legal sources open on demand.
+  // ---- what self-assessment is (opened from the intro)
+  const LEAD = X('Өзін-өзі бағалау — мемлекеттік аттестаттаудың міндетті кезеңі. Мектеп өз қызметін 8 бағыт бойынша 39 өлшемшартқа сәйкес талдап, талдамалық анықтамалар мен растайтын құжаттарды осы сайтта жариялайды. Аттестаттау комиссиясы мектепке келмей, ең алдымен осы материалдарды, сондай-ақ Ұлттық білім беру деректер қорының (ҰБДҚ) деректерін және тестілеу нәтижелерін зерделейді (17-т.).',
+    'Самооценка — обязательный этап государственной аттестации. Школа анализирует свою деятельность по 39 критериям в 8 направлениях и публикует на этом сайте аналитические справки и подтверждающие документы. Аттестационная комиссия без посещения школы изучает прежде всего эти материалы, а также данные Национальной образовательной базы данных (НОБД) и результаты тестирования (п. 17).',
+    'Self-assessment is a compulsory stage of the state attestation. The school analyses its work against 39 criteria in 8 areas and publishes analytic reports and supporting documents on this website. Without visiting the school, the attestation commission studies first of all these materials, together with data from the National Education Database and the testing results (para 17).');
+  const what = `<p>${L(LEAD)}</p>${ui.prose(X(
+    `<p><strong>Өзін-өзі бағалау</strong> — мектептің өз қызметін мемлекеттік жалпыға міндетті білім беру стандарттарының (МЖМБС) талаптарымен салыстыра отырып, белгіленген өлшемшарттар бойынша талдауы. Ол ҚР Оқу-ағарту министрінің 2026 жылғы 30 сәуірдегі № 114-НҚ бұйрығымен бекітілген мемлекеттік аттестаттау қағидаларына сәйкес жүргізіледі.</p><p>Әр өлшемшарт бойынша мектеп <em>талдамалық анықтама</em> жазады және <em>растайтын материалдарды</em> (бұйрықтар, хаттамалар, жоспарлар, қорытындылар, кестелер) қоса береді. Әр өлшемшарт төрт деңгейдің бірімен бағаланады: 5 — «үлгілі», 4 — «жақсы», 3 — «жақсартуды талап етеді», 2 — «төмен».</p>`,
+    `<p><strong>Самооценка</strong> — это анализ школой собственной деятельности по установленным критериям в сравнении с требованиями государственных общеобязательных стандартов образования (ГОСО). Она проводится по Правилам государственной аттестации, утверждённым приказом Министра просвещения РК от 30 апреля 2026 года № 114-НҚ.</p><p>По каждому критерию школа готовит <em>аналитическую справку</em> и прикладывает <em>подтверждающие материалы</em> (приказы, протоколы, планы, заключения, таблицы). Каждый критерий оценивается одним из четырёх уровней: 5 — «образцовый», 4 — «хороший», 3 — «требующий улучшения», 2 — «низкий».</p>`,
+    `<p><strong>Self-assessment</strong> is the school’s own analysis of its work against set criteria and the State compulsory education standards (SCES). It follows the state attestation Rules approved by Order No. 114-НҚ of the Minister of Education of Kazakhstan of 30 April 2026.</p><p>For each criterion the school writes an <em>analytic report</em> and attaches <em>supporting materials</em> (orders, minutes, plans, certificates, tables). Each criterion is rated at one of four levels: 5 “exemplary”, 4 “good”, 3 “needs improvement”, 2 “low”.</p>`))}
+${ui.callout({ type: 'info', title: X('10-тармақ: материалдарға қойылатын талап', 'Пункт 10: требование к материалам', 'Para 10: what the materials must be'), text: X('Өзін-өзі бағалау материалдары оларды орналастыру сәтінде толық, шынайы және өзекті болуы тиіс.', 'Материалы самооценки должны быть достоверными, полными и актуальными на момент их размещения.', 'Self-assessment materials must be reliable, complete and up to date at the time of posting.') })}`;
+
   const intro = ui.split({
-    ratio: '3:2', align: 'center',
+    ratio: '3:2', align: 'center', cls: 'sa-intro',
     left: `${ui.eyebrow(X('Мемлекеттік аттестаттау · № 114-НҚ бұйрық', 'Государственная аттестация · приказ № 114-НҚ', 'State attestation · Order No. 114-НҚ'))}
 <h2 class="sec__title">${L(X('Мектеп өз жұмысын ашық бағалайды', 'Школа открыто оценивает свою работу', 'The school assesses its own work in the open'))}</h2>
-${ui.lead(X('Өзін-өзі бағалау — мемлекеттік аттестаттаудың міндетті кезеңі. Мектеп өз қызметін 8 бағыт бойынша 39 өлшемшартқа сәйкес талдап, талдамалық анықтамалар мен растайтын құжаттарды осы сайтта жариялайды. Аттестаттау комиссиясы мектепке келмей, ең алдымен осы материалдарды, сондай-ақ Ұлттық білім беру деректер қорының (ҰБДҚ) деректерін және тестілеу нәтижелерін зерделейді (17-т.).',
-  'Самооценка — обязательный этап государственной аттестации. Школа анализирует свою деятельность по 39 критериям в 8 направлениях и публикует на этом сайте аналитические справки и подтверждающие документы. Аттестационная комиссия без посещения школы изучает прежде всего эти материалы, а также данные Национальной образовательной базы данных (НОБД) и результаты тестирования (п. 17).',
-  'Self-assessment is a compulsory stage of the state attestation. The school analyses its work against 39 criteria in 8 areas and publishes analytic reports and supporting documents on this website. Without visiting the school, the attestation commission studies first of all these materials, together with data from the National Education Database and the testing results (para 17).'))}
-<div class="cluster sa-intro__cta">${ui.button({ href: '#sheet', label: X('Бағалау парағы', 'Лист оценивания', 'Evaluation sheet'), icon: 'arrow-right' })}${ui.button({ href: '#areas', label: X('8 бағыт', '8 направлений', '8 areas'), kind: 'ghost' })}</div>`,
+${ui.tldr({ points: [
+      { icon: 'target', text: X('Мектеп өз жұмысын 8 бағыттағы <strong>39 өлшемшарт</strong> бойынша өзі тексереді.', 'Школа сама проверяет свою работу по <strong>39 критериям</strong> в 8 направлениях.', 'The school checks its own work against <strong>39 criteria</strong> in 8 areas.') },
+      { icon: 'doc', text: X('Әр өлшемшарт бойынша — талдамалық анықтама және растайтын құжаттар.', 'По каждому критерию — аналитическая справка и подтверждающие документы.', 'For each criterion: an analytic report and supporting documents.') },
+      { icon: 'users', text: X('Аттестаттау комиссиясы оларды <strong>мектепке келмей</strong> зерделейді.', 'Аттестационная комиссия изучает их <strong>без посещения школы</strong>.', 'The attestation commission reviews them <strong>without visiting the school</strong>.') },
+    ] })}
+${ui.more({ id: 'what', icon: 'info', tone: 'card', label: X('Өзін-өзі бағалау дегеніміз не', 'Что такое самооценка', 'What self-assessment is'), body: what })}
+<div class="cluster sa-intro__cta">${ui.button({ href: '#areas', label: X('8 бағыт', '8 направлений', '8 areas'), icon: 'arrow-right' })}${ui.button({ href: '#sheet', label: X('Бағалау парағы', 'Лист оценивания', 'Evaluation sheet'), kind: 'ghost' })}</div>`,
     right: ui.panel({ theme: 'math', cls: 'sa-board', body: `<p class="sa-board__hand" aria-hidden="true">Σ = 39</p>${K.ring(ds.pct, `${ds.pct}%`, L(X('құжаттар жүктелді', 'документов загружено', 'documents uploaded')))}
 <div class="sa-board__meters">${K.meter(T.docs, ds.up, ds.total)}${K.meter(T.reports, reports, 39)}${K.meter(T.scores, scored, 39)}</div>
 <p class="sa-board__note">${L(X('Көрсеткіштер жарияланған материалдар бойынша автоматты түрде есептеледі.', 'Показатели считаются автоматически по опубликованным материалам.', 'Figures are calculated automatically from the published materials.'))}</p>` }),
@@ -800,64 +815,23 @@ ${ui.lead(X('Өзін-өзі бағалау — мемлекеттік атте�
     { icon: 'hourglass', value: '≤ 7', label: X('жұмыс күні — аттестаттау', 'рабочих дней — аттестация', 'working days — attestation'), note: X('15-тармақ', 'п. 15', 'para 15') },
   ], { cls: 'sa-stats' });
 
-  // ---- what & legal basis
-  const what = `${ui.prose(X(
-    `<p><strong>Өзін-өзі бағалау</strong> — мектептің өз қызметін мемлекеттік жалпыға міндетті білім беру стандарттарының (МЖМБС) талаптарымен салыстыра отырып, белгіленген өлшемшарттар бойынша талдауы. Ол ҚР Оқу-ағарту министрінің 2026 жылғы 30 сәуірдегі № 114-НҚ бұйрығымен бекітілген мемлекеттік аттестаттау қағидаларына сәйкес жүргізіледі.</p><p>Әр өлшемшарт бойынша мектеп <em>талдамалық анықтама</em> жазады және <em>растайтын материалдарды</em> (бұйрықтар, хаттамалар, жоспарлар, қорытындылар, кестелер) қоса береді. Әр өлшемшарт төрт деңгейдің бірімен бағаланады: 5 — «үлгілі», 4 — «жақсы», 3 — «жақсартуды талап етеді», 2 — «төмен».</p>`,
-    `<p><strong>Самооценка</strong> — это анализ школой собственной деятельности по установленным критериям в сравнении с требованиями государственных общеобязательных стандартов образования (ГОСО). Она проводится по Правилам государственной аттестации, утверждённым приказом Министра просвещения РК от 30 апреля 2026 года № 114-НҚ.</p><p>По каждому критерию школа готовит <em>аналитическую справку</em> и прикладывает <em>подтверждающие материалы</em> (приказы, протоколы, планы, заключения, таблицы). Каждый критерий оценивается одним из четырёх уровней: 5 — «образцовый», 4 — «хороший», 3 — «требующий улучшения», 2 — «низкий».</p>`,
-    `<p><strong>Self-assessment</strong> is the school’s own analysis of its work against set criteria and the State compulsory education standards (SCES). It follows the state attestation Rules approved by Order No. 114-НҚ of the Minister of Education of Kazakhstan of 30 April 2026.</p><p>For each criterion the school writes an <em>analytic report</em> and attaches <em>supporting materials</em> (orders, minutes, plans, certificates, tables). Each criterion is rated at one of four levels: 5 “exemplary”, 4 “good”, 3 “needs improvement”, 2 “low”.</p>`))}
-${ui.callout({ type: 'info', title: X('10-тармақ: материалдарға қойылатын талап', 'Пункт 10: требование к материалам', 'Para 10: what the materials must be'), text: X('Өзін-өзі бағалау материалдары оларды орналастыру сәтінде толық, шынайы және өзекті болуы тиіс.', 'Материалы самооценки должны быть достоверными, полными и актуальными на момент их размещения.', 'Self-assessment materials must be reliable, complete and up to date at the time of posting.') })}`;
-
-  const legal = `${ui.cards([
-    { icon: 'scale', title: X('№ 114-НҚ бұйрық — «Әділет» (қазақша)', 'Приказ № 114-НҚ — «Әділет» (каз.)', 'Order No. 114-НҚ — Adilet (Kazakh)'), href: SRC.adiletKz, text: X('Ресми мәтін, V2600038645', 'Официальный текст, V2600038645', 'Official text, V2600038645') },
-    { icon: 'scale', title: X('№ 114-НҚ бұйрық — «Әділет» (орысша)', 'Приказ № 114-НҚ — «Әділет» (рус.)', 'Order No. 114-НҚ — Adilet (Russian)'), href: SRC.adiletRu, text: X('ҚР Әділет министрлігінде 04.05.2026 № 38645 тіркелген', 'Зарегистрирован в МЮ РК 04.05.2026 № 38645', 'Registered with the Ministry of Justice on 04.05.2026, No. 38645') },
-    { icon: 'doc', title: X('Мәтіннің көшірмесі (zakon.uchet.kz)', 'Копия текста (zakon.uchet.kz)', 'Text mirror (zakon.uchet.kz)'), href: lang === 'kz' ? SRC.mirrorKz : SRC.mirrorRu, text: X('Өлшемшарттардың мәтіні осы жерден алынды, 24.09.2026', 'Тексты критериев сверены по этой копии, 24.09.2026', 'Criteria texts checked against this copy on 24.09.2026') },
-  ], { cols: 3 })}
-${ui.accordion(RULES.map((r) => ({ q: X(`${r.p}-тармақ`, `Пункт ${r.p}`, `Paragraph ${r.p}`), a: `<blockquote class="sa-law">${L(r.t)}</blockquote>${lang === 'en' ? '<p class="sa-law__src">Unofficial translation.</p>' : ''}` })))}
-${ui.note(X('2026 жылғы 12 шілдеден бастап 16-тармақтың 7) тармақшасы, 17-тармақтың 2) және 3) тармақшалары және 1–3-қосымшалар жаңа редакцияда қолданылады (бұйрықтың 4-тармағы); осы бетте жаңа редакция келтірілген.', 'С 12 июля 2026 года подпункт 7) пункта 16, подпункты 2) и 3) пункта 17 и приложения 1–3 действуют в новой редакции (пункт 4 приказа); на этой странице приведена новая редакция.', 'From 12 July 2026, sub-para 7 of para 16, sub-paras 2 and 3 of para 17 and Appendices 1–3 apply in a new wording (para 4 of the Order); this page uses the new wording.'))}`;
-
-  // ---- period
-  const period = `<ol class="sa-years" role="list">${YEARS.map((y, i) => `<li class="sa-year${i === 2 ? ' sa-year--now' : ''}"><span class="sa-year__tag">${L([X('2 жыл бұрын', '2 года назад', '2 years ago'), X('өткен жыл', 'прошлый', 'last year'), X('ағымдағы', 'текущий', 'current')][i])}</span><span class="sa-year__y">${y}</span><span class="sa-year__cap">${L(X('оқу жылы', 'учебный год', 'school year'))}</span></li>`).join('')}</ol>
-${ui.note(X('15-тармаққа сәйкес аттестаттауға алдыңғы 2 оқу жылындағы және ағымдағы оқу жылындағы қызмет жатады. Аттестаттау мерзімі басқа оқу жылына түссе, кезең сол жылға қарай ығысады.', 'По пункту 15 аттестации подлежит деятельность за 2 предыдущих учебных года и текущий учебный год. Если срок аттестации придётся на другой учебный год, период сдвигается соответственно.', 'Under para 15 the attestation covers the 2 previous school years and the current one. If the attestation falls in another school year, the period shifts accordingly.'))}`;
-
-  const dates = ui.split({
-    ratio: '1:1',
-    left: ui.facts([
-      { k: X('Бөлім ашылған күн', 'Раздел открыт', 'Section opened'), v: ctx.fmt.dateTime(PUBLISHED) },
-      { k: X('Материалдар толық көлемде орналастырылған күн', 'Материалы размещены в полном объёме', 'All materials posted in full'), v: COMPLETE ? ctx.fmt.dateTime(COMPLETE) : `<span class="sa-pend">${ui.icon('hourglass', { size: 14 })}<span>${L(X('барлық анықтамалар мен құжаттар жүктелгеннен кейін көрсетіледі', 'будет указано после загрузки всех справок и документов', 'shown once all reports and documents are uploaded'))}</span></span>` },
-      { k: X('Соңғы жаңартылған күн', 'Последнее обновление', 'Last updated'), v: ctx.fmt.dateTime(UPDATED) },
-      { k: X('Аттестаттаудың басталу мерзімі (Тізбе бойынша)', 'Начало аттестации (по Перечню)', 'Attestation start (per the List)'), v: `<span class="sa-pend">${ui.icon('hourglass', { size: 14 })}<span>${L(X('Тізбе бекітілгеннен кейін толтырылады', 'заполняется после утверждения Перечня', 'filled in once the List is approved'))}</span></span>` },
-      { k: X('Материалдарды жариялаудың соңғы күні', 'Крайний срок размещения', 'Posting deadline'), v: X('аттестаттау басталғанға дейін кемінде 5 күн бұрын', 'не менее чем за 5 дней до начала аттестации', 'at least 5 days before the attestation starts') },
-    ]),
-    right: ui.callout({ type: 'warn', title: X('Мерзім туралы', 'О сроках', 'About deadlines'), text: X('Комитет және оның аумақтық бөлімшелері Тізбені жыл сайын 1 қарашаға дейін бекітеді және 3 жұмыс күні ішінде өз сайтында жариялайды (8-тармақ). Мектеп Тізбеге енгізілсе, аттестаттау мерзімі мен материалдарды жариялау күні осы жерде көрсетіледі.', 'Комитет и его территориальные подразделения ежегодно до 1 ноября утверждают Перечень и в течение 3 рабочих дней размещают его на своих сайтах (п. 8). При включении школы в Перечень здесь будут указаны срок аттестации и дата размещения материалов.', 'The Committee and its regional units approve the List every year by 1 November and post it within 3 working days (para 8). If the school is included, the attestation period and posting date will be shown here.') }),
-  });
-
-  // ---- procedure
-  const steps = ui.steps([
-    { title: X('Тізбе бекітіледі', 'Утверждается Перечень', 'The List is approved'), text: X('жыл сайын 1 қарашаға дейін (8-т.)', 'ежегодно до 1 ноября (п. 8)', 'every year by 1 November (para 8)') },
-    { title: X('Мектеп өзін-өзі бағалау жүргізеді', 'Школа проводит самооценку', 'The school self-assesses'), text: X('39 өлшемшарт, растайтын материалдар (9–10-т.)', '39 критериев, подтверждающие материалы (пп. 9–10)', '39 criteria with supporting materials (paras 9–10)') },
-    { title: X('Материалдар сайтта жарияланады', 'Материалы размещаются на сайте', 'Materials are posted online'), text: X('басталуына кемінде 5 күн қалғанда (9-т.)', 'не позднее чем за 5 дней до начала (п. 9)', 'at least 5 days before the start (para 9)') },
-    { title: X('4 және 9-сыныптарда компьютерлік тестілеу', 'Компьютерное тестирование 4 и 9 классов', 'Computer testing in grades 4 and 9'), text: X('басталуына 30 күнтізбелік күннен ерте емес, 5 жұмыс күнінен кешіктірмей (49-т.)', 'не ранее 30 календарных дней и не позднее 5 рабочих дней до начала (п. 49)', 'no earlier than 30 calendar days and no later than 5 working days before the start (para 49)') },
-    { title: X('Комиссия материалдарды зерделейді', 'Комиссия изучает материалы', 'The commission reviews the materials'), text: X('мектепке бармай, 7 жұмыс күнінен аспайды (15, 17-т.)', 'без посещения школы, не более 7 рабочих дней (пп. 15, 17)', 'without a visit, no more than 7 working days (paras 15, 17)') },
-    { title: X('Қорытынды және бұйрық', 'Заключение и приказ', 'Conclusion and order'), text: X('қорытынды қол қойылған күннен бастап 10 күнтізбелік күннен кешіктірмей (41-т.)', 'не позднее 10 календарных дней со дня подписания заключения (п. 41)', 'within 10 calendar days of signing the conclusion (para 41)') },
-  ], { cls: 'sa-steps' });
-
-  // ---- scale
-  const scale = `<ul class="sa-scale" role="list">${LEVELS.map((l) => `<li class="sa-scale__item sa-scale__item--${l.score}"><span class="sa-scale__n">${l.score}</span><span class="sa-scale__name">«${L(l.name)}»</span></li>`).join('')}</ul>
-${ui.grid({ cols: 2, items: [
-    ui.callout({ type: 'info', title: X('Қорытынды деңгей (36-т.)', 'Итоговый уровень (п. 36)', 'Final level (para 36)'), text: X('Барлық өлшемшарттар бойынша бағалардың арифметикалық орташа мәні, ең жақын бүтін санға дейін дөңгелектенеді.', 'Среднее арифметическое оценок по всем критериям с округлением до ближайшего целого.', 'The arithmetic mean of all criterion scores, rounded to the nearest whole number.') }),
-    ui.callout({ type: 'ok', title: X('Аттестаттаудан өту (38–39-т.)', 'Прохождение аттестации (пп. 38–39)', 'Passing (paras 38–39)'), text: X('«Үлгілі», «жақсы» немесе «жақсартуды талап етеді» деңгейі — өтті. МЖМБС талаптарына сәйкессіздік болса немесе деңгей «төмен» болса — өтпеді.', 'Уровень «образцовый», «хороший» или «требующий улучшения» — пройдена. При несоответствии ГОСО или уровне «низкий» — не пройдена.', '“Exemplary”, “good” or “needs improvement” — passed. Non-compliance with SCES or a “low” level — not passed.') }),
-  ] })}`;
-
-  // ---- 8 areas
+  // ---- 8 areas: each card shows its criteria as numbered tiles (colour = evidence status) → layer 1 of the 39 criteria
+  const tile = (n) => {
+    const c = K.crit(n), st = K.stat(K.evOf(c));
+    const state = st.up === st.total && st.total ? 'done' : st.up ? 'part' : 'none';
+    return `<li><a class="sa-tile sa-tile--${state}${SCORES[n] ? ` sa-tile--s${SCORES[n]}` : ''}" href="${K.anchor(n)}" title="${esc(`${n}. ${L(c.s)} · ${st.up}/${st.total}`)}" aria-label="${esc(`${L(X('Өлшемшарт', 'Критерий', 'Criterion'))} ${n}. ${L(c.s)}. ${L(T.docs)}: ${st.up}/${st.total}`)}">${n}</a></li>`;
+  };
   const areas = `<ul class="sa-dirs" role="list">${DIRS.map((d) => {
     const st = K.stat(K.dirDocs(d));
     const range = d.crit.length > 1 ? `${d.crit[0]}–${d.crit[d.crit.length - 1]}` : `${d.crit[0]}`;
     return `<li class="sa-dir"><span class="sa-dir__n" aria-hidden="true">${d.n}</span><span class="sa-dir__icon">${ui.icon(d.icon, { size: 22 })}</span>
 <h3 class="sa-dir__title"><a href="${href(`self-${d.n}`)}">${L(d.title)}</a></h3>
-<p class="sa-dir__law">${L(X(`16-т. ${d.n}) тармақшасы: `, `п. 16, пп. ${d.n}): `, `Para 16(${d.n}): `))}${L(d.law)}</p>
 <p class="sa-dir__crit">${ui.icon('check', { size: 14 })}<span>№ ${range} · ${K.critN(d.crit.length)}</span></p>
+<ol class="sa-tiles" role="list">${d.crit.map(tile).join('')}</ol>
 ${K.meter(T.docs, st.up, st.total, { cls: 'sa-meter--s' })}</li>`;
-  }).join('')}</ul>`;
+  }).join('')}</ul>
+<div class="sa-areas-foot"><p class="sa-legend"><span class="sa-legend__k">${L(X('Шаршы — өлшемшарт, түсі — құжаттар:', 'Квадрат — критерий, цвет — документы:', 'Square = criterion, colour = documents:'))}</span><span class="sa-legend__i"><i class="sa-legend__sw sa-tile--done" aria-hidden="true"></i>${L(X('жүктелді', 'загружены', 'uploaded'))}</span><span class="sa-legend__i"><i class="sa-legend__sw sa-tile--part" aria-hidden="true"></i>${L(X('ішінара', 'частично', 'partly'))}</span><span class="sa-legend__i"><i class="sa-legend__sw sa-tile--none" aria-hidden="true"></i>${L(X('дайындалуда', 'готовятся', 'in preparation'))}</span></p>
+${ui.legal(DIRS.map((d) => ({ title: X(`16-тармақтың ${d.n}) тармақшасы`, `Пункт 16, подпункт ${d.n})`, `Paragraph 16(${d.n})`), note: `«${L(d.law)}»` })), { note: X('Жалпы білім беретін мектеп үшін 16-тармақтың 1–8 тармақшалары қолданылады (9-тармақша — өндірістік практика — ТжКБ ұйымдарына арналған).', 'Для общеобразовательной школы применяются подпункты 1–8 пункта 16 (подпункт 9 — производственная практика — относится к организациям ТиПО).', 'For a general school, sub-paras 1–8 of para 16 apply (sub-para 9, work placements, is for vocational colleges).') })}</div>`;
 
   // ---- evaluation sheet (Appendix 4): the four columns of the official form + one extra site column
   const pend = (t) => `<span class="sa-pend">${ui.icon('hourglass', { size: 14 })}<span>${L(t)}</span></span>`;
@@ -887,15 +861,56 @@ ${K.meter(T.docs, st.up, st.total, { cls: 'sa-meter--s' })}</li>`;
     scoredVals.length === 39 ? `<strong class="sa-sheet__total">${total}</strong>` : `<span class="sa-score sa-score--none">${ui.icon('hourglass', { size: 14 })}<span>${scoredVals.length}/39</span></span>`,
     '',
   ]);
-  const sheet = `${ui.table({
+  const sheetForm = `${ui.table({
     cls: 'sa-sheet',
     caption: X(`Бағалау парағы — ${S.name.kz}`, `Лист оценивания — ${S.name.ru}`, `Evaluation sheet — ${S.name.en}`),
     head: [X('р/с №', '№ п/п', 'No.'), X('Бағалау өлшемшарттары', 'Критерии оценивания', 'Evaluation criteria'), X('Білім беру ұйымына тиісті өлшеуішті бағалау мазмұны', 'Содержание оценивания измерителя, соответствующего организации образования', 'Content of the measure that applies to the organisation'), X('Баллдары', 'Баллы', 'Points'), X('Материалдар*', 'Материалы*', 'Evidence*')],
     rows: sheetRows,
   })}
-${ui.note(X('Алғашқы төрт баған және «Балдардың жалпы сомасы» жолы Қағидалардың 4-қосымшасындағы «Бағалау парағы» нысанын қайталайды. Өлшемшарттың қысқа атауының астында оның ресми мәтіні ашылады; «өлшеуішті бағалау мазмұны» бағанына мектепке қойылған балға сәйкес келетін ресми өлшеуіш жазылады. * «Материалдар» бағаны ресми нысанда жоқ — бұл сайттың қосымша бағаны: ол жүктелген растайтын құжаттар санын көрсетеді және өлшемшарт бетіне апарады.', 'Первые четыре столбца и строка «Общая сумма баллов» повторяют форму «Лист оценивания» (приложение 4 к Правилам). Под кратким названием критерия раскрывается его официальный текст; в столбец «содержание оценивания измерителя» выводится официальный измеритель, соответствующий выставленному баллу. * Столбца «Материалы» в официальной форме нет — это дополнительный столбец сайта: он показывает число загруженных подтверждающих документов и ведёт к странице критерия.', 'The first four columns and the “Total score” row follow the “Evaluation sheet” form (Appendix 4 to the Rules). The official wording of each criterion opens under its short name; the measure column shows the official measure that matches the score given. * The “Evidence” column is not part of the official form: it is an extra column of this site showing how many supporting documents are uploaded and linking to the criterion.'))}
-${ui.pending({ title: X('Балдар әлі қойылмаған', 'Баллы ещё не выставлены', 'Scores not yet entered'), note: X('Өзін-өзі бағалау балдарын мектептің жұмыс тобы әр өлшемшарт бойынша талдамалық анықтама мен растайтын құжаттар дайын болғаннан кейін қояды. Қол қойылған бағалау парағы PDF түрінде төменде жарияланады.', 'Баллы самооценки выставляет рабочая группа школы после подготовки аналитической справки и подтверждающих документов по каждому критерию. Подписанный лист оценивания будет опубликован ниже в PDF.', 'The school’s working group enters self-scores once the analytic report and supporting documents for each criterion are ready. The signed evaluation sheet will be published below as a PDF.') })}
-${ui.docList(['sa-sheet-signed', 'sa-sa-order'].map(ctx.docById).filter(Boolean))}`;
+${ui.note(X('Алғашқы төрт баған және «Балдардың жалпы сомасы» жолы Қағидалардың 4-қосымшасындағы «Бағалау парағы» нысанын қайталайды. Өлшемшарттың қысқа атауының астында оның ресми мәтіні ашылады; «өлшеуішті бағалау мазмұны» бағанына мектепке қойылған балға сәйкес келетін ресми өлшеуіш жазылады. * «Материалдар» бағаны ресми нысанда жоқ — бұл сайттың қосымша бағаны: ол жүктелген растайтын құжаттар санын көрсетеді және өлшемшарт бетіне апарады.', 'Первые четыре столбца и строка «Общая сумма баллов» повторяют форму «Лист оценивания» (приложение 4 к Правилам). Под кратким названием критерия раскрывается его официальный текст; в столбец «содержание оценивания измерителя» выводится официальный измеритель, соответствующий выставленному баллу. * Столбца «Материалы» в официальной форме нет — это дополнительный столбец сайта: он показывает число загруженных подтверждающих документов и ведёт к странице критерия.', 'The first four columns and the “Total score” row follow the “Evaluation sheet” form (Appendix 4 to the Rules). The official wording of each criterion opens under its short name; the measure column shows the official measure that matches the score given. * The “Evidence” column is not part of the official form: it is an extra column of this site showing how many supporting documents are uploaded and linking to the criterion.'))}`;
+  // scale 5/4/3/2 (п. 34–39) stays visible; how the final level is computed → a disclosure
+  const scale = `<ul class="sa-scale" id="scale" role="list">${LEVELS.map((l) => `<li class="sa-scale__item sa-scale__item--${l.score}"><span class="sa-scale__n">${l.score}</span><span class="sa-scale__name">«${L(l.name)}»</span></li>`).join('')}</ul>`;
+  const verdict = ui.grid({ cols: 2, items: [
+    ui.callout({ type: 'info', title: X('Қорытынды деңгей (36-т.)', 'Итоговый уровень (п. 36)', 'Final level (para 36)'), text: X('Барлық өлшемшарттар бойынша бағалардың арифметикалық орташа мәні, ең жақын бүтін санға дейін дөңгелектенеді.', 'Среднее арифметическое оценок по всем критериям с округлением до ближайшего целого.', 'The arithmetic mean of all criterion scores, rounded to the nearest whole number.') }),
+    ui.callout({ type: 'ok', title: X('Аттестаттаудан өту (38–39-т.)', 'Прохождение аттестации (пп. 38–39)', 'Passing (paras 38–39)'), text: X('«Үлгілі», «жақсы» немесе «жақсартуды талап етеді» деңгейі — өтті. МЖМБС талаптарына сәйкессіздік болса немесе деңгей «төмен» болса — өтпеді.', 'Уровень «образцовый», «хороший» или «требующий улучшения» — пройдена. При несоответствии ГОСО или уровне «низкий» — не пройдена.', '“Exemplary”, “good” or “needs improvement” — passed. Non-compliance with SCES or a “low” level — not passed.') }),
+  ] });
+  const sheetDocs = ['sa-sheet-signed', 'sa-sa-order'].map(ctx.docById).filter(Boolean);
+  const scoresPending = { title: X('Балдар әлі қойылмаған', 'Баллы ещё не выставлены', 'Scores not yet entered'), note: X('Өзін-өзі бағалау балдарын мектептің жұмыс тобы әр өлшемшарт бойынша талдамалық анықтама мен растайтын құжаттар дайын болғаннан кейін қояды. Қол қойылған бағалау парағы PDF түрінде төменде жарияланады.', 'Баллы самооценки выставляет рабочая группа школы после подготовки аналитической справки и подтверждающих документов по каждому критерию. Подписанный лист оценивания будет опубликован ниже в PDF.', 'The school’s working group enters self-scores once the analytic report and supporting documents for each criterion are ready. The signed evaluation sheet will be published below as a PDF.') };
+  const sheet = `<div class="sa-sheet-top"><p class="sa-sheet-top__k">${L(X('Әр өлшемшарт төрт деңгейдің бірімен бағаланады', 'Каждый критерий оценивается одним из четырёх уровней', 'Each criterion is rated at one of four levels'))}</p>${scale}</div>
+<div class="dz-row sa-sheet-dz">${ui.more({ id: 'sheet-form', icon: 'grid', count: 39, tone: 'plain', label: X('Бағалау парағы — 4-қосымша нысаны', 'Лист оценивания — форма приложения 4', 'Evaluation sheet — Appendix 4 form'), body: sheetForm })}${ui.more({ icon: 'calculator', tone: 'card', label: X('Қорытынды қалай шығарылады', 'Как считается итог', 'How the result is calculated'), body: verdict })}</div>
+${ui.docList(sheetDocs.filter(K.isUp))}${ui.pendingGroup(lang, [scoresPending, ...sheetDocs.filter((d) => !K.isUp(d)).map((d) => ({ title: d.title, note: d.note }))])}`;
+
+  // ---- period, dates and procedure → one tabbed block
+  const years = `<ol class="sa-years" role="list">${YEARS.map((y, i) => `<li class="sa-year${i === 2 ? ' sa-year--now' : ''}"><span class="sa-year__tag">${L([X('2 жыл бұрын', '2 года назад', '2 years ago'), X('өткен жыл', 'прошлый', 'last year'), X('ағымдағы', 'текущий', 'current')][i])}</span><span class="sa-year__y">${y}</span><span class="sa-year__cap">${L(X('оқу жылы', 'учебный год', 'school year'))}</span></li>`).join('')}</ol>`;
+  const dates = ui.facts([
+    { k: X('Бөлім ашылған күн', 'Раздел открыт', 'Section opened'), v: ctx.fmt.dateTime(PUBLISHED) },
+    { k: X('Материалдар толық көлемде орналастырылған күн', 'Материалы размещены в полном объёме', 'All materials posted in full'), v: COMPLETE ? ctx.fmt.dateTime(COMPLETE) : `<span class="sa-pend">${ui.icon('hourglass', { size: 14 })}<span>${L(X('барлық анықтамалар мен құжаттар жүктелгеннен кейін көрсетіледі', 'будет указано после загрузки всех справок и документов', 'shown once all reports and documents are uploaded'))}</span></span>` },
+    { k: X('Соңғы жаңартылған күн', 'Последнее обновление', 'Last updated'), v: ctx.fmt.dateTime(UPDATED) },
+    { k: X('Аттестаттаудың басталу мерзімі (Тізбе бойынша)', 'Начало аттестации (по Перечню)', 'Attestation start (per the List)'), v: `<span class="sa-pend">${ui.icon('hourglass', { size: 14 })}<span>${L(X('Тізбе бекітілгеннен кейін толтырылады', 'заполняется после утверждения Перечня', 'filled in once the List is approved'))}</span></span>` },
+    { k: X('Материалдарды жариялаудың соңғы күні', 'Крайний срок размещения', 'Posting deadline'), v: X('аттестаттау басталғанға дейін кемінде 5 күн бұрын', 'не менее чем за 5 дней до начала аттестации', 'at least 5 days before the attestation starts') },
+  ], { cls: 'sa-dates' });
+  const periodMore = ui.more({ icon: 'info', label: X('Кезең мен мерзімдер туралы', 'О периоде и сроках', 'About the period and deadlines'), body: `${ui.note(X('15-тармаққа сәйкес аттестаттауға алдыңғы 2 оқу жылындағы және ағымдағы оқу жылындағы қызмет жатады. Аттестаттау мерзімі басқа оқу жылына түссе, кезең сол жылға қарай ығысады.', 'По пункту 15 аттестации подлежит деятельность за 2 предыдущих учебных года и текущий учебный год. Если срок аттестации придётся на другой учебный год, период сдвигается соответственно.', 'Under para 15 the attestation covers the 2 previous school years and the current one. If the attestation falls in another school year, the period shifts accordingly.'))}
+${ui.callout({ type: 'warn', title: X('Мерзім туралы', 'О сроках', 'About deadlines'), text: X('Комитет және оның аумақтық бөлімшелері Тізбені жыл сайын 1 қарашаға дейін бекітеді және 3 жұмыс күні ішінде өз сайтында жариялайды (8-тармақ). Мектеп Тізбеге енгізілсе, аттестаттау мерзімі мен материалдарды жариялау күні осы жерде көрсетіледі.', 'Комитет и его территориальные подразделения ежегодно до 1 ноября утверждают Перечень и в течение 3 рабочих дней размещают его на своих сайтах (п. 8). При включении школы в Перечень здесь будут указаны срок аттестации и дата размещения материалов.', 'The Committee and its regional units approve the List every year by 1 November and post it within 3 working days (para 8). If the school is included, the attestation period and posting date will be shown here.') })}` });
+  const steps = ui.steps([
+    { title: X('Тізбе бекітіледі', 'Утверждается Перечень', 'The List is approved'), text: X('жыл сайын 1 қарашаға дейін (8-т.)', 'ежегодно до 1 ноября (п. 8)', 'every year by 1 November (para 8)') },
+    { title: X('Мектеп өзін-өзі бағалау жүргізеді', 'Школа проводит самооценку', 'The school self-assesses'), text: X('39 өлшемшарт, растайтын материалдар (9–10-т.)', '39 критериев, подтверждающие материалы (пп. 9–10)', '39 criteria with supporting materials (paras 9–10)') },
+    { title: X('Материалдар сайтта жарияланады', 'Материалы размещаются на сайте', 'Materials are posted online'), text: X('басталуына кемінде 5 күн қалғанда (9-т.)', 'не позднее чем за 5 дней до начала (п. 9)', 'at least 5 days before the start (para 9)') },
+    { title: X('4 және 9-сыныптарда компьютерлік тестілеу', 'Компьютерное тестирование 4 и 9 классов', 'Computer testing in grades 4 and 9'), text: X('басталуына 30 күнтізбелік күннен ерте емес, 5 жұмыс күнінен кешіктірмей (49-т.)', 'не ранее 30 календарных дней и не позднее 5 рабочих дней до начала (п. 49)', 'no earlier than 30 calendar days and no later than 5 working days before the start (para 49)') },
+    { title: X('Комиссия материалдарды зерделейді', 'Комиссия изучает материалы', 'The commission reviews the materials'), text: X('мектепке бармай, 7 жұмыс күнінен аспайды (15, 17-т.)', 'без посещения школы, не более 7 рабочих дней (пп. 15, 17)', 'without a visit, no more than 7 working days (paras 15, 17)') },
+    { title: X('Қорытынды және бұйрық', 'Заключение и приказ', 'Conclusion and order'), text: X('қорытынды қол қойылған күннен бастап 10 күнтізбелік күннен кешіктірмей (41-т.)', 'не позднее 10 календарных дней со дня подписания заключения (п. 41)', 'within 10 calendar days of signing the conclusion (para 41)') },
+  ], { cls: 'sa-steps' });
+  const timeline = ui.tabs([
+    { id: 'period', icon: 'calendar', label: X('Кезең және мерзімдер', 'Период и сроки', 'Period and deadlines'), body: `${years}${dates}${periodMore}` },
+    { id: 'procedure-steps', icon: 'flag', count: 6, label: X('Аттестаттау кезеңдері', 'Этапы аттестации', 'Attestation stages'), body: steps },
+  ], { label: X('Мерзімдер және аттестаттау тәртібі', 'Сроки и порядок аттестации', 'Timeline and procedure'), cls: 'sa-tabs' });
+
+  // ---- legal basis: sources + the quoted paragraphs of the Rules, both collapsed
+  const rules = `${RULES.map((r) => `<h3 class="sa-rule__h">${L(X(`${r.p}-тармақ`, `Пункт ${r.p}`, `Paragraph ${r.p}`))}</h3><blockquote class="sa-law">${L(r.t)}</blockquote>`).join('')}${lang === 'en' ? '<p class="sa-law__src">Unofficial translation.</p>' : ''}`;
+  const legal = `<div class="dz-row">${ui.legal([
+    { title: X('№ 114-НҚ бұйрық — «Әділет» (қазақша)', 'Приказ № 114-НҚ — «Әділет» (каз.)', 'Order No. 114-НҚ — Adilet (Kazakh)'), href: SRC.adiletKz, note: X('Ресми мәтін, V2600038645', 'Официальный текст, V2600038645', 'Official text, V2600038645') },
+    { title: X('№ 114-НҚ бұйрық — «Әділет» (орысша)', 'Приказ № 114-НҚ — «Әділет» (рус.)', 'Order No. 114-НҚ — Adilet (Russian)'), href: SRC.adiletRu, note: X('ҚР Әділет министрлігінде 04.05.2026 № 38645 тіркелген', 'Зарегистрирован в МЮ РК 04.05.2026 № 38645', 'Registered with the Ministry of Justice on 04.05.2026, No. 38645') },
+    { title: X('Мәтіннің көшірмесі (zakon.uchet.kz)', 'Копия текста (zakon.uchet.kz)', 'Text mirror (zakon.uchet.kz)'), href: lang === 'kz' ? SRC.mirrorKz : SRC.mirrorRu, note: X('Өлшемшарттардың мәтіні осы жерден алынды, 24.09.2026', 'Тексты критериев сверены по этой копии, 24.09.2026', 'Criteria texts checked against this copy on 24.09.2026') },
+  ], { note: X('Мемлекеттік аттестаттау өткізу қағидалары ҚР Оқу-ағарту министрінің 2026 жылғы 30 сәуірдегі № 114-НҚ бұйрығымен бекітілген. 2026 жылғы 12 шілдеден бастап 16-тармақтың 7) тармақшасы, 17-тармақтың 2) және 3) тармақшалары және 1–3-қосымшалар жаңа редакцияда қолданылады (бұйрықтың 4-тармағы); осы бетте жаңа редакция келтірілген.', 'Правила проведения государственной аттестации утверждены приказом Министра просвещения РК от 30 апреля 2026 года № 114-НҚ. С 12 июля 2026 года подпункт 7) пункта 16, подпункты 2) и 3) пункта 17 и приложения 1–3 действуют в новой редакции (пункт 4 приказа); на этой странице приведена новая редакция.', 'The Rules of the state attestation were approved by Order No. 114-НҚ of the Minister of Education of 30 April 2026. From 12 July 2026, sub-para 7 of para 16, sub-paras 2 and 3 of para 17 and Appendices 1–3 apply in a new wording (para 4 of the Order); this page uses the new wording.'), title: X('Құқықтық негіз: № 114-НҚ бұйрық', 'Правовая основа: приказ № 114-НҚ', 'Legal basis: Order No. 114-НҚ') })}${ui.more({ icon: 'quote', count: RULES.length, tone: 'card', label: X('Қағидалардан үзінділер: 9, 10, 15, 16, 17-тармақтар', 'Выдержки из Правил: пп. 9, 10, 15, 16, 17', 'Extracts from the Rules: paras 9, 10, 15, 16, 17'), body: rules })}</div>`;
 
   const related = ui.linkList([
     { href: href('license'), icon: 'shield', label: X('Лицензия және тіркеу', 'Лицензия и регистрация', 'Licence & registration'), note: X('1-өлшемшарттың негізгі құжаттары', 'Ключевые документы критерия 1', 'Key documents for criterion 1') },
@@ -906,28 +921,15 @@ ${ui.docList(['sa-sheet-signed', 'sa-sa-order'].map(ctx.docById).filter(Boolean)
     { href: href('feedback'), icon: 'chat', label: X('Кері байланыс', 'Обратная связь', 'Feedback'), note: X('Материалдар бойынша сұрақ қою', 'Задать вопрос по материалам', 'Ask about these materials') },
   ]);
 
-  const toc = ui.toc([
-    { id: 'what', label: X('Өзін-өзі бағалау дегеніміз не', 'Что такое самооценка', 'What self-assessment is') },
-    { id: 'legal', label: X('Құқықтық негіз', 'Правовая основа', 'Legal basis') },
-    { id: 'period', label: X('Кезең және мерзімдер', 'Период и сроки', 'Period and deadlines') },
-    { id: 'procedure', label: X('Аттестаттау қалай өтеді', 'Как проходит аттестация', 'How the attestation works') },
-    { id: 'scale', label: X('Бағалау шкаласы', 'Шкала оценки', 'Rating scale') },
-    { id: 'areas', label: X('8 бағыт', '8 направлений', '8 areas') },
-    { id: 'sheet', label: X('Бағалау парағы: 39 өлшемшарт', 'Лист оценивания: 39 критериев', 'Evaluation sheet: 39 criteria') },
-  ]);
-
   return [
     intro,
     bigStats,
-    ui.split({ ratio: '1:2', cls: 'sa-toc-split', left: toc, right: ui.section({ id: 'what', eyebrow: X('Анықтама', 'Определение', 'Definition'), title: X('Өзін-өзі бағалау дегеніміз не', 'Что такое самооценка', 'What self-assessment is'), body: what }) }),
-    ui.section({ id: 'legal', eyebrow: X('ҚР Оқу-ағарту министрінің бұйрығы', 'Приказ Министра просвещения РК', 'Order of the Minister of Education'), title: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), lead: X('2026 жылғы 30 сәуірдегі № 114-НҚ бұйрықпен бекітілген мемлекеттік аттестаттау өткізу қағидалары.', 'Правила проведения государственной аттестации, утверждённые приказом от 30 апреля 2026 года № 114-НҚ.', 'Rules of the state attestation approved by Order No. 114-НҚ of 30 April 2026.'), body: legal }),
-    ui.section({ id: 'period', tone: 'math', eyebrow: X('15-тармақ', 'Пункт 15', 'Paragraph 15'), title: X('Кезең: 2 алдыңғы оқу жылы + ағымдағы жыл', 'Период: 2 предыдущих учебных года + текущий', 'Period: 2 previous school years + the current one'), body: period + dates }),
-    ui.section({ id: 'procedure', eyebrow: X('2-тарау', 'Глава 2', 'Chapter 2'), title: X('Аттестаттау қалай өтеді', 'Как проходит аттестация', 'How the attestation works'), body: steps }),
-    ui.section({ id: 'scale', eyebrow: X('34–39-тармақтар', 'Пункты 34–39', 'Paragraphs 34–39'), title: X('Бағалау шкаласы', 'Шкала оценки', 'Rating scale'), body: scale }),
-    ui.section({ id: 'areas', eyebrow: X('16-тармақ', 'Пункт 16', 'Paragraph 16'), title: X('Зерделеудің 8 бағыты', '8 направлений изучения', '8 areas of study'), lead: X('Жалпы білім беретін мектеп үшін 16-тармақтың 1–8 тармақшалары қолданылады (9-тармақша — өндірістік практика — ТжКБ ұйымдарына арналған).', 'Для общеобразовательной школы применяются подпункты 1–8 пункта 16 (подпункт 9 — производственная практика — относится к организациям ТиПО).', 'For a general school, sub-paras 1–8 of para 16 apply (sub-para 9, work placements, is for vocational colleges).'), body: areas }),
-    ui.section({ id: 'sheet', eyebrow: X('4-қосымша', 'Приложение 4', 'Appendix 4'), title: X('Бағалау парағы: 39 өлшемшарт', 'Лист оценивания: 39 критериев', 'Evaluation sheet: 39 criteria'), body: sheet }),
+    ui.section({ id: 'areas', eyebrow: X('16-тармақ', 'Пункт 16', 'Paragraph 16'), title: X('Зерделеудің 8 бағыты', '8 направлений изучения', '8 areas of study'), lead: X('Бағытты таңдаңыз — ішінде оның өлшемшарттары, анықтамалары мен құжаттары.', 'Выберите направление — внутри его критерии, справки и документы.', 'Choose an area to see its criteria, reports and documents.'), body: areas }),
+    ui.section({ id: 'sheet', eyebrow: X('4-қосымша', 'Приложение 4', 'Appendix 4'), title: X('Бағалау парағы: 39 өлшемшарт', 'Лист оценивания: 39 критериев', 'Evaluation sheet: 39 criteria'), lead: X('Әр өлшемшарттың балы, жалпы сома және қорытынды деңгей — ресми нысан бойынша.', 'Балл по каждому критерию, общая сумма и итоговый уровень — по официальной форме.', 'The score for each criterion, the total and the final level, in the official form.'), body: sheet }),
+    ui.section({ id: 'procedure', tone: 'math', eyebrow: X('Кесте', 'График', 'Timeline'), title: X('Мерзімдер және аттестаттау тәртібі', 'Сроки и порядок аттестации', 'Timeline and procedure'), lead: X('Талданатын кезең: үш оқу жылы. Материалдар аттестаттаудан кемінде 5 күн бұрын жарияланады.', 'Анализируемый период — три учебных года. Материалы публикуются не позднее чем за 5 дней до аттестации.', 'Period reviewed: three school years. Materials are posted at least 5 days before the attestation.'), body: timeline }),
     ui.banner({ theme: 'math', icon: 'calculator', eyebrow: X('Бастау', 'Начать', 'Start'), title: X('1-бағыт: жалпы сипаттама', 'Направление 1: общая характеристика', 'Area 1: general profile'), text: X('Лицензия, басқару құрылымы, басшы және даму жоспары — 4 өлшемшарт.', 'Лицензия, структура управления, руководитель и план развития — 4 критерия.', 'Licence, governance, head and development plan — 4 criteria.'), href: href('self-1'), label: X('Ашу', 'Открыть', 'Open') }),
     ui.section({ title: X('Байланысты бөлімдер', 'Связанные разделы', 'Related sections'), body: related }),
+    ui.section({ id: 'legal', cls: 'sa-legal-end', body: legal }),
   ].join('\n');
 }
 
@@ -940,14 +942,19 @@ function renderArea(d, lang, ctx) {
   const docs = K.dirDocs(d), ds = K.stat(docs);
   const reports = K.reportsIn(d.crit), scored = K.scoredIn(d.crit);
   const prev = DIRS.find((x) => x.n === d.n - 1), next = DIRS.find((x) => x.n === d.n + 1);
+  const range = d.crit.length > 1 ? `${d.crit[0]}–${d.crit[d.crit.length - 1]}` : `${d.crit[0]}`;
 
+  // SPEC §6.1: the wording of п. 16 and the source of the criteria → the "⚖ Legal basis" chip under the lead
   const head = ui.split({
     ratio: '3:2', align: 'center',
     left: `<div class="sa-dhead"><span class="sa-dhead__n" aria-hidden="true">${d.n}</span><div>
-${ui.eyebrow(X(`16-тармақтың ${d.n}) тармақшасы`, `Пункт 16, подпункт ${d.n})`, `Paragraph 16(${d.n})`))}
+${ui.eyebrow(X(`${d.n}-бағыт · ${K.critN(d.crit.length)}`, `Направление ${d.n} · ${K.critN(d.crit.length)}`, `Area ${d.n} · ${K.critN(d.crit.length)}`))}
 <h2 class="sec__title">${L(d.block)}</h2>
-<p class="sa-dhead__law">«${L(d.law)}»</p>
 ${ui.lead(d.about)}
+${ui.legal([
+    { title: X(`№ 114-НҚ бұйрық, 16-тармақтың ${d.n}) тармақшасы`, `Приказ № 114-НҚ, пункт 16, подпункт ${d.n})`, `Order No. 114-НҚ, paragraph 16(${d.n})`), href: lang === 'kz' ? SRC.adiletKz : SRC.adiletRu, note: `«${L(d.law)}»` },
+    { title: X('Қағидаларға 2-қосымша — бағалау өлшемшарттары', 'Приложение 2 к Правилам — критерии оценки', 'Appendix 2 to the Rules — evaluation criteria'), note: X(`№ ${range} өлшемшарттар`, `критерии № ${range}`, `criteria ${range}`) },
+  ], { cls: 'sa-dhead__legal' })}
 </div></div>`,
     right: ui.panel({ theme: 'math', cls: 'sa-board sa-board--s', body: `${K.ring(ds.pct, `${ds.up}/${ds.total}`, L(X('құжат жүктелді', 'документов загружено', 'documents uploaded')))}
 <div class="sa-board__meters">${K.meter(T.reports, reports, d.crit.length)}${K.meter(T.scores, scored, d.crit.length)}</div>
@@ -963,7 +970,7 @@ ${ui.lead(d.about)}
 
   const articles = d.crit.map((n) => renderCrit(K.crit(n), K, lang, ctx)).join('\n');
 
-  // area-8 extra: how the computer testing works (Chapter 5)
+  // area-8 extra: how the computer testing works (Chapter 5) — the four bands stay visible, the rules are collapsed
   const kt = d.n === 8 ? ui.section({ id: 'kt-rules', tone: 'math', eyebrow: X('5-тарау, 48–58-тармақтар', 'Глава 5, пункты 48–58', 'Chapter 5, paras 48–58'), title: X('Компьютерлік тестілеу қалай өтеді', 'Как проходит компьютерное тестирование', 'How the computer testing works'), body: `${ui.grid({ cols: 4, items: [
     ui.stat({ value: '85–100%', label: X('«өте жақсы»', '«отлично»', '“excellent”') }),
     ui.stat({ value: '65–84%', label: X('«жақсы»', '«хорошо»', '“good”') }),
@@ -971,7 +978,7 @@ ${ui.lead(d.about)}
     ui.stat({ value: '< 40%', label: X('«қанағаттанарлықсыз»', '«неудовлетворительно»', '“unsatisfactory”') }),
   ], cls: 'sa-kt' })}
 ${ui.accordion([
-    { q: X('Қашан өткізіледі?', 'Когда проводится?', 'When does it take place?'), a: L(X('Аттестаттау басталғанға дейін 30 күнтізбелік күннен ерте емес және 5 жұмыс күнінен кешіктірілмей (49-т.). Комитет қызметкерлері бақылаушы ретінде қатысады (50-т.).', 'Не ранее чем за 30 календарных дней и не позднее чем за 5 рабочих дней до начала аттестации (п. 49). Сотрудники Комитета участвуют как наблюдатели (п. 50).', 'No earlier than 30 calendar days and no later than 5 working days before the attestation starts (para 49). Committee staff attend as observers (para 50).')), open: true },
+    { q: X('Қашан өткізіледі?', 'Когда проводится?', 'When does it take place?'), a: L(X('Аттестаттау басталғанға дейін 30 күнтізбелік күннен ерте емес және 5 жұмыс күнінен кешіктірілмей (49-т.). Комитет қызметкерлері бақылаушы ретінде қатысады (50-т.).', 'Не ранее чем за 30 календарных дней и не позднее чем за 5 рабочих дней до начала аттестации (п. 49). Сотрудники Комитета участвуют как наблюдатели (п. 50).', 'No earlier than 30 calendar days and no later than 5 working days before the attestation starts (para 49). Committee staff attend as observers (para 50).')) },
     { q: X('Қанша оқушы қатысуы керек?', 'Сколько учеников должно участвовать?', 'How many pupils must take part?'), a: L(X('Тиісті деңгейдегі білім алушылардың кемінде 90%-ы; жалпы саны 10 және одан аз болса — кемінде 80%-ы (53-т.).', 'Не менее 90% обучающихся соответствующего уровня; если их 10 и менее — не менее 80% (п. 53).', 'At least 90% of pupils at that level; if there are 10 or fewer, at least 80% (para 53).')) },
     { q: X('Кім босатылады?', 'Кто освобождается?', 'Who is exempt?'), a: L(X('ПМПК қорытындысы бойынша ЕББҚ бар балалар, ДКК қорытындысы бойынша денсаулығына байланысты, олимпиадалар мен жарыстарға қатысатындар және т.б. (55-т.).', 'Дети с ООП по заключению ПМПК, по состоянию здоровья по заключению ВКК, участники олимпиад и соревнований и др. (п. 55).', 'Pupils with SEN (PMPC conclusion), on health grounds (medical commission), those taking part in olympiads and competitions, etc. (para 55).')) },
     { q: X('Нәтиже қашан МЖМБС-ға сәйкес деп танылады?', 'Когда результат признаётся соответствующим ГОСО?', 'When is the result SCES-compliant?'), a: L(X('Тестілеуге қатысқандардың кемінде 40%-ы «қанағаттанарлық» деңгейден төмен емес нәтиже көрсетсе (58-т.). Апелляция көзделмеген (57-т.).', 'Если не менее 40% участников набрали результат не ниже «удовлетворительно» (п. 58). Апелляция не предусмотрена (п. 57).', 'If at least 40% of participants score “satisfactory” or higher (para 58). There is no appeal (para 57).')) },
@@ -988,13 +995,22 @@ ${ui.callout({ type: 'info', title: X('Біздің мектепке қатыс�
   ].join('\n');
 }
 
+/** One criterion = one compact card (SPEC §6.1).
+ *  Layer 1: number, short title, status chips (documents x/y · analytic report · score), a docs-progress bar, the uploaded
+ *  documents, ONE "N materials in preparation ▾" line (the report slot + every pending evidence document), related pages.
+ *  Layer 2 (chips): the official criterion text with all measures and related acts · the evidence required · known facts. */
 function renderCrit(c, K, lang, ctx) {
   const { ui, L, href, esc, T } = K;
   const ev = K.evOf(c), st = K.stat(ev);
+  /** long label on wide screens, short one on phones (CSS .sa-lg / .sa-sh) */
+  const two = (lg, sh) => X(...['kz', 'ru', 'en'].map((k) => `<span class="sa-lg">${lg[k]}</span><span class="sa-sh">${sh[k]}</span>`));
+  const up = ev.filter(K.isUp), waiting = ev.filter((x) => !K.isUp(x));
   const rep = REPORTS[c.n];
+  const repUp = !!(rep && rep.file);
   const acts = (ACT_OF[c.n] || []).filter((no) => ACTS[no]);
   const facts = knownFacts(c.n, lang, ctx);
   const m = L(c.m);
+  const docState = st.up === st.total && st.total ? 'done' : st.up ? 'part' : 'none';
 
   const sumMark = c.mSummary ? ` <span class="sa-sum">${L(X('қысқаша: толық жинақты жалпы білім беретін мектептер', 'кратко: полнокомплектные общеобразовательные школы', 'summary: full-size general schools'))}</span>` : '';
   const ladder = `<ol class="sa-ladder" role="list">${LEVELS.map((l, i) => `<li class="sa-ladder__row sa-ladder__row--${l.score}"><span class="sa-ladder__pts"><b>${l.score}</b><span>${esc(L(l.name))}</span></span><span class="sa-ladder__txt">${esc(m[i])}</span></li>`).join('')}</ol>`;
@@ -1012,29 +1028,37 @@ function renderCrit(c, K, lang, ctx) {
   };
   const fixNote = c.kzFix && lang === 'kz' ? ui.note(FIX[c.kzFix]) : '';
 
-  const periodStrip = `<ol class="sa-period" role="list">${YEARS.map((y) => `<li><span class="sa-period__y">${y}</span><span class="sa-period__s">${rep && rep.file ? ui.icon('check', { size: 14 }) : ui.icon('hourglass', { size: 14 })}</span></li>`).join('')}</ol>`;
-  const report = rep && rep.file
-    ? ui.docList([{ title: X(`${c.n}-өлшемшарт бойынша талдамалық анықтама`, `Аналитическая справка по критерию ${c.n}`, `Analytic report, criterion ${c.n}`), file: rep.file, type: 'pdf', date: rep.date }])
-    : ui.pending({ title: X('Талдамалық анықтама дайындалуда', 'Аналитическая справка готовится', 'Analytic report in preparation'), note: X(`${Y3} оқу жылдары бойынша: өлшемшарт талаптарының орындалуы, сандық көрсеткіштер, анықталған кемшіліктер және оларды жою шаралары. Анықтама мектеп басшысының қолымен PDF түрінде жарияланады.`, `За ${Y3} учебные годы: выполнение требований критерия, количественные показатели, выявленные недостатки и меры по их устранению. Справка публикуется в PDF за подписью руководителя.`, `For school years ${Y3}: how the criterion is met, key figures, gaps found and the measures taken. The report is published as a PDF signed by the head.`) });
-
-  const rel = (c.rel || []).map((s) => ({ href: href(s), label: L((ctx.nav.PAGE_LABELS || {})[s] || s) }));
-
-  return `<article class="sa-crit" id="k${c.n}" aria-labelledby="k${c.n}-t">
-<header class="sa-crit__head pattern" data-theme="math"><span class="sa-crit__n" aria-hidden="true"><small>№</small>${c.n}</span><div class="sa-crit__hd"><h2 class="sa-crit__title" id="k${c.n}-t"><span class="sr-only">${L(X('Өлшемшарт', 'Критерий', 'Criterion'))} ${c.n}. </span>${L(c.s)}</h2>
-<p class="sa-crit__badges"><span class="sa-chip sa-chip--${st.up === st.total && st.total ? 'done' : st.up ? 'part' : 'none'}">${ui.icon('doc', { size: 14 })}<span>${L(T.docs)}: <b>${st.up}/${st.total}</b></span></span>${K.scoreBadge(c.n)}${c.na ? `<span class="sa-chip sa-chip--info">${L(X('«болған жағдайда»', '«при наличии»', '“if applicable”'))}</span>` : ''}</p></div></header>
-<div class="sa-crit__body">
-<section class="sa-block"><h3 class="sa-block__t">${ui.icon('scale', { size: 18 })}<span>${L(X('Өлшемшарттың ресми мәтіні', 'Официальный текст критерия', 'Official wording of the criterion'))}</span></h3>
+  // ---- layer 2a: the official wording, the "exemplary" target, all four measures, related acts
+  const lawBody = `<p class="sa-sub">${ui.icon('scale', { size: 16 })}<span>${L(X('Өлшемшарттың ресми мәтіні', 'Официальный текст критерия', 'Official wording of the criterion'))}</span></p>
 <blockquote class="sa-law">${L(c.t)}</blockquote>
 <p class="sa-law__src">${L(X(`№ 114-НҚ бұйрыққа 3-қосымша (Қағидаларға 2-қосымша), ${c.n}-өлшемшарт.`, `Приложение 3 к приказу № 114-НҚ (приложение 2 к Правилам), критерий № ${c.n}.`, `Unofficial translation. Source: Appendix 2 to the Rules (Order No. 114-НҚ), criterion ${c.n}.`))}${acts.length ? ` ${L(X('Байланысты актілер:', 'Связанные акты:', 'Related acts:'))} ${acts.map(K.actLink).join(', ')}.` : ''}</p>
 <div class="sa-target"><span class="sa-target__pts" aria-hidden="true">5</span><p><strong>${L(X('«Үлгілі» деңгей (5 балл):', 'Уровень «образцовый» (5 баллов):', '“Exemplary” (5 points):'))}</strong> ${esc(m[0])}${sumMark}</p></div>
-${ui.accordion([{ q: X('Барлық өлшеуіштер: 5 · 4 · 3 · 2 балл', 'Все измерители: 5 · 4 · 3 · 2 балла', 'All measures: 5 · 4 · 3 · 2 points'), a: (sumMark ? `<p class="sa-sumline">${sumMark}</p>` : '') + ladder + catTable + fixNote }])}
-</section>
-<section class="sa-block"><h3 class="sa-block__t">${ui.icon('target', { size: 18 })}<span>${L(X('Қандай дәлелдер қажет', 'Какие подтверждения нужны', 'What evidence is required'))}</span></h3>
-<ul class="bullets sa-need">${L(c.need).map((x) => `<li>${x}</li>`).join('')}</ul></section>
-${facts ? `<section class="sa-block sa-block--facts"><h3 class="sa-block__t">${ui.icon('info', { size: 18 })}<span>${L(X('Мектеп туралы белгілі деректер', 'Известные данные о школе', 'What we already know'))}</span></h3>${facts}</section>` : ''}
-<section class="sa-block"><h3 class="sa-block__t">${ui.icon('book', { size: 18 })}<span>${L(X('Талдамалық анықтама', 'Аналитическая справка', 'Analytic report'))}</span></h3>${periodStrip}${report}</section>
-<section class="sa-block"><h3 class="sa-block__t">${ui.icon('doc', { size: 18 })}<span>${L(T.docs)}</span><span class="sa-block__count">${st.up}/${st.total}</span></h3>${ui.docList(ev, { thumbs: false })}</section>
-${rel.length ? `<p class="sa-rel"><span>${L(X('Сайттағы байланысты беттер:', 'Связанные страницы сайта:', 'Related pages:'))}</span>${ui.chips(rel.map((r) => ({ label: r.label, href: r.href })))}</p>` : ''}
+<p class="sa-sub">${ui.icon('sliders', { size: 16 })}<span>${L(X('Барлық өлшеуіштер: 5 · 4 · 3 · 2 балл', 'Все измерители: 5 · 4 · 3 · 2 балла', 'All measures: 5 · 4 · 3 · 2 points'))}</span></p>
+${sumMark ? `<p class="sa-sumline">${sumMark}</p>` : ''}${ladder}${catTable}${fixNote}`;
+
+  // ---- layer 1: uploaded evidence + ONE pending line (analytic report slot + every document still to be uploaded)
+  const periodStrip = `<ol class="sa-period" role="list">${YEARS.map((y) => `<li><span class="sa-period__y">${y}</span><span class="sa-period__s">${repUp ? ui.icon('check', { size: 14 }) : ui.icon('hourglass', { size: 14 })}</span></li>`).join('')}</ol>`;
+  const reportItem = { title: X(`Талдамалық анықтама дайындалуда (${c.n}-өлшемшарт)`, `Аналитическая справка по критерию ${c.n} готовится`, `Analytic report for criterion ${c.n} in preparation`), note: `${periodStrip}<p>${L(X(`${Y3} оқу жылдары бойынша: өлшемшарт талаптарының орындалуы, сандық көрсеткіштер, анықталған кемшіліктер және оларды жою шаралары. Анықтама мектеп басшысының қолымен PDF түрінде жарияланады.`, `За ${Y3} учебные годы: выполнение требований критерия, количественные показатели, выявленные недостатки и меры по их устранению. Справка публикуется в PDF за подписью руководителя.`, `For school years ${Y3}: how the criterion is met, key figures, gaps found and the measures taken. The report is published as a PDF signed by the head.`))}</p>` };
+  const reportDoc = repUp ? ui.docList([{ title: X(`${c.n}-өлшемшарт бойынша талдамалық анықтама`, `Аналитическая справка по критерию ${c.n}`, `Analytic report, criterion ${c.n}`), file: rep.file, type: 'pdf', date: rep.date }]) : '';
+  // visible rows stay slim (title · format · number · date · download); issuer and notes → "Document details ▾"
+  const detail = up.filter((x) => x.issuer || x.note);
+  const evidence = up.length ? ui.docList(up.map((x) => ({ ...x, issuer: null, note: null })), { collapse: 3 }) : '';
+  const docInfo = detail.length ? ui.more({ icon: 'doc', tone: 'card', count: detail.length, label: two(X('Құжаттар туралы мәліметтер', 'Сведения о документах', 'Document details'), X('Мәліметтер', 'Сведения', 'Details')), body: `<dl class="sa-docinfo">${detail.map((x) => `<div class="sa-docinfo__row"><dt>${L(x.title)}</dt><dd>${x.issuer ? `<p class="sa-docinfo__by">${ctx.t('doc.issuer')}: ${L(x.issuer)}</p>` : ''}${x.note ? `<p>${L(x.note)}</p>` : ''}</dd></div>`).join('')}</dl>` }) : '';
+  const pendLine = ui.pendingGroup(lang, [...(repUp ? [] : [reportItem]), ...waiting.map((x) => ({ title: x.title, note: x.note }))]);
+
+  const need = L(c.need);
+  const chips = `<div class="dz-row sa-crit__dz">${ui.more({ icon: 'scale', tone: 'card', count: 4, label: two(X('Өлшемшарт мәтіні және өлшеуіштер', 'Текст критерия и измерители', 'Criterion text and measures'), X('Өлшемшарт', 'Критерий', 'Criterion')), body: lawBody })}${ui.more({ icon: 'target', tone: 'card', count: need.length, label: two(X('Қандай дәлелдер қажет', 'Какие подтверждения нужны', 'What evidence is required'), X('Не қажет', 'Что нужно', 'Evidence')), body: `<ul class="bullets sa-need">${need.map((x) => `<li>${x}</li>`).join('')}</ul>` })}${docInfo}${facts ? ui.more({ icon: 'info', tone: 'card', label: two(X('Мектеп туралы белгілі деректер', 'Известные данные о школе', 'What we already know'), X('Деректер', 'Данные', 'Facts')), body: facts }) : ''}</div>`;
+  const rel = (c.rel || []).map((s) => ({ href: href(s), label: L((ctx.nav.PAGE_LABELS || {})[s] || s) }));
+  const repChip = `<span class="sa-chip sa-chip--${repUp ? 'done' : 'none'}">${ui.icon(repUp ? 'check' : 'book', { size: 14 })}<span>${L(repUp ? X('Анықтама жарияланды', 'Справка опубликована', 'Report published') : X('Анықтама дайындалуда', 'Справка готовится', 'Report in preparation'))}</span></span>`;
+
+  return `<article class="sa-crit" id="k${c.n}" aria-labelledby="k${c.n}-t">
+<header class="sa-crit__head pattern" data-theme="math"><span class="sa-crit__n" aria-hidden="true"><small>№</small>${c.n}</span><div class="sa-crit__hd"><h2 class="sa-crit__title" id="k${c.n}-t"><span class="sr-only">${L(X('Өлшемшарт', 'Критерий', 'Criterion'))} ${c.n}. </span>${L(c.s)}</h2>
+<p class="sa-crit__badges"><span class="sa-chip sa-chip--${docState}">${ui.icon('doc', { size: 14 })}<span>${L(X('Құжаттар', 'Документы', 'Documents'))}: <b>${st.up}/${st.total}</b></span></span>${repChip}${K.scoreBadge(c.n)}${c.na ? `<span class="sa-chip sa-chip--info">${L(X('«болған жағдайда»', '«при наличии»', '“if applicable”'))}</span>` : ''}</p></div>
+<span class="sa-crit__bar" aria-hidden="true"><span style="width:${st.pct}%"></span></span></header>
+<div class="sa-crit__body">
+${evidence}${reportDoc}${pendLine}
+${chips}
+${rel.length ? `<div class="sa-rel"><span>${L(two(X('Сайттағы байланысты беттер:', 'Связанные страницы сайта:', 'Related pages:'), X('Қараңыз:', 'См. также:', 'See also:')))}</span>${ui.chips(rel.map((r) => ({ label: r.label, href: r.href })))}</div>` : ''}
 </div></article>`;
 }
 
@@ -1053,9 +1077,9 @@ const overview = {
     en: 'Self-assessment for the state attestation: Order No. 114-НҚ, 8 areas, 39 criteria, the evaluation sheet, school years 2024–2027.',
   },
   lead: {
-    kz: '№ 114-НҚ бұйрыққа сәйкес материалдар: 8 бағыт, 39 өлшемшарт, талдамалық анықтамалар және растайтын құжаттар.',
-    ru: 'Материалы по приказу № 114-НҚ: 8 направлений, 39 критериев, аналитические справки и подтверждающие документы.',
-    en: 'Materials under Order No. 114-НҚ: 8 areas, 39 criteria, analytic reports and supporting documents.',
+    kz: 'Мектеп өз жұмысын қалай бағалайды: 8 бағыт, 39 өлшемшарт, анықтамалар мен құжаттар.',
+    ru: 'Как школа сама оценивает свою работу: 8 направлений, 39 критериев, справки и документы.',
+    en: 'How the school assesses its own work: 8 areas, 39 criteria, reports and documents.',
   },
   styles: ['self'],
   published: PUBLISHED,

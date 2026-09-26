@@ -1,7 +1,7 @@
 // Education group — Criteria-based assessment and results (ORDER-114 §F items 47, 53).
 // Rules: Typical rules of order №125 (ed. of 30.04.2025, text read 24.09.2026); computer testing of grades 4/9:
 // chapter 5 of the attestation rules, order №114-НҚ (30.04.2026). Results are school data → pending.
-import { actItems, actRef, checkedNote, passFail } from './curriculum.mjs';
+import { actLegal, actRef, joinX, passFail, pendLine } from './curriculum.mjs';
 
 const X = (kz, ru, en) => ({ kz, ru, en });
 
@@ -15,6 +15,11 @@ export default {
     'Критериальное оценивание (правила № 125): ФО, СОр, СОч, четвертная и годовая оценка; компьютерное тестирование 4 классов; результаты обучения.',
     'Criteria-based assessment (rules No. 125): formative and summative assessment, term and year grades; grade-4 computer testing; learning results.',
   ),
+  lead: X(
+    'Мектепте баға қалай қойылады: күнделікті, бөлім және тоқсан бойынша; тоқсандық және жылдық баға қалай шығады; 4-сыныптардың тестілеуі қалай өтеді.',
+    'Как в школе ставят оценки: текущие, за раздел и за четверть; как складываются четвертная и годовая; как проходит тестирование 4 классов.',
+    'How grading works: everyday, unit and term assessment; how term and year grades are formed; how grade-4 testing works.',
+  ),
   styles: ['education'],
   published: '2026-09-24T10:00',
   updated: '2026-09-24T10:00',
@@ -27,46 +32,43 @@ export default {
       ratio: '2:1', align: 'center',
       left: `${ui.eyebrow(X('Критериалды бағалау', 'Критериальное оценивание', 'Criteria-based assessment'))}
 <h2 class="sec__title">${L(X('Баға — оқу мақсатына жеткенінің өлшемі', 'Оценка — мера достижения целей обучения', 'A grade measures progress towards learning goals'))}</h2>
-${ui.lead(X(
-        'Оқушының жетістігі алдын ала белгілі критерийлер бойынша бағаланады: оқушы да, ата-ана да не бағаланатынын және қалай бағаланатынын біледі. Бағалау тәртібін Оқу-ағарту министрлігінің үлгілік қағидалары белгілейді.',
-        'Достижения ученика оцениваются по заранее известным критериям: и ученик, и родители знают, что и как будет оцениваться. Порядок оценивания устанавливают типовые правила Министерства просвещения.',
-        'Pupils are assessed against criteria known in advance, so pupils and parents know what is assessed and how. The procedure is set by the Ministry of Education’s standard rules.'))}`,
+${ui.tldr({ points: [
+        { icon: 'check', text: X('Бағалау критерийлері <strong>алдын ала белгілі</strong> — оқушыға да, ата-анаға да.', 'Критерии оценивания <strong>известны заранее</strong> — и ученику, и родителям.', 'The criteria are <strong>known in advance</strong> to pupils and parents.') },
+        { icon: 'target', text: X('Тоқсандық баға үш бөліктен тұрады: <strong>ҚБ 25% · БЖБ 25% · ТЖБ 50%</strong>.', 'Четвертная оценка — из трёх частей: <strong>ФО 25% · СОр 25% · СОч 50%</strong>.', 'The term grade has three parts: <strong>formative 25% · unit 25% · term 50%</strong>.') },
+        { icon: 'star', text: X('<strong>1-сыныпта</strong> баға қойылмайды — мұғалім кері байланыс береді.', 'В <strong>1 классе</strong> оценок нет — учитель даёт обратную связь.', 'No grades in <strong>grade 1</strong> — teachers give feedback instead.') },
+      ] })}`,
       right: '<!--toc-->',
     });
+    const introLead = X(
+        'Оқушының жетістігі алдын ала белгілі критерийлер бойынша бағаланады: оқушы да, ата-ана да не бағаланатынын және қалай бағаланатынын біледі. Бағалау тәртібін Оқу-ағарту министрлігінің үлгілік қағидалары белгілейді.',
+        'Достижения ученика оцениваются по заранее известным критериям: и ученик, и родители знают, что и как будет оцениваться. Порядок оценивания устанавливают типовые правила Министерства просвещения.',
+        'Pupils are assessed against criteria known in advance, so pupils and parents know what is assessed and how. The procedure is set by the Ministry of Education’s standard rules.');
     const grade1 = ui.callout({ type: 'ok', icon: 'star', title: X('1-сынып', '1 класс', 'Grade 1'), text: X('1-сыныпта оқу жетістіктері бағаланбайды (№ 125 қағидалар, 7-т.). Мұғалім ауызша және жазбаша кері байланыс береді.', 'В 1 классе учебные достижения не оцениваются (правила № 125, п. 7). Учитель даёт устную и письменную обратную связь.', 'Grade 1 achievements are not graded (rules No. 125, para. 7). Teachers give oral and written feedback.') });
 
     // ------------------------------------------------------------ three kinds
-    const kinds = ui.cards([
-      { icon: 'chat', tag: X('ҚБ', 'ФО', 'FA'), title: X('Қалыптастырушы бағалау', 'Формативное оценивание', 'Formative assessment'), text: X(
-        'Күнделікті сабақта, үй жұмысын қоса алғанда өткізіледі. Мұғалім жазбаша (дәптерде, күнделікте) немесе ауызша кері байланыс береді; нәтижесі электрондық журналда балл түрінде көрсетілуі мүмкін.',
-        'Проводится в ходе повседневной работы на уроке, включая домашнюю работу. Учитель даёт обратную связь письменно (в тетради, дневнике) или устно; результат может отражаться в электронном журнале в баллах.',
-        'Happens in everyday lessons, including homework. Teachers give written (notebook, diary) or oral feedback; results may appear in the e-journal as points.') },
-      { icon: 'target', tag: X('БЖБ', 'СОр', 'SAU'), title: X('Бөлім бойынша жиынтық бағалау', 'Суммативное оценивание за раздел', 'Summative assessment for a unit'), text: X(
-        'Бөлімді (ортақ тақырыпты) аяқтағанда өткізіледі; тоқсанына 3 реттен артық емес. Нысанын (бақылау жұмысы, жоба, эссе, диктант, тест т.б.) мұғалім таңдайды. 1–4-сыныптарда ең жоғары балл — 7-ден 15-ке дейін.',
-        'Проводится по завершении раздела (сквозной темы); не более 3 раз в четверть. Форму (контрольная, проект, эссе, диктант, тест и др.) выбирает учитель. В 1–4 классах максимальный балл — от 7 до 15.',
-        'Held at the end of a unit; no more than 3 per term. The teacher chooses the format (test, project, essay, dictation…). In grades 1–4 the maximum score is 7 to 15 points.') },
-      { icon: 'trophy', tag: X('ТЖБ', 'СОч', 'SAT'), title: X('Тоқсан бойынша жиынтық бағалау', 'Суммативное оценивание за четверть', 'Summative assessment for a term'), text: X(
-        'Тоқсан соңында өткізіледі. Бір күнде үштен артық емес, тоқсанның соңғы күні өткізілмейді; бір пән бойынша БЖБ мен ТЖБ бір күнде болмайды. Тапсырмалар алдын ала әдістемелік бірлестікте талқыланады.',
-        'Проводится в конце четверти. Не более трёх в день, не в последний день четверти; СОр и СОч по одному предмету в один день не проводятся. Задания заранее обсуждаются на методобъединении.',
-        'Held at the end of the term. No more than three per day, never on the last day of term; never on the same day as a unit test in that subject. Tasks are reviewed by the subject team beforehand.') },
-    ], { cols: 3 });
+    // Layer 2 of the three kinds: only what the visible tiles lack (no second set of cards).
+    const kindsExtra = `<ul class="edu-dl">${[
+      [X('ҚБ', 'ФО', 'FA'), X('Кері байланыс — дәптерде, күнделікте немесе ауызша; нәтижесі электрондық журналда балл түрінде көрсетілуі мүмкін.', 'Обратная связь — в тетради, дневнике или устно; результат может отражаться в электронном журнале в баллах.', 'Feedback in the notebook, diary or orally; results may appear in the e-journal as points.')],
+      [X('БЖБ', 'СОр', 'SAU'), X('Бөлімді (ортақ тақырыпты) аяқтағанда; нысанын (бақылау жұмысы, жоба, эссе, диктант, тест т.б.) мұғалім таңдайды.', 'По завершении раздела (сквозной темы); форму (контрольная, проект, эссе, диктант, тест и др.) выбирает учитель.', 'At the end of a unit (cross-cutting theme); the teacher chooses the format (test, project, essay, dictation…).')],
+      [X('ТЖБ', 'СОч', 'SAT'), X('Бір пән бойынша БЖБ мен ТЖБ бір күнде болмайды; тапсырмалар алдын ала әдістемелік бірлестікте талқыланады.', 'СОр и СОч по одному предмету в один день не проводятся; задания заранее обсуждаются на методобъединении.', 'Never on the same day as a unit test in that subject; tasks are reviewed by the subject team beforehand.')],
+    ].map(([k, t]) => `<li><b>${L(k)}</b> ${L(t)}</li>`).join('')}</ul>`;
 
     // ------------------------------------------------------------ formula
     const formula = `<div class="edu-formula" role="img" aria-label="${L(X('Тоқсандық баға: қалыптастырушы бағалау 25%, БЖБ 25%, ТЖБ 50%', 'Четвертная оценка: ФО 25%, СОр 25%, СОч 50%', 'Term grade: formative 25%, unit summative 25%, term summative 50%'))}">
 <div class="edu-formula__p"><span class="edu-formula__v">25%</span><span class="edu-formula__k">${L(X('Қалыптастырушы бағалау', 'Формативное оценивание', 'Formative'))}</span><span class="edu-formula__n">${L(X('сабақтағы және үйдегі жұмыс', 'работа на уроке и дома', 'class and homework'))}</span></div>
 <div class="edu-formula__p"><span class="edu-formula__v">25%</span><span class="edu-formula__k">${L(X('БЖБ', 'СОр', 'Unit summative'))}</span><span class="edu-formula__n">${L(X('бөлімдер бойынша', 'за разделы', 'per unit'))}</span></div>
 <div class="edu-formula__p"><span class="edu-formula__v">50%</span><span class="edu-formula__k">${L(X('ТЖБ', 'СОч', 'Term summative'))}</span><span class="edu-formula__n">${L(X('тоқсан соңындағы жұмыс', 'работа в конце четверти', 'end-of-term work'))}</span></div></div>`;
-    const formulaNote = ui.note(X(
-      `№ 125 қағидалар, 28-тармақ. Аптасына 1 сағаттық пәндер бойынша баға жартыжылдыққа қалыптастырушы бағалау мен БЖБ нәтижесі бойынша қойылады. Құжат: ${ref('assess')}.`,
-      `Правила № 125, п. 28. По предметам с нагрузкой 1 час в неделю оценка выставляется за полугодие по результатам ФО и СОр. Документ: ${ref('assess')}.`,
-      `Rules No. 125, para. 28. For subjects taught 1 hour a week the grade is given per half-year from formative and unit results. Source: ${ref('assess')}.`,
-    ));
+    const formulaNote = X(
+      `<p>№ 125 қағидалар, 28-тармақ. Аптасына 1 сағаттық пәндер бойынша баға жартыжылдыққа қалыптастырушы бағалау мен БЖБ нәтижесі бойынша қойылады. Құжат: ${ref('assess')}.</p>`,
+      `Правила № 125, п. 28. По предметам с нагрузкой 1 час в неделю оценка выставляется за полугодие по результатам ФО и СОр. Документ: ${ref('assess')}.</p>`,
+      `Rules No. 125, para. 28. For subjects taught 1 hour a week the grade is given per half-year from formative and unit results. Source: ${ref('assess')}.</p>`,
+    );
 
     // ------------------------------------------------------------ scale
     const scale = `<div class="edu-scale" role="table" aria-label="${L(X('Балдарды бағаға ауыстыру шкаласы', 'Шкала перевода баллов в оценки', 'Points-to-grade scale'))}">
 ${[['0–39%', '2', X('қанағаттанарлықсыз', 'неудовлетворительно', 'unsatisfactory')], ['40–64%', '3', X('қанағаттанарлық', 'удовлетворительно', 'satisfactory')], ['65–84%', '4', X('жақсы', 'хорошо', 'good')], ['85–100%', '5', X('өте жақсы', 'отлично', 'excellent')]]
       .map(([r, g, l]) => `<div class="edu-scale__s" role="row"><span class="edu-scale__g" role="cell">«${g}»</span><span class="edu-scale__l" role="cell">${L(l)}</span><span class="edu-scale__r" role="cell">${r}</span></div>`).join('')}</div>`;
-    const scaleNote = ui.note(X('Жинаған балдың пайызы 2–11 (12) сыныптарда тоқсандық және жылдық бағаға осы шкала бойынша ауыстырылады (№ 125 қағидаларға 1-қосымша).', 'Процент набранных баллов во 2–11 (12) классах переводится в четвертную и годовую оценку по этой шкале (приложение 1 к правилам № 125).', 'The percentage of points in grades 2–11 (12) is converted to term and year grades on this scale (appendix 1 to rules No. 125).'));
+    const scaleNote = X('<p>Жинаған балдың пайызы 2–11 (12) сыныптарда тоқсандық және жылдық бағаға осы шкала бойынша ауыстырылады (№ 125 қағидаларға 1-қосымша).</p>', '<p>Процент набранных баллов во 2–11 (12) классах переводится в четвертную и годовую оценку по этой шкале (приложение 1 к правилам № 125).</p>', '<p>The percentage of points in grades 2–11 (12) is converted to term and year grades on this scale (appendix 1 to rules No. 125).</p>');
 
     // ------------------------------------------------------------ year & special cases
     const year = ui.steps([
@@ -107,14 +109,14 @@ ${[['0–39%', '2', X('қанағаттанарлықсыз', 'неудовле�
       `<p>As part of the state attestation of the school, pupils in grades 4 and 9 take a comprehensive computer test, held no earlier than 30 calendar days and no later than 5 working days before the attestation (para. 49). Scale: “excellent” 85–100%, “good” 65–84%, “satisfactory” 40–64%, “unsatisfactory” below 40%; no appeals. Self-assessment criterion 39 scores 5 points at 85–100% correct answers. Source: ${ref('attest')}, chapter 5.</p>`,
     ));
     const ktExempt = ui.callout({ type: 'info', icon: 'shield', title: X('Тестілеуден кім босатылады', 'Кто освобождается от тестирования', 'Who is exempt'), text: `<ul class="bullets"><li>${L(X('ЕББҚ бар балалар — ПМПК қорытындысы бойынша', 'дети с ООП — по заключению ПМПК', 'children with SEN — on a PMPC conclusion'))}</li><li>${L(X('денсаулығы бойынша — ДКК қорытындысымен', 'по состоянию здоровья — по заключению ВКК', 'on health grounds — medical commission conclusion'))}</li><li>${L(X('олимпиадаларға, конкурстар мен жарыстарға қатысушылар', 'участники олимпиад, конкурсов и соревнований', 'those taking part in olympiads, contests and competitions'))}</li></ul>` });
-    const ktPending = ui.pending({ title: X('4-сыныптардың компьютерлік тестілеу нәтижелері', 'Результаты компьютерного тестирования 4 классов', 'Grade-4 computer-testing results'), note: X('Тестілеу өткізілгеннен кейін жарияланады: өткізілген күні, қатысқан оқушылар үлесі, бағыттар бойынша оң жауаптар үлесі.', 'Публикуются после проведения: дата, доля участвовавших, доля положительных ответов по направлениям.', 'Published after testing: date, participation rate, share of correct answers per area.') });
+    const ktPending = ({ title: X('4-сыныптардың компьютерлік тестілеу нәтижелері', 'Результаты компьютерного тестирования 4 классов', 'Grade-4 computer-testing results'), note: X('Тестілеу өткізілгеннен кейін жарияланады: өткізілген күні, қатысқан оқушылар үлесі, бағыттар бойынша оң жауаптар үлесі.', 'Публикуются после проведения: дата, доля участвовавших, доля положительных ответов по направлениям.', 'Published after testing: date, participation rate, share of correct answers per area.') });
 
     // ------------------------------------------------------------ results
-    const results = ui.grid({ cols: 3, items: [
-      ui.pending({ title: X('Үлгерім мен білім сапасы', 'Успеваемость и качество знаний', 'Progress and attainment'), note: X('Соңғы екі оқу жылы мен ағымдағы жылдың тоқсандары бойынша: сыныптар мен пәндер бөлінісінде үлгерім және сапа пайызы.', 'За два последних учебных года и четверти текущего: процент успеваемости и качества по классам и предметам.', 'Last two years and current terms: pass and quality rates by class and subject.') }),
-      ui.pending({ title: X('Олимпиадалар мен конкурстар', 'Олимпиады и конкурсы', 'Olympiads and competitions'), note: X('Қатысушылар мен жүлдегерлер (оқушының келісімімен), деңгейі, пәні, жылы, растайтын дипломдар.', 'Участники и призёры (с согласия), уровень, предмет, год, подтверждающие дипломы.', 'Participants and winners (with consent), level, subject, year, diplomas.') }),
-      ui.pending({ title: X('Нәтижелерді талдау', 'Анализ результатов', 'Results analysis'), note: X('БЖБ/ТЖБ нәтижелерінің талдауы және қабылданған шешімдер (әдістемелік бірлестік хаттамалары).', 'Анализ результатов СОр/СОч и принятые решения (протоколы методобъединений).', 'Analysis of summative results and decisions taken (subject team minutes).') }),
-    ] });
+    const results = [
+      ({ title: X('Үлгерім мен білім сапасы', 'Успеваемость и качество знаний', 'Progress and attainment'), note: X('Соңғы екі оқу жылы мен ағымдағы жылдың тоқсандары бойынша: сыныптар мен пәндер бөлінісінде үлгерім және сапа пайызы.', 'За два последних учебных года и четверти текущего: процент успеваемости и качества по классам и предметам.', 'Last two years and current terms: pass and quality rates by class and subject.') }),
+      ({ title: X('Олимпиадалар мен конкурстар', 'Олимпиады и конкурсы', 'Olympiads and competitions'), note: X('Қатысушылар мен жүлдегерлер (оқушының келісімімен), деңгейі, пәні, жылы, растайтын дипломдар.', 'Участники и призёры (с согласия), уровень, предмет, год, подтверждающие дипломы.', 'Participants and winners (with consent), level, subject, year, diplomas.') }),
+      ({ title: X('Нәтижелерді талдау', 'Анализ результатов', 'Results analysis'), note: X('БЖБ/ТЖБ нәтижелерінің талдауы және қабылданған шешімдер (әдістемелік бірлестік хаттамалары).', 'Анализ результатов СОр/СОч и принятые решения (протоколы методобъединений).', 'Analysis of summative results and decisions taken (subject team minutes).') }),
+    ];
 
     const finals = ui.callout({ type: 'info', icon: 'graduation', title: X('Қорытынды аттестаттау және ҰБТ', 'Итоговая аттестация и ЕНТ', 'Final attestation and the UNT'), text: X(
       `Қорытынды аттестаттау 9 және 11 (12)-сыныптарды бітірушілер үшін, ал ұлттық бірыңғай тестілеу (ҰБТ) жалпы орта білім беру деңгейін аяқтаған түлектер үшін өткізіледі. Мектеп парақшасында көрсетілген сынып аралығында (0–6) олар өткізілмейді, сондықтан бұл бөлімде олардың нәтижелері жоқ. Мерзімдері: <a href="${href('schedule')}#calendar">Академиялық күнтізбе</a>, ${ref('calendar', '№ 213-НҚ бұйрық')}. Олимпиадалар мен конкурстардың нәтижелері расталған соң төменде жарияланады.`,
@@ -135,17 +137,34 @@ ${[['0–39%', '2', X('қанағаттанарлықсыз', 'неудовле�
       { id: 'results', label: X('Оқу нәтижелері', 'Результаты обучения', 'Learning results') },
     ]);
 
-    return [
-      intro.replace('<!--toc-->', toc),
-      ui.section({ id: 'kinds', eyebrow: X('№ 125 қағидалар', 'Правила № 125', 'Rules No. 125'), title: X('Бағалаудың үш түрі', 'Три вида оценивания', 'Three types of assessment'), body: ui.prose(X(
+    // ------------------------------------------------------------ layer 1 visuals
+    // Three kinds of assessment as cards with 2–3 key facts each (the full wording sits in "Подробнее").
+    const kind = (ic, tag, title, facts) => `<li class="edu-kind"><div class="edu-kind__top"><span class="edu-kind__ic" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span><span class="edu-kind__tag">${L(tag)}</span></div><h3 class="edu-kind__t">${L(title)}</h3><ul class="edu-kind__f" role="list">${facts.map((f) => `<li>${L(f)}</li>`).join('')}</ul></li>`;
+    const kindsVis = `<ul class="edu-kinds" role="list">${[
+      kind('chat', X('ҚБ', 'ФО', 'FA'), X('Қалыптастырушы бағалау', 'Формативное оценивание', 'Formative assessment'), [X('күнделікті сабақта және үй жұмысында', 'каждый урок и домашняя работа', 'every lesson and homework'), X('ауызша немесе жазбаша кері байланыс', 'устная или письменная обратная связь', 'oral or written feedback')]),
+      kind('target', X('БЖБ', 'СОр', 'SAU'), X('Бөлім бойынша жиынтық бағалау', 'Суммативное оценивание за раздел', 'Summative assessment for a unit'), [X('бөлім соңында', 'в конце раздела', 'at the end of a unit'), X('тоқсанына 3 реттен артық емес', 'не более 3 раз в четверть', 'no more than 3 per term'), X('1–4-сыныптарда ең жоғары балл 7–15', 'в 1–4 классах максимум 7–15 баллов', 'grades 1–4: 7–15 points max')]),
+      kind('trophy', X('ТЖБ', 'СОч', 'SAT'), X('Тоқсан бойынша жиынтық бағалау', 'Суммативное оценивание за четверть', 'Summative assessment for a term'), [X('тоқсан соңында', 'в конце четверти', 'at the end of the term'), X('бір күнде үштен артық емес', 'не более трёх в день', 'no more than three a day'), X('тоқсанның соңғы күні емес', 'не в последний день четверти', 'never on the last day of term')]),
+    ].join('')}</ul>`;
+    const kindsMore = ui.more({ label: X('Бағалау түрлері туралы толығырақ', 'Подробнее о видах оценивания', 'More about the types of assessment'), icon: 'book', tone: 'plain', body: ui.lead(introLead) + ui.prose(X(
         '<p>Оқу жетістіктері <strong>қалыптастырушы</strong> және <strong>жиынтық</strong> бағалау түрінде бағаланады. 2–11-сынып оқушыларына қалыптастырушы бағалау, БЖБ және ТЖБ нәтижелері бойынша балл қойылады, олар тоқсандық бағаны шығаруда ескеріледі.</p>',
         '<p>Учебные достижения оцениваются в форме <strong>формативного</strong> и <strong>суммативного</strong> оценивания. Обучающимся 2–11 классов по результатам ФО, СОр и СОч выставляются баллы, которые учитываются в четвертной оценке.</p>',
-        '<p>Achievement is assessed through <strong>formative</strong> and <strong>summative</strong> assessment. Pupils in grades 2–11 receive points for formative work, unit and term tests, which feed the term grade.</p>')) + kinds + grade1 }),
-      ui.section({ id: 'formula', tone: 'physics', eyebrow: X('Тоқсандық баға', 'Четвертная оценка', 'Term grade'), title: X('Тоқсандық баға қалай шығады', 'Как выводится четвертная оценка', 'How the term grade is formed'), body: formula + formulaNote + `<h3>${L(X('Балдан бағаға', 'Из баллов — в оценку', 'From points to a grade'))}</h3>` + scale + scaleNote }),
-      ui.section({ id: 'year', eyebrow: X('Оқу жылының қорытындысы', 'Итоги учебного года', 'End of year'), title: X('Жылдық және қорытынды баға', 'Годовая и итоговая оценка', 'Year and final grades'), body: year + faq }),
-      ui.section({ id: 'kt', eyebrow: X('№ 114-НҚ бұйрық, 5-тарау', 'Приказ № 114-НҚ, глава 5', 'Order No. 114-NK, ch. 5'), title: X('4-сыныптардың компьютерлік тестілеуі', 'Компьютерное тестирование 4 классов', 'Computer testing in grade 4'), body: ktStats + ui.split({ ratio: '3:2', left: ktText, right: ktExempt }) + ktPending }),
-      ui.section({ id: 'results', tone: 'hero', eyebrow: X('Жетістіктер', 'Достижения', 'Achievements'), title: X('Оқу нәтижелері', 'Результаты обучения', 'Learning results'), lead: X('Нәтижелер расталған деректер бойынша ғана жарияланады.', 'Результаты публикуются только по подтверждённым данным.', 'Results are published only from verified data.'), body: finals + results }),
-      ui.section({ eyebrow: 'adilet.zan.kz', title: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), body: ui.linkList(actItems(['assess', 'attest', 'calendar', 'goso'], lang)) + ui.note(checkedNote) }),
+        '<p>Achievement is assessed through <strong>formative</strong> and <strong>summative</strong> assessment. Pupils in grades 2–11 receive points for formative work, unit and term tests, which feed the term grade.</p>')) + kindsExtra + grade1 });
+    // Year-end: the escalation as four compact tiles; the exact rules under "Правила подробно".
+    const ladder = `<ol class="edu-ladder" role="list">${[
+      [X('Жылдық баға', 'Годовая оценка', 'Year grade'), X('тоқсандық бағалардың орташасы', 'среднее четвертных оценок', 'average of the term grades')],
+      [X('1–2 пәннен «2»', '«2» по 1–2 предметам', 'A “2” in 1–2 subjects'), X('оқу жылы бойынша жиынтық бағалау', 'суммативная работа за год', 'a year summative test')],
+      [X('Қайта «2» алса', 'Повторная «2»', 'Another “2”'), X('жаңа оқу жылына дейін қосымша жұмыс', 'доп. работа до нового учебного года', 'an extra test before the new year')],
+      [X('3 және одан көп пәннен «2»', '«2» по трём и более предметам', 'A “2” in 3+ subjects'), X('қайта оқу', 'повторный год', 'repeating the year')],
+    ].map(([t, r]) => `<li><b>${L(t)}</b><span>${L(r)}</span></li>`).join('')}</ol>`;
+    const yearMore = ui.more({ label: X('Ережелер толығырақ', 'Правила подробно', 'The rules in full'), icon: 'doc', count: 4, tone: 'card', body: year });
+
+    return [
+      intro.replace('<!--toc-->', toc),
+      ui.section({ id: 'kinds', eyebrow: X('Баға қалай қойылады', 'Как ставят оценки', 'How grading works'), title: X('Бағалаудың үш түрі', 'Три вида оценивания', 'Three types of assessment'), body: kindsVis + kindsMore }),
+      ui.section({ id: 'formula', tone: 'physics', eyebrow: X('Тоқсандық баға', 'Четвертная оценка', 'Term grade'), title: X('Тоқсандық баға қалай шығады', 'Как выводится четвертная оценка', 'How the term grade is formed'), body: formula + `<h3>${L(X('Балдан бағаға', 'Из баллов — в оценку', 'From points to a grade'))}</h3>` + scale + `<div class="dz-row">${ui.legal(joinX(formulaNote, scaleNote))}</div>` }),
+      ui.section({ id: 'year', eyebrow: X('Оқу жылының қорытындысы', 'Итоги учебного года', 'End of year'), title: X('Жылдық және қорытынды баға', 'Годовая и итоговая оценка', 'Year and final grades'), body: ladder + yearMore + `<h3>${L(X('Жиі қойылатын сұрақтар', 'Частые вопросы', 'Frequently asked questions'))}</h3>` + faq }),
+      ui.section({ id: 'kt', eyebrow: X('Мемлекет мектепті қалай тексереді', 'Как государство проверяет школу', 'How the state checks the school'), title: X('4-сыныптардың компьютерлік тестілеуі', 'Компьютерное тестирование 4 классов', 'Computer testing in grade 4'), body: ktStats + `<div class="dz-row">${ui.more({ label: X('Тестілеу қалай өтеді', 'Как проходит тестирование', 'How the testing works'), icon: 'target', tone: 'card', body: ktText })}${ui.more({ label: X('Кім босатылады', 'Кто освобождается', 'Who is exempt'), icon: 'shield', count: 3, tone: 'card', body: ktExempt })}${pendLine(ui, lang, { items: [ktPending] })}</div>` }),
+      ui.section({ id: 'results', tone: 'hero', eyebrow: X('Жетістіктер', 'Достижения', 'Achievements'), title: X('Оқу нәтижелері', 'Результаты обучения', 'Learning results'), lead: X('Нәтижелер расталған деректер бойынша ғана жарияланады.', 'Результаты публикуются только по подтверждённым данным.', 'Results are published only from verified data.'), body: `<div class="dz-row">${ui.more({ label: X('Қорытынды аттестаттау және ҰБТ', 'Итоговая аттестация и ЕНТ', 'Final attestation and the UNT'), icon: 'graduation', tone: 'card', body: finals })}${pendLine(ui, lang, { items: results })}${actLegal(ui, ['assess', 'attest', 'calendar', 'goso'], lang, { id: 'acts' })}</div>` }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');
   },

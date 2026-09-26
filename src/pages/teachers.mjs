@@ -61,13 +61,14 @@ export default {
       head: cols,
       rows: [[ph(), ph(), ph(), ph(' sa-ph--s'), ph()], [ph(), ph(), ph(), ph(' sa-ph--s'), ph()]],
     });
-    const colGuide = `<ul class="sa-colguide" role="list">
+    const colGuideList = `<ul class="sa-colguide" role="list">
 <li><b>${L(cols[0])}</b><span>${L(X('толық, құжат бойынша', 'полностью, по документу', 'in full, as in the ID'))}</span></li>
 <li><b>${L(cols[1])}</b><span>${L(X('оқытатын пәні, сыныптары, жетекшілігі', 'предмет, классы, классное руководство', 'subject, grades, form tutoring'))}</span></li>
 <li><b>${L(X('Білімі', 'Образование', 'Education'))}</b><span>${L(X('ЖОО, мамандығы, дипломы; болса — педагогикалық қайта даярлау туралы құжат', 'вуз, специальность, диплом; при наличии — документ о педагогической переподготовке', 'university, major, diploma; if any — teacher retraining certificate'))}</span></li>
 <li><b>${L(X('Санаты', 'Категория', 'Category'))}</b><span>${L(X('педагог, модератор, сарапшы, зерттеуші, шебер — бұйрық күнімен', 'педагог, модератор, эксперт, исследователь, мастер — с датой приказа', 'teacher, moderator, expert, researcher, master — with the order date'))}</span></li>
 <li><b>${L(X('Курстар', 'Курсы', 'Courses'))}</b><span>${L(X('соңғы 3 жылдағы курстардың атауы, ұйымы, жылы, сағаты', 'название, организация, год и объём курсов за 3 года', 'title, provider, year and hours for the last 3 years'))}</span></li>
 </ul>`;
+    const colGuide = ui.more({ label: X('Әр бағанда не көрсетіледі', 'Что указывается в каждом столбце', 'What each column contains'), icon: 'grid', count: 5, tone: 'plain', body: colGuideList });
     const staffPending = ui.pending({
       title: X('Педагогтер тізімі толықтырылуда', 'Список педагогов готовится', 'The staff list is being prepared'),
       note: X(
@@ -79,12 +80,15 @@ export default {
     const consent = ui.callout({
       type: 'info', icon: 'lock',
       title: X('Дербес деректер тек келісіммен жарияланады', 'Персональные данные — только с согласия', 'Personal data only with consent'),
-      text: X(
+      text: X('Жеке телефон мен мекенжай жарияланбайды; келісімді кез келген уақытта кері қайтарып алуға болады.', 'Личные телефоны и адреса не публикуются; согласие можно отозвать в любой момент.', 'Private phones and addresses are never published; consent can be withdrawn at any time.'),
+    });
+    const consentLegal = ui.legal([
+      { href: PD_LAW, title: X('«Дербес деректер және оларды қорғау туралы» ҚР Заңы', 'Закон РК «О персональных данных и их защите»', 'Law “On personal data and their protection”'), number: '94-V', date: '2013-05-21' },
+    ], { note: X(
         `${ui.extLink(PD_LAW, '«Дербес деректер және оларды қорғау туралы» ҚР Заңына')} сәйкес педагогтің аты-жөні, білімі мен біліктілігі туралы мәліметтер оның келісімімен ғана жалпыға қолжетімді етіледі. Келісімді кез келген уақытта кері қайтарып алуға болады — ол жағдайда мәлімет сайттан алынады. Байланыс деректері (жеке телефон, мекенжай) жарияланбайды.`,
         `По ${ui.extLink(PD_LAW, 'Закону РК «О персональных данных и их защите»')} ФИО, сведения об образовании и квалификации педагога делаются общедоступными только с его согласия. Согласие можно отозвать в любой момент — тогда сведения удаляются с сайта. Личные контакты (телефон, адрес) не публикуются.`,
         `Under the ${ui.extLink(PD_LAW, 'Law of Kazakhstan “On personal data and their protection”')}, a teacher’s name, education and qualifications are made public only with their consent. Consent can be withdrawn at any time, and the data are then removed from the site. Private contacts (phone, address) are never published.`,
-      ),
-    });
+      ) });
 
     // ------------------------------------------------------------------ analytics vs criteria
     const meter = ({ icon, label, crit, rows }) => `<article class="sa-meter">
@@ -100,16 +104,18 @@ ${meter({ icon: 'trophy', label: X('Сарапшы, зерттеуші және 
     ] })}
 ${meter({ icon: 'book', label: X('Соңғы 3 жылда біліктілігін арттырған педагогтердің үлесі', 'Доля педагогов, повысивших квалификацию за 3 года', 'Share of teachers trained in the last 3 years'), crit: X('«Үлгілі» деңгей (5 балл) үшін', 'Для уровня «образцовый» (5 баллов)', 'For the “exemplary” level (5 points)'), rows: [{ label: X('талап', 'норма', 'target'), target: '100%', t: 99.4 }] })}
 </div>`;
-    const metersNote = ui.note(X(
+    const metersNote = `<div class="dz-row">${ui.legal([
+      { href: A114, title: X('Мемлекеттік аттестаттау қағидалары (ҚР Оқу-ағарту министрінің бұйрығы)', 'Правила государственной аттестации (приказ Министра просвещения РК)', 'State Attestation Rules (Minister of Education order)'), number: '114-НҚ', date: '2026-04-30', note: X('5–7-өлшемшарттар — кадрлық әлеует', 'критерии 5–7 — кадровый потенциал', 'criteria 5–7 — staffing') },
+    ], { note: X(
       `Талап етілетін үлестер ${ui.extLink(A114, 'мемлекеттік аттестаттау қағидаларының')} (ҚР Оқу-ағарту министрінің 30.04.2026 № 114-НҚ бұйрығы) кадрлық әлеует өлшемшарттары бойынша (5–7-өлшемшарттар) көрсетілген. Мектептің нақты көрсеткіштері өзін-өзі бағалау материалдарымен бірге жарияланады — <a href="${href('self-2')}">«Кадрлық әлеует»</a>.`,
       `Требуемые доли приведены по критериям кадрового потенциала (критерии 5–7) ${ui.extLink(A114, 'Правил государственной аттестации')} (приказ Министра просвещения РК от 30.04.2026 № 114-НҚ). Фактические показатели школы публикуются вместе с материалами самооценки — <a href="${href('self-2')}">«Кадровый потенциал»</a>.`,
       `Target shares follow the staffing criteria (criteria 5–7) of the ${ui.extLink(A114, 'State Attestation Rules')} (Order No. 114-NK of the Minister of Education, 30.04.2026). The school’s actual figures are published with the self-assessment materials — <a href="${href('self-2')}">Staffing</a>.`,
-    ));
+    ) })}<a class="sa-chiplink" href="${href('self-2')}">${ui.icon('target', { size: 16 })}<span>${L(X('Өзін-өзі бағалау: кадрлық әлеует', 'Самооценка: кадровый потенциал', 'Self-assessment: staffing'))}</span>${ui.icon('arrow-right', { size: 16 })}</a></div>`;
 
     // ------------------------------------------------------------------ categories ladder
     // Order 338, §7 "Учителя всех специальностей", p.66 (minimum experience) and p.67 (competences), ред. 19.06.2026.
     const exp = (kz, ru, en) => `<span class="sa-exp">${ui.icon('clock', { size: 14 })}<span>${L(X(kz, ru, en))}</span></span>`;
-    const ladder = ui.steps([
+    const cats = [
       { title: X('Педагог', 'Педагог', 'Teacher'), text: L(X(
         'Оқу-тәрбие процесін оқушылардың жас ерекшеліктерін ескеріп жоспарлайды; білім беру ұйымы деңгейіндегі іс-шараларға қатысады; сандық білім беру ресурстарын қолданады.',
         'Планирует учебно-воспитательный процесс с учётом возрастных особенностей учеников; участвует в мероприятиях на уровне организации образования; применяет цифровые образовательные ресурсы.',
@@ -130,12 +136,19 @@ ${meter({ icon: 'book', label: X('Соңғы 3 жылда біліктілігі
         'Ы. Алтынсарин атындағы Ұлттық білім академиясы жанындағы РОӘК мақұлдаған авторлық бағдарламасы бар немесе бекітілген оқулықтың, құралдың авторы; республикалық не халықаралық конкурстардың жүлдегері немесе жеңімпаздарын дайындаған.',
         'Имеет авторскую программу, одобренную РУМС при Национальной академии образования им. Ы. Алтынсарина, или является автором утверждённых учебников, пособий; призёр республиканских или международных конкурсов либо подготовил их победителей.',
         'Has an original programme approved by the council of the Altynsarin National Academy of Education, or authored approved textbooks; has won, or coached winners of, national or international competitions.')) + exp('өтілі 5 жыл', 'стаж 5 лет', '5 years') },
-    ], { cls: 'sa-steps sa-cats' });
-    const ladderNote = ui.note(X(
+    ];
+    // Layer 1: five steps with the minimum experience badge; layer 2: what each category must be able to do.
+    const expOf = (txt) => (txt.match(/<span class="sa-exp">[\s\S]*$/) || [''])[0];
+    const ladder = `${ui.steps(cats.map((c) => ({ title: c.title, text: expOf(c.text) })), { cls: 'sa-steps sa-cats sa-cats--short' })}
+<div class="dz-row">${ui.more({ label: X('Әр санатқа қойылатын талаптар', 'Требования к каждой категории', 'What each category requires'), icon: 'trophy', count: cats.length, tone: 'card', body: ui.steps(cats, { cls: 'sa-steps-full sa-cats' }) })}`;
+    const ladderNote = `${ui.legal([
+      { href: TKH, title: X('Педагог лауазымдарының үлгілік біліктілік сипаттамалары (ҚР БҒМ бұйрығы)', 'Типовые квалификационные характеристики должностей педагогов (приказ МОН РК)', 'Standard qualification characteristics of teachers’ positions (MES order)'), number: '338', date: '2009-07-13', note: X('66–67-тармақтар; 19.06.2026 редакциясы', 'пп. 66–67; ред. от 19.06.2026', 'paras. 66–67; as amended 19.06.2026') },
+      { href: STATUS, title: X('«Педагог мәртебесі туралы» ҚР Заңы', 'Закон РК «О статусе педагога»', 'Law “On the status of a teacher”') },
+    ], { note: X(
       `Қысқаша сипаттама ${ui.extLink(TKH, 'Педагог лауазымдарының үлгілік біліктілік сипаттамаларының')} «Барлық мамандықтағы мұғалімдер» параграфы (66–67-тармақтар) бойынша берілген (ҚР БҒМ 13.07.2009 № 338 бұйрығы, 19.06.2026 редакциясы). Санаттар ${ui.extLink(STATUS, '«Педагог мәртебесі туралы» ҚР Заңына')} сәйкес аттестаттау қорытындысы бойынша беріледі.`,
       `Кратко по параграфу «Учителя всех специальностей» (пп. 66–67) ${ui.extLink(TKH, 'Типовых квалификационных характеристик должностей педагогов')} (приказ МОН РК от 13.07.2009 № 338, ред. от 19.06.2026). Категории присваиваются по итогам аттестации в соответствии с ${ui.extLink(STATUS, 'Законом РК «О статусе педагога»')}.`,
       `Summarised from the “Teachers of all subjects” section (paras. 66–67) of the ${ui.extLink(TKH, 'Standard qualification characteristics of teachers’ positions')} (MES order No. 338 of 13.07.2009, as amended 19.06.2026). Categories are awarded through attestation under the ${ui.extLink(STATUS, 'Law “On the status of a teacher”')}.`,
-    ));
+    ) })}</div>`;
 
     // ------------------------------------------------------------------ assemble
     const toc = ui.toc([
@@ -147,14 +160,14 @@ ${meter({ icon: 'book', label: X('Соңғы 3 жылда біліктілігі
     return [
       overview,
       ui.split({ ratio: '1:2', cls: 'sa-split', left: toc, right: ui.section({ id: 'list', eyebrow: X('Келісіммен жарияланады', 'Публикуется с согласия', 'Published with consent'), title: X('Педагогтер тізімі', 'Список педагогов', 'Staff list'), lead: X(
-        'Кестеде әр педагог бойынша бес баған болады. Төменде әр бағанда не көрсетілетіні түсіндірілген.',
-        'В таблице по каждому педагогу будет пять столбцов. Ниже — что указывается в каждом из них.',
-        'The table will have five columns per teacher. Below is what each column contains.',
-      ), body: staffTable + staffPending + colGuide + consent }) }),
+        'Кестеде әр педагог бойынша бес баған болады.',
+        'В таблице по каждому педагогу будет пять столбцов.',
+        'The table will have five columns per teacher.',
+      ), body: staffTable + staffPending + consent + `<div class="dz-row">${colGuide}${consentLegal}</div>` }) }),
       ui.section({ id: 'analytics', tone: 'languages', eyebrow: X('5–7-өлшемшарттар', 'Критерии 5–7', 'Criteria 5–7'), title: X('Кадрлық әлеует көрсеткіштері', 'Показатели кадрового потенциала', 'Staffing indicators'), lead: X(
-        'Сызық — «үлгілі» деңгейге қажетті шекті мән, боялған аймақ — талапқа сай келетін аралық. Мектептің мәні жарияланғанда осы шкалада көрсетіледі.',
-        'Черта — пороговое значение для уровня «образцовый», закрашенная зона — соответствующий требованию диапазон. Значение школы появится на этой шкале после публикации.',
-        'The mark is the threshold for the “exemplary” level and the shaded zone is the compliant range. The school’s figure will appear on this scale once published.',
+        'Сызық — «үлгілі» деңгейге қажетті шек. Мектептің мәні жарияланғанда осы шкалада көрсетіледі.',
+        'Черта — порог для уровня «образцовый». Значение школы появится на шкале после публикации.',
+        'The mark is the threshold for the “exemplary” level. The school’s figure will appear on the scale once published.',
       ), body: meters + metersNote }),
       ui.section({ id: 'categories', eyebrow: X('Кәсіби өсу жолы', 'Путь профессионального роста', 'Career path'), title: X('Педагогтердің біліктілік санаттары', 'Квалификационные категории педагогов', 'Teacher qualification categories'), body: ladder + ladderNote }),
       ui.section({ id: 'join', body: ui.banner({ theme: 'languages', icon: 'handshake', eyebrow: X('Бос жұмыс орындары', 'Вакансии', 'Vacancies'), title: X('«Керемет» командасына қосылғыңыз келе ме?', 'Хотите работать в «Керемет»?', 'Would you like to join Keremet?'), text: X('Бос орындар, біліктілік талаптары және өтініш беру тәртібі.', 'Вакансии, квалификационные требования и порядок отклика.', 'Open positions, qualification requirements and how to apply.'), href: href('vacancies'), label: X('Бос орындар', 'Вакансии', 'Vacancies') }) }),

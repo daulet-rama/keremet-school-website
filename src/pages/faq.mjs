@@ -126,10 +126,11 @@ export default {
       }),
     }));
 
-    const realQs = ui.pending({
-      title: X('Бөлім келушілердің сұрақтары бойынша толықтырылады', 'Раздел пополняется по вопросам посетителей', 'This section grows with visitors’ questions'),
+    const realTitle = X('Бөлім келушілердің сұрақтары бойынша толықтырылады', 'Раздел пополняется по вопросам посетителей', 'This section grows with visitors’ questions');
+    const realQs = ui.pendingGroup(lang, [{
+      title: realTitle,
       note: X('Сайт арқылы, телефонмен және директор блогына келіп түскен нақты сұрақтар мектеп әкімшілігі жауап бергеннен кейін осында қосылады.', 'Реальные вопросы, поступившие через сайт, по телефону и в блог директора, будут добавляться сюда после ответа администрации школы.', 'Real questions received via the site, by phone and through the director’s blog will be added here once the school has answered them.'),
-    });
+    }], { title: realTitle });
 
     return [
       nav,

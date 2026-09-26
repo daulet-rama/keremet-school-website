@@ -40,26 +40,31 @@ export default {
       ratio: '1:1', align: 'start',
       left: `${ui.eyebrow(X('Кітап — білім бұлағы', 'Книга — источник знаний', 'Books are a source of knowledge'))}
 <h2 class="sec__title">${L(X('Кітапхана — мектептің жүрегі', 'Библиотека — сердце школы', 'The library is the heart of the school'))}</h2>
-<p class="lead" style="margin-top:18px">${L(X(
+<div class="dz-row" style="margin-top:18px">${ui.legal(`<p>${L(X(
         '«Білім туралы» Заң бойынша оқушылар мектептің ақпараттық ресурстарын, кітапханасы мен компьютерлік сыныптарын тегін пайдалануға және оқулықтармен, оқу-әдістемелік кешендермен қамтамасыз етілуге құқылы.',
         'По Закону «Об образовании» учащиеся имеют право бесплатно пользоваться информационными ресурсами, библиотекой и компьютерными классами школы и на обеспечение учебниками и учебно-методическими комплексами.',
         'Under the Law “On Education”, pupils have the right to use the school’s information resources, library and computer rooms free of charge and to be provided with textbooks and teaching kits.',
-      ))}</p>
-<p class="ub-src" style="margin-top:12px">${ui.extLink(LAW, X('«Білім туралы» ҚР Заңы, 47-бап, 3-тармақ, 7)–8) тармақшалар', 'Закон РК «Об образовании», ст. 47, п. 3, пп. 7)–8)', 'Law “On Education”, Art. 47(3)(7)–(8)'))}</p>
-<div class="cluster" style="margin-top:22px">${ui.button({ href: '#textbooks', label: X('Оқулықтар тізбесі', 'Перечень учебников', 'Textbook list'), icon: 'arrow-right' })}${ui.button({ href: '#resources', label: X('Цифрлық ресурстар', 'Цифровые ресурсы', 'Digital resources'), kind: 'ghost' })}</div>`,
-      right: ui.panel({ theme: 'biology', cls: 'ub-lib-glance', body: `<p class="ub-kicker" style="color:var(--t-accent-text)">${L(X('Кітапхана бір қарағанда', 'Библиотека в цифрах', 'Library at a glance'))}</p>${ui.facts([
-        { k: X('Кітап қоры (барлығы, дана)', 'Книжный фонд (всего, экз.)', 'Collection (items)'), v: pb },
-        { k: X('Оның ішінде оқулықтар', 'В том числе учебники', 'of which textbooks'), v: pb },
-        { k: X('Оқулықпен қамтамасыз ету', 'Обеспеченность учебниками', 'Textbook provision'), v: pb },
-        { k: X('Оқу залы / орын саны', 'Читальный зал / мест', 'Reading room / seats'), v: pb },
-        { k: X('Кітапханашы', 'Библиотекарь', 'Librarian'), v: pb },
-        { k: X('Жұмыс уақыты', 'Часы работы', 'Opening hours'), v: pb },
-      ])}` }),
+      ))}</p><p class="ub-src">${ui.extLink(LAW, X('«Білім туралы» ҚР Заңы, 47-бап, 3-тармақ, 7)–8) тармақшалар', 'Закон РК «Об образовании», ст. 47, п. 3, пп. 7)–8)', 'Law “On Education”, Art. 47(3)(7)–(8)'))}</p>`)}</div>`,
+      right: ui.panel({ theme: 'biology', cls: 'ub-lib-glance', body: `<p class="ub-kicker ub-glance-k" style="color:var(--t-accent-text)">${L(X('Әр оқушыға тегін', 'Бесплатно для каждого ученика', 'Free for every pupil'))}</p>
+<ul class="lf-facts lf-facts--3" role="list">${[
+        ['book', X('Кітапхана', 'Библиотека', 'The library')],
+        ['code', X('Компьютерлік сыныптар', 'Компьютерные классы', 'Computer rooms')],
+        ['graduation', X('Оқулықтар мен ОӘК', 'Учебники и УМК', 'Textbooks and teaching kits')],
+      ].map(([ic, t]) => `<li><span class="lf-facts__ic" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span><span><b>${L(t)}</b></span></li>`).join('')}</ul>
+${ui.pendingGroup(lang, [
+        X('Кітап қоры (барлығы, дана)', 'Книжный фонд (всего, экз.)', 'Collection (items)'),
+        X('Оның ішінде оқулықтар', 'В том числе учебники', 'of which textbooks'),
+        X('Оқулықпен қамтамасыз ету', 'Обеспеченность учебниками', 'Textbook provision'),
+        X('Оқу залы / орын саны', 'Читальный зал / мест', 'Reading room / seats'),
+        X('Кітапханашы', 'Библиотекарь', 'Librarian'),
+        X('Жұмыс уақыты', 'Часы работы', 'Opening hours'),
+      ], { title: X('Кітапхана сандармен: 6 көрсеткіш нақтылануда', 'Библиотека в цифрах: 6 показателей уточняются', 'Library in figures: 6 items being confirmed') })}` }),
     });
 
     // ---------------------------------------------------------------- textbooks & UMK
-    const textbooks = `${ui.callout({ type: 'info', icon: 'book', title: X('Аттестаттау талабы: 100%', 'Требование аттестации: 100%', 'Attestation requirement: 100%'), text: X('Мемлекеттік аттестаттау кезінде оқушылардың оқулықтармен қамтамасыз етілуі, оқулықтар мен ОӘК тізбесі тексеріледі. Мектеп әр сынып бойынша қамтамасыз ету деңгейін және пайдаланылатын оқулықтардың толық тізбесін жариялайды.', 'При государственной аттестации проверяется обеспеченность учащихся учебниками и перечень учебников и УМК. Школа публикует уровень обеспеченности по каждому классу и полный перечень используемых учебников.', 'State attestation checks pupils’ textbook provision and the list of textbooks and teaching kits. The school publishes provision by grade and the full list of textbooks in use.') })}
-${ui.table({
+    const textbooks = `<div class="ub-hundred"><span class="ub-hundred__n">100%</span><span class="ub-hundred__t">${L(X('Әр оқушы оқулықтар жиынтығымен қамтамасыз етілуі тиіс.', 'Каждый ученик должен быть обеспечен комплектом учебников.', 'Every pupil should have a full set of textbooks.'))}</span></div>
+<div class="dz-row ub-row">${ui.more({ tone: 'card', icon: 'book', label: X('Аттестаттау талабы: 100%', 'Требование аттестации: 100%', 'Attestation requirement: 100%'), body: X('Мемлекеттік аттестаттау кезінде оқушылардың оқулықтармен қамтамасыз етілуі, оқулықтар мен ОӘК тізбесі тексеріледі. Мектеп әр сынып бойынша қамтамасыз ету деңгейін және пайдаланылатын оқулықтардың толық тізбесін жариялайды.', 'При государственной аттестации проверяется обеспеченность учащихся учебниками и перечень учебников и УМК. Школа публикует уровень обеспеченности по каждому классу и полный перечень используемых учебников.', 'State attestation checks pupils’ textbook provision and the list of textbooks and teaching kits. The school publishes provision by grade and the full list of textbooks in use.') })}`;
+    const provisionTable = ui.table({
       caption: X('Оқулықтармен қамтамасыз ету, 2026–2027 оқу жылы', 'Обеспеченность учебниками, 2026–2027 учебный год', 'Textbook provision, 2026–2027'),
       head: [X('Көрсеткіш', 'Показатель', 'Indicator'), X('Мәні', 'Значение', 'Value'), X('Дереккөз', 'Источник', 'Source')],
       rows: [
@@ -68,29 +73,30 @@ ${ui.table({
         [L(X('Қамтамасыз ету деңгейі, %', 'Уровень обеспеченности, %', 'Provision, %')), pb, L(X('кітапхана есебі', 'учёт библиотеки', 'library records'))],
         [L(X('Оқулықтарды беру тәртібі', 'Порядок выдачи учебников', 'How textbooks are issued')), pb, L(X('мектеп бұйрығы', 'приказ школы', 'school order'))],
       ],
-    })}
-${ui.docList([
-      docById('textbook-list'),
-      docById('textbook-provision'),
-      docById('library-collection'),
-    ])}
-${ui.pending(lang, X(
+    });
+    const tbDocs = [docById('textbook-list'), docById('textbook-provision'), docById('library-collection')].filter(Boolean);
+    const tbWait = tbDocs.filter((d) => !d.file && !d.url);
+    const textbooksRest = `${ui.docList(tbDocs.filter((d) => d.file || d.url))}
+${ui.pendingGroup(lang, [...tbWait.map((d) => ({ title: d.title, note: d.note || X('Құжат жүктеледі', 'Документ будет загружен', 'Document to be uploaded') })), { title: X('Кітапхана қоры және оқулықтар тізбесі', 'Библиотечный фонд и перечень учебников', 'Library collection and textbook list'), note: L(X(
       'Кітапхана қорының көлемі, әр сынып бойынша оқулықпен қамтамасыз ету пайызы, оқулықтарды беру тәртібі және сыныптар бойынша оқулықтар мен ОӘК тізбесі (авторы, баспасы, шыққан жылы) осы жерде жарияланады.',
       'Здесь будут опубликованы объём библиотечного фонда, процент обеспеченности учебниками по каждому классу, порядок выдачи учебников и перечень учебников и УМК по классам (автор, издательство, год издания).',
       'The size of the collection, textbook provision in % by grade, how textbooks are issued and the list of textbooks and teaching kits by grade (author, publisher, year) will be published here.',
-    ))}`;
+    )) + provisionTable }])}`;
 
     // ---------------------------------------------------------------- ICT
-    const ict = ui.facts([
+    const ictFacts = ([
       { k: X('Компьютерлік сыныптар / жұмыс орындары', 'Компьютерные классы / рабочие места', 'Computer rooms / workstations'), v: pb },
       { k: X('Интернет жылдамдығы', 'Скорость интернета', 'Internet speed'), v: pb },
       { k: X('Интерактивті тақталар мен проекторлар', 'Интерактивные доски и проекторы', 'Interactive boards and projectors'), v: pb },
       { k: X('Робототехника жабдықтары', 'Оборудование для робототехники', 'Robotics equipment'), v: pb },
       { k: X('Сабақта пайдаланылатын цифрлық білім беру ресурстары', 'Цифровые образовательные ресурсы, используемые на уроках', 'Digital learning resources used in lessons'), v: pb },
-    ], { cols: 2 });
+    ]);
+    const ictShort = [X('Компьютерлік сыныптар', 'Компьютерные классы', 'Computer rooms'), X('Интернет жылдамдығы', 'Скорость интернета', 'Internet speed'), X('Интерактивті тақталар', 'Интерактивные доски', 'Interactive boards'), X('Робототехника', 'Робототехника', 'Robotics'), X('Цифрлық ресурстар', 'Цифровые ресурсы', 'Digital resources')];
+    const ict = `<ul class="ub-tiles" role="list">${ictFacts.map((it, i) => ({ icon: ['code', 'globe', 'grid', 'robot', 'book'][i], k: ictShort[i] })).map((it) => `<li><span class="ub-tiles__ic" aria-hidden="true">${ui.icon(it.icon, { size: 22 })}</span><span>${L(it.k)}</span></li>`).join('')}</ul>`;
+    const ictPending = ui.pendingGroup(lang, ictFacts.map((f) => f.k), { note: X('Компьютерлік сыныптардың саны мен жабдықталуы, интернет жылдамдығы (Мбит/с) және сабақта пайдаланылатын цифрлық ресурстар мектеппен нақтыланғаннан кейін жарияланады.', 'Количество и оснащение компьютерных классов, скорость интернета (Мбит/с) и используемые на уроках цифровые ресурсы будут опубликованы после уточнения школой.', 'The number and equipment of computer rooms, internet speed (Mbit/s) and digital resources used in lessons will be published once confirmed by the school.'), title: X(`${ictFacts.length} көрсеткіш нақтылануда`, `${ictFacts.length} показателей уточняются`, `${ictFacts.length} figures being confirmed`) });
 
     // ---------------------------------------------------------------- systems (НОБД, e-journal)
-    const systems = ui.table({
+    const systemsTable = ui.table({
       caption: X('Мектептің ақпараттық жүйелері мен деректер қорлары', 'Информационные системы и базы данных школы', 'The school’s information systems and databases'),
       head: [X('Жүйе', 'Система', 'System'), X('Мақсаты', 'Назначение', 'Purpose'), X('Кімге арналған', 'Для кого', 'Who uses it'), X('Мәртебесі', 'Статус', 'Status')],
       rows: [
@@ -99,16 +105,21 @@ ${ui.pending(lang, X(
         [`${L(X('Мектеп сайты', 'Сайт школы', 'School website'))}<br><span class="mono">keremet.edu.kz</span>`, L(X('Ресми ақпарат, құжаттар, жаңалықтар, өтініштер', 'Официальная информация, документы, новости, обращения', 'Official information, documents, news, messages')), L(X('барлығы', 'все', 'everyone')), L(X('осы сайт', 'этот сайт', 'this website'))],
       ],
     });
-    const systemsBasis = `<p class="ub-src" style="margin-top:12px"><strong>${L(X('Неге бұл тізім:', 'Почему этот перечень:', 'Why this list:'))}</strong>${L(X(
+    const systems = `<ul class="ub-sys" role="list">
+<li><span class="ub-tiles__ic" aria-hidden="true">${ui.icon('grid', { size: 22 })}</span><div><p class="ub-sys__t">${L(X('ҰБДҚ', 'НОБД', 'NOBD'))}</p><p class="ub-sys__s">${ui.extLink('https://nobd.edu.kz/', 'nobd.edu.kz')}</p></div>${ui.badge(X('пайдаланылады', 'используется', 'in use'), 'ok')}</li>
+<li><span class="ub-tiles__ic" aria-hidden="true">${ui.icon('book', { size: 22 })}</span><div><p class="ub-sys__t">${L(X('Электрондық журнал және күнделік', 'Электронный журнал и дневник', 'E-journal and e-diary'))}</p><p class="ub-sys__s">${L(X('педагогтер, оқушылар, ата-аналар', 'педагоги, ученики, родители', 'teachers, pupils, parents'))}</p></div>${pb}</li>
+<li><span class="ub-tiles__ic" aria-hidden="true">${ui.icon('globe', { size: 22 })}</span><div><p class="ub-sys__t">${L(X('Мектеп сайты', 'Сайт школы', 'School website'))}</p><p class="ub-sys__s mono">keremet.edu.kz</p></div>${ui.badge(X('осы сайт', 'этот сайт', 'this website'), 'ok')}</li>
+</ul>`;
+    const systemsBasis = `<div class="dz-row ub-row">${ui.more({ tone: 'card', icon: 'grid', count: 3, label: X('Жүйелер кестесі', 'Таблица систем', 'Systems table'), body: systemsTable })}${ui.legal(`<p class="ub-src"><strong>${L(X('Неге бұл тізім:', 'Почему этот перечень:', 'Why this list:'))}</strong>${L(X(
       `${ui.extLink(ACCESS, '«Ақпаратқа қол жеткізу туралы» ҚР Заңы, 16-бап, 7-тармақ, 10) тармақша')} — интернет-ресурста ұйымның жүргізуіндегі дерекқорлардың, тізілімдердің тізбесі орналастырылады.`,
       `${ui.extLink(ACCESS, 'Закон РК «О доступе к информации», ст. 16, п. 7, пп. 10)')} — на интернет-ресурсе размещается перечень баз данных, реестров и регистров, находящихся в ведении организации.`,
       `${ui.extLink(ACCESS, 'Law “On Access to Information”, Art. 16(7)(10)')} — the website must list the databases and registers the organisation maintains.`,
-    ))}</p>`;
-    const systemsPending = ui.pending(lang, X(
+    ))}</p>`)}</div>`;
+    const systemsPending = ui.pendingGroup(lang, [{ title: X('Мектептің электрондық журналы', 'Электронный журнал школы', 'The school’s e-journal'), note: X(
       'Мектеп пайдаланатын электрондық журнал (атауы, сілтемесі, ата-аналардың логин алу тәртібі) және басқа ақпараттық жүйелер осы жерде жарияланады. Оған дейін журналға кіру туралы сынып жетекшісінен сұраңыз.',
       'Здесь будет указан электронный журнал школы (название, ссылка, как родителям получить логин) и другие информационные системы. А пока о доступе к журналу спросите у классного руководителя.',
       'The school’s e-journal (name, link, how parents get a login) and other information systems will be listed here. Until then, ask the class teacher about journal access.',
-    ));
+    ) }], { title: X('Электрондық журнал туралы мәлімет нақтылануда', 'Сведения об электронном журнале уточняются', 'E-journal details being confirmed') });
 
     // ---------------------------------------------------------------- national resources
     const res = [
@@ -120,7 +131,7 @@ ${ui.pending(lang, X(
       { c: '#0096B4', l: 'e', name: 'eGov', url: 'https://egov.kz/', host: 'egov.kz', text: X('Электрондық үкімет: білім беру саласындағы мемлекеттік қызметтер.', 'Электронное правительство: госуслуги в сфере образования.', 'E-government: public services in education.') },
     ];
     const resHtml = `<ul class="ub-res" role="list" data-reveal-stagger>${res.map((r) => `<li><a href="${r.url}" target="_blank" rel="noopener" data-ext style="--c:${r.c}"><span class="ub-res__logo" aria-hidden="true">${typeof r.l === 'string' ? r.l : L(r.l)}</span><span class="ub-res__name">${L(r.name)}${ui.icon('ext', { size: 14 })}</span><span class="ub-res__url">${r.host}</span><span class="ub-res__text">${L(r.text)}</span><span class="sr-only"> ${L(X('(жаңа бетте ашылады)', '(откроется в новой вкладке)', '(opens in a new tab)'))}</span></a></li>`).join('')}</ul>
-${ui.note(X('Бұл — сыртқы ресурстар; олар мектепке тиесілі емес. Мектептің сабақта нақты қай ресурстарды пайдаланатыны жоғарыдағы АКТ бөлімінде көрсетіледі.', 'Это внешние ресурсы, они не принадлежат школе. Какие ресурсы школа фактически использует на уроках, указывается в разделе ИКТ выше.', 'These are external resources not owned by the school. Which ones the school actually uses in lessons is shown in the ICT section above.'))}`;
+<div class="dz-row ub-row">${ui.more({ icon: 'info', label: X('Бұл ресурстар туралы', 'Об этих ресурсах', 'About these resources'), body: X('Бұл — сыртқы ресурстар; олар мектепке тиесілі емес. Мектептің сабақта нақты қай ресурстарды пайдаланатыны жоғарыдағы АКТ бөлімінде көрсетіледі.', 'Это внешние ресурсы, они не принадлежат школе. Какие ресурсы школа фактически использует на уроках, указывается в разделе ИКТ выше.', 'These are external resources not owned by the school. Which ones the school actually uses in lessons is shown in the ICT section above.') })}</div>`;
 
     const related = ui.linkList([
       { href: `${href('upbringing')}#projects`, icon: 'book', label: X('«Балалар кітапханасы» жобасы', 'Проект «Балалар кітапханасы»', 'The “Children’s Library” project'), note: X('«Адал азамат» бағдарламасы', 'Программа «Адал азамат»', 'Part of “Adal Azamat”') },
@@ -140,8 +151,8 @@ ${ui.note(X('Бұл — сыртқы ресурстар; олар мектепк
 
     return [
       intro,
-      ui.split({ ratio: '1:2', left: toc, right: ui.section({ id: 'textbooks', eyebrow: X('Қор', 'Фонд', 'Collection'), title: X('Оқулықтар мен ОӘК', 'Учебники и УМК', 'Textbooks and teaching kits'), body: textbooks }) }),
-      ui.section({ id: 'ict', tone: 'card', eyebrow: X('Цифрлық орта', 'Цифровая среда', 'Digital environment'), title: X('АКТ және жабдықтар', 'ИКТ и оснащение', 'ICT and equipment'), body: ict + ui.pending(lang, X('Компьютерлік сыныптардың саны мен жабдықталуы, интернет жылдамдығы (Мбит/с) және сабақта пайдаланылатын цифрлық ресурстар мектеппен нақтыланғаннан кейін жарияланады.', 'Количество и оснащение компьютерных классов, скорость интернета (Мбит/с) и используемые на уроках цифровые ресурсы будут опубликованы после уточнения школой.', 'The number and equipment of computer rooms, internet speed (Mbit/s) and digital resources used in lessons will be published once confirmed by the school.')) }),
+      ui.split({ ratio: '1:2', left: toc, right: ui.section({ id: 'textbooks', eyebrow: X('Қор', 'Фонд', 'Collection'), title: X('Оқулықтар мен ОӘК', 'Учебники и УМК', 'Textbooks and teaching kits'), body: textbooks + '</div>' + textbooksRest }) }),
+      ui.section({ id: 'ict', tone: 'card', eyebrow: X('Цифрлық орта', 'Цифровая среда', 'Digital environment'), title: X('АКТ және жабдықтар', 'ИКТ и оснащение', 'ICT and equipment'), body: ict + ictPending }),
       ui.section({ id: 'digital', eyebrow: X('Деректер', 'Данные', 'Data'), title: X('Ақпараттық жүйелер: ҰБДҚ және электрондық журнал', 'Информационные системы: НОБД и электронный журнал', 'Information systems: NOBD and the e-journal'), body: systems + systemsBasis + systemsPending }),
       ui.section({ id: 'resources', tone: 'biology', eyebrow: X('Сыртқы сілтемелер', 'Внешние ссылки', 'External links'), title: X('Пайдалы ұлттық цифрлық ресурстар', 'Полезные национальные цифровые ресурсы', 'Useful national digital resources'), body: resHtml }),
       ui.section({ title: X('Байланысты беттер', 'Связанные страницы', 'Related pages'), body: related }),

@@ -50,11 +50,11 @@ ${lvl(X('Мектепалды даярлық', 'Предшкольная под�
 ${lvl(X('Бастауыш білім беру', 'Начальное образование', 'Primary education'), [1, 2, 3, 4], X('1–4-сыныптар', '1–4 классы', 'grades 1–4'))}
 ${lvl(X('Негізгі орта білім беру', 'Основное среднее образование', 'Lower secondary'), [5, 6], X('5–6-сыныптар (деңгей 5–9-сыныптарды қамтиды)', '5–6 классы (уровень охватывает 5–9 классы)', 'grades 5–6 (the level spans grades 5–9)'))}
 </div>`;
-    const ladderNote = ui.note(X(
+    const ladderNote = ui.more({ label: X('Сынып аралығы мен лицензия', 'Диапазон классов и лицензия', 'Grade range and licence'), icon: 'info', body: ui.note(X(
       `Сынып аралығы мектептің өз мәлімдемесі бойынша көрсетілген және нақтылануда. Лицензия (№ ${S.licence.current.number}) бастауыш, негізгі орта және жалпы орта білім беруді қамтиды — <a href="${href('license')}">лицензия</a>.`,
       `Диапазон классов указан по заявлению самой школы и уточняется. Лицензия (№ ${S.licence.current.number}) охватывает начальное, основное среднее и общее среднее образование — <a href="${href('license')}">лицензия</a>.`,
       `The grade range is as stated by the school and is being confirmed. The licence (No. ${S.licence.current.number}) covers primary, lower and upper secondary education — see the <a href="${href('license')}">licence</a>.`,
-    ));
+    )) });
 
     const head = [
       X('Деңгей / сынып', 'Уровень / класс', 'Level / grade'),
@@ -87,14 +87,16 @@ ${lvl(X('Негізгі орта білім беру', 'Основное сре�
       ),
     });
 
-    const indicators = ui.cards([
+    const indicatorItems = [
       { icon: 'grid', title: X('Сынып-жинақ', 'Класс-комплект', 'Class'), text: X('Бір сыныпта бірге оқитын оқушылар тобы. Әр деңгей бойынша және оқыту тілі бойынша бөлек көрсетіледі.', 'Группа учащихся, обучающихся вместе в одном классе. Указывается по уровням и языкам обучения.', 'A group of pupils studying together. Shown by level and language of instruction.') },
       { icon: 'users', title: X('Толымдылық', 'Наполняемость', 'Class size'), text: X('Бір сыныптағы оқушылардың орташа саны. Санитариялық қағидалар мен нормативтерге сәйкес келуі тиіс.', 'Среднее число учащихся в классе. Должно соответствовать санитарным правилам и нормативам.', 'Average number of pupils per class. It must meet sanitary rules and standards.') },
       { icon: 'languages', title: X('Топтарға бөлу', 'Деление на группы', 'Splitting into groups'), text: X('Жекелеген пәндер (тілдер, цифрлық сауаттылық, информатика) бойынша сыныпты екі топқа бөлу МЖМБС бойынша жүргізіледі — <a href="#groups">жоғарыдағы кесте</a>.', 'Деление класса на две группы по отдельным предметам (языки, цифровая грамотность, информатика) проводится по ГОСО — <a href="#groups">таблица выше</a>.', 'Some subjects (languages, digital literacy, computing) are split into two groups under the state standard — <a href="#groups">see the table above</a>.') },
       { icon: 'plus', title: X('Бос орындар', 'Свободные места', 'Free places'), text: X(`Қабылдау кезінде бос орын болуы маңызды: Үлгілік қағидалар бойынша сыныптардың толып кетуі бас тарту негізі бола алады. <a href="${href('admission')}">Қабылдау қағидалары</a>.`, `Важно для приёма: по Типовым правилам переполненность классов может быть основанием для отказа. <a href="${href('admission')}">Правила приёма</a>.`, `This matters for admission: under the Standard Rules, full classes can be a ground for refusal. <a href="${href('admission')}">Admission rules</a>.`) },
       { icon: 'graduation', title: X('Түлектер', 'Выпускники', 'Graduates'), text: X('4-сыныпты бітірушілер (бастауыш), 9 және 11-сынып түлектері саны. Мектепте тек 0–6-сыныптар болса, 9 және 11-сынып түлектері әзірге болмайды.', 'Число окончивших 4 класс (начальная школа), выпускников 9 и 11 классов. Если в школе только 0–6 классы, выпускников 9 и 11 классов пока нет.', 'Number completing grade 4 (primary), and graduates of grades 9 and 11. If the school runs grades 0–6 only, there are no grade 9 or 11 graduates yet.') },
       { icon: 'calendar', title: X('Кезең', 'Период', 'Period'), text: X('Өзін-өзі бағалау үшін — алдыңғы екі оқу жылы және ағымдағы оқу жылы бойынша.', 'Для самооценки — за два предыдущих учебных года и текущий.', 'For self-assessment — the two previous school years and the current one.') },
-    ], { cols: 3, cls: 'sa-cards' });
+    ];
+    // Glossary as tabs: six terms in one row, one short explanation shown at a time (all printed / findable).
+    const indicators = ui.tabs(indicatorItems.map((it) => ({ icon: it.icon, label: it.title, body: `<p class="sa-glosstxt">${L(it.text)}</p>` })), { label: X('Көрсеткіштер', 'Показатели', 'Indicators'), cls: 'sa-glosstabs' });
 
     const history = ui.table({
       head: [X('Оқу жылы', 'Учебный год', 'School year'), X('Сынып-жинақтар', 'Классы-комплекты', 'Classes'), X('Оқушылар', 'Учащиеся', 'Pupils'), X('Түлектер', 'Выпускники', 'Graduates')],
@@ -120,11 +122,23 @@ ${lvl(X('Негізгі орта білім беру', 'Основное сре�
           rule(g('Негізгі орта білім берудің МЖМБС, 43–44-т.', 'ГОСО основного среднего образования, пп. 43–44', 'Lower secondary standard, paras. 43–44'))],
       ],
     });
-    const splitNote = ui.note(X(
+    const splitNoteTxt = (X(
       `Инклюзивті білім беруде әр ерекше білім беру қажеттіліктері бар балаға сынып толымдылығы шегі 3-ке азаяды (МЖМБС, 31 және 45-тармақтар). Карантин немесе төтенше жағдайда барлық пәндер бойынша топқа бөлінеді — бір топта 15 оқушыға дейін. Дереккөз: ${ui.extLink(GOSO, 'ҚР Оқу-ағарту министрінің 03.08.2022 № 348 бұйрығы (МЖМБС)')}, 26.06.2026 редакциясы.`,
       `В инклюзивном образовании порог наполняемости для деления уменьшается на 3 на каждого ребёнка с особыми образовательными потребностями (ГОСО, пп. 31 и 45). При карантине и ЧС деление на группы проводится по всем предметам — до 15 учащихся в группе. Источник: ${ui.extLink(GOSO, 'приказ Министра просвещения РК от 03.08.2022 № 348 (ГОСО)')}, ред. от 26.06.2026.`,
       `In inclusive education the class-size threshold drops by 3 for each child with special educational needs (standard, paras. 31 and 45). During quarantine or emergencies all subjects are split, up to 15 pupils per group. Source: ${ui.extLink(GOSO, 'Order No. 348 of the Minister of Education, 03.08.2022 (state standard)')}, as amended 26.06.2026.`,
     ));
+    const splitSummary = `<div class="sa-splitsum">
+<p class="sa-splitsum__big"><b>24+</b><span>${L(X('оқушы болса, қалалық мектепте сынып екі топқа бөлінеді', 'учащихся — и в городской школе класс делится на две группы', 'pupils or more, and an urban class is split into two groups'))}</span></p>
+${ui.chips([
+      { icon: 'languages', label: X('Қазақ / орыс тілі', 'Казахский / русский язык', 'Kazakh / Russian') },
+      { icon: 'globe', label: X('Шетел тілі', 'Иностранный язык', 'Foreign language') },
+      { icon: 'code', label: X('Цифрлық сауаттылық, информатика', 'Цифровая грамотность, информатика', 'Digital literacy, computing') },
+      { icon: 'palette', label: X('Көркем еңбек / технология', 'Художественный труд / технология', 'Art & design / technology') },
+    ])}
+</div>`;
+    const splitDetails = `<div class="dz-row">${ui.more({ label: X('МЖМБС бойынша бөлу ережелері', 'Правила деления по ГОСО', 'Splitting rules under the standard'), icon: 'grid', count: 2, tone: 'card', body: splitRules + ui.note(splitNoteTxt) })}${ui.legal([
+      { href: GOSO, title: X('Мемлекеттік жалпыға міндетті білім беру стандарттары (ҚР ОАМ бұйрығы)', 'Государственные общеобязательные стандарты образования (приказ МП РК)', 'State compulsory education standards (Ministry of Education order)'), number: '348', date: '2022-08-03', note: X('Бастауыш — 30, 31-т.; негізгі орта — 43–45-т.; 26.06.2026 редакциясы', 'Начальное — пп. 30, 31; основное среднее — пп. 43–45; ред. от 26.06.2026', 'Primary — paras. 30, 31; lower secondary — paras. 43–45; as amended 26.06.2026') },
+    ])}</div>`;
     const splitData = ui.table({
       cls: 'sa-tbl',
       caption: X('«Керемет» мектебінде топтарға бөлу, 2026–2027 оқу жылы', 'Деление на группы в школе «Керемет», 2026–2027 учебный год', 'Group splits at Keremet, school year 2026–2027'),
@@ -146,13 +160,13 @@ ${lvl(X('Негізгі орта білім беру', 'Основное сре�
       ),
     });
 
-    const sources = ui.linkList([
+    const sources = ui.legal([
       { href: GOSO, icon: 'scale', label: X('Мемлекеттік жалпыға міндетті білім беру стандарттары (ҚР ОАМ 03.08.2022 № 348 бұйрығы)', 'Государственные общеобязательные стандарты образования (приказ МП РК от 03.08.2022 № 348)', 'State compulsory education standards (Order No. 348 of 03.08.2022)'), note: 'adilet.zan.kz' },
       { href: TUP, icon: 'scale', label: X('Үлгілік оқу жоспарлары (ҚР БҒМ 08.11.2012 № 500 бұйрығы)', 'Типовые учебные планы (приказ МОН РК от 08.11.2012 № 500)', 'Standard curricula (MES order No. 500 of 08.11.2012)'), note: 'adilet.zan.kz' },
       { href: A114, icon: 'scale', label: X('Мемлекеттік аттестаттау қағидалары, 8–9-өлшемшарттар (ҚР ОАМ 30.04.2026 № 114-НҚ бұйрығы)', 'Правила государственной аттестации, критерии 8–9 (приказ МП РК от 30.04.2026 № 114-НҚ)', 'State attestation rules, criteria 8–9 (Order No. 114-NK of 30.04.2026)'), note: 'adilet.zan.kz' },
       { href: SAN, icon: 'scale', label: X('«Білім беру объектілеріне қойылатын санитариялық-эпидемиологиялық талаптар» (ҚР ДСМ-76, 05.08.2021), 2-қосымша — сынып толымдылығы', 'Санитарные правила «Санитарно-эпидемиологические требования к объектам образования» (ҚР ДСМ-76 от 05.08.2021), приложение 2 — наполняемость классов', 'Sanitary rules for education facilities (ҚР ДСМ-76 of 05.08.2021), Appendix 2 — class sizes'), note: 'adilet.zan.kz' },
       { href: R564, icon: 'scale', label: X('Қабылдаудың үлгілік қағидалары (№ 564 бұйрық), 13 және 25-тармақтар — сыныптардың толып кетуі', 'Типовые правила приёма (приказ № 564), пп. 13 и 25 — переполненность классов', 'Standard Admission Rules (Order No. 564), paras. 13 and 25 — full classes'), note: 'adilet.zan.kz' },
-    ]);
+    ], { id: 'sources', title: X('Нормативтік актілер', 'Нормативные акты', 'Regulations') });
 
 
     const toc = ui.toc([
@@ -168,13 +182,12 @@ ${lvl(X('Негізгі орта білім беру', 'Основное сре�
       ui.split({ ratio: '1:2', cls: 'sa-split', left: toc, right: ui.section({ id: 'levels', eyebrow: year, title: X('Білім беру деңгейлері мен сыныптар', 'Уровни образования и классы', 'Levels and grades'), body: ladder + ladderNote }) }),
       ui.section({ id: 'table', eyebrow: X('Деңгейлер бойынша', 'По уровням', 'By level'), title: X('Сыныптар мен оқушылар', 'Классы и учащиеся', 'Classes and pupils'), body: table + tablePending }),
       ui.section({ id: 'groups', eyebrow: X('МЖМБС бойынша', 'По ГОСО', 'Under the state standard'), title: X('Сыныпты топтарға бөлу', 'Деление классов на группы', 'Splitting classes into groups'), lead: X(
-        'Тілдер мен цифрлық пәндер бойынша үлкен сыныптар екі топқа бөлінеді — әр оқушыға көбірек көңіл бөлу үшін. Төменде — заң талабы және мектептің нақты деректері.',
-        'По языкам и цифровым предметам большие классы делятся на две группы — чтобы уделять больше внимания каждому ученику. Ниже — требование закона и фактические данные школы.',
-        'Large classes are split into two groups for languages and digital subjects, so each pupil gets more attention. Below: the legal rule and the school’s actual data.',
-      ), body: splitRules + splitNote + `<h3>${L(X('Мектептегі топтар', 'Группы в школе', 'Groups at the school'))}</h3>` + splitData + splitPending }),
+        'Тілдер мен цифрлық пәндер бойынша үлкен сыныптар екі топқа бөлінеді — әр оқушыға көбірек көңіл бөлу үшін.',
+        'По языкам и цифровым предметам большие классы делятся на две группы — чтобы уделять больше внимания каждому ученику.',
+        'Large classes are split into two groups for languages and digital subjects, so each pupil gets more attention.',
+      ), body: splitSummary + splitDetails + `<h3>${L(X('Мектептегі топтар', 'Группы в школе', 'Groups at the school'))}</h3>` + splitData + splitPending }),
       ui.section({ id: 'dynamics', tone: 'geography', eyebrow: X('3 жыл', '3 года', '3 years'), title: X('Контингент динамикасы', 'Динамика контингента', 'Changes over time'), body: history }),
-      ui.section({ id: 'indicators', eyebrow: X('Көрсеткіштер нені білдіреді', 'Что означают показатели', 'What the indicators mean'), title: X('Түсіндірме', 'Пояснения', 'Explanations'), body: indicators }),
-      ui.section({ id: 'sources', eyebrow: X('Дереккөздер', 'Источники', 'Sources'), title: X('Нормативтік актілер', 'Нормативные акты', 'Regulations'), body: sources }),
+      ui.section({ id: 'indicators', eyebrow: X('Көрсеткіштер нені білдіреді', 'Что означают показатели', 'What the indicators mean'), title: X('Түсіндірме', 'Пояснения', 'Explanations'), body: indicators + `<div class="dz-row sa-srcrow">${sources}</div>` }),
       ui.banner({ theme: 'geography', icon: 'graduation', eyebrow: X('Қабылдау', 'Приём', 'Admission'), title: X('Бос орындарды нақтылағыңыз келе ме?', 'Хотите уточнить свободные места?', 'Want to check free places?'), text: X(`Қоңырау шалыңыз: ${S.contacts.phone.display} немесе қабылдауға өтінім қалдырыңыз.`, `Позвоните: ${S.contacts.phone.display} или оставьте заявку на приём.`, `Call ${S.contacts.phone.display} or leave an admission request.`), href: `${href('admission')}#request`, label: X('Өтінім қалдыру', 'Оставить заявку', 'Leave a request') }),
       ui.section({ title: X('Байланысты беттер', 'Связанные страницы', 'Related pages'), body: ui.cards([
         { icon: 'compass', href: href('admission'), title: X('Қабылдау қағидалары', 'Правила приёма', 'Admission rules'), text: X('Құжаттар, мерзімдер, egov.kz', 'Документы, сроки, egov.kz', 'Documents, deadlines, egov.kz') },

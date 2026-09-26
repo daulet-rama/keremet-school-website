@@ -39,7 +39,7 @@
 //  table({head:[], rows:[[]], caption, captionHidden, cls, compact, numeric:[colIdx], stack})  captionHidden: caption for screen readers only (when a heading right above already says it)  responsive: stacks into label/value
 //        cards <640px; stack:false (= class tbl--static) keeps a real grid that scrolls sideways — use it for
 //        calendars, subject-hours matrices and other grids. Cell content is wrapped in .tbl__v (one grid item).
-//  accordion(items:[{q, a, open, id}], {exclusive})
+//  accordion(items:[{q, a, open, id}], {exclusive})     same visual language / animation as the disclosures below
 //  timeline(items:[{date|time, title, text, tag}])     date = 'YYYY-MM-DD' (formatted) or any text
 //  steps(items:[string | {title, text}])
 //  callout({type:'info'|'warn'|'ok', title, text, icon})
@@ -49,11 +49,35 @@
 //  people(items:[person])  personCard(person)
 //        person = {name, role, photo, alt, text, contacts:[{type:'phone'|'email'|'text'|'link', value, label, href}], reception}
 //  gallery(items:[{src, alt, caption, href}], {cols})   src relative to assets/ (e.g. 'docs/x.jpg') or absolute URL
-//  docList(items:[{title, file, type:'pdf'|'jpg'|'doc'|'link', date, size, number, note, url, archived, posted, changed, thumb}], {thumbs})
+//  docList(items:[{title, file, type:'pdf'|'jpg'|'doc'|'link', date, size, number, note, url, archived, posted, changed, thumb}], {thumbs, collapse, groupPending})
 //        accepts entries of src/data/documents.mjs directly; file:null → "Құжат жүктеледі" pending row;
 //        posted/changed ('YYYY-MM-DDTHH:MM') → "Орналастырылды / Размещено / Posted dd.mm.yyyy hh:mm";
 //        thumbs:true shows the small preview d.thumb (docs/thumbs/*.webp) and links the full scan
-//  pending(lang?, note?)  or pending({title, note})     "Ақпарат толықтырылуда" block (use for any unknown data)
+//  docList(items, {collapse:3, groupPending:true})  → first 3 rows + "Барлығын көрсету (N) / Показать все (N)";
+//        pending rows → one "N документов будут загружены ▾" line. Old calls (no options) render exactly as before.
+//  pending(lang?, note?)  or pending({title, note})     slim ONE-line "⌛ Ақпарат толықтырылуда · note" (any unknown data)
+//
+//  ── Progressive disclosure (SPEC §6.1 — layer 1 short & visible, layer 2 collapsed; NOTHING is deleted) ─────
+//  All are native <details>/<summary> (keyboard, screen readers, Ctrl+F opens them, search index + print include
+//  the text). main.js adds "Барлығын ашу / Развернуть всё / Expand all" when a page has ≥ 3 closed disclosures,
+//  opens everything before printing and opens the ancestors of a #hash target.
+//  more({label?, summary?, body, open?, tone?:'plain'|'card'|'tint', icon?, count?, id?, cls?})
+//        "Толығырақ / Подробнее / More ▾"; summary = teaser that stays visible; body = the long text.
+//        e.g. ui.more({ summary: X('Қысқаша…','Коротко…','Briefly…'), body: X('<p>…</p>', …) })
+//  legal(items | html, {title?, note?, open?, id?, cls?})
+//        "⚖ Құқықтық негіз / Правовая основа / Legal basis  3 ▾" chip; items: [{title|label, number?, date?, href?, note?, issuer?}]
+//        e.g. ui.legal([{ title: X('«Білім туралы» Заң','Закон «Об образовании»','Law on Education'), number: '319-III',
+//                         date: '2007-07-27', href: 'https://adilet.zan.kz/rus/docs/Z070000319_' }])
+//        or ui.legal(X('<p>Бұйрықтың 5-тармағы…</p>', '<p>Пункт 5 приказа…</p>', '<p>Item 5 of the order…</p>'))
+//  pendingGroup(lang?, items, {title?, note?, kind?:'items'|'docs', open?, id?, cls?})
+//        ONE line "5 материал дайындалуда / 5 материалов готовятся / 5 items in preparation ▾" → the list inside;
+//        items: [text | {title, note}]; 1 item → a slim pending() line; 0 → ''.
+//  tldr({points:[{icon?, text} | text], title?})   "Қысқаша / Коротко / In short" strip with icons (page tops)
+//  tabs([{id?, label, body, icon?, count?}], {label?, selected?, cls?})
+//        accessible tabs (tablist / arrows / Home / End); no JS → all panels with headings; hidden panels stay
+//        findable (hidden="until-found"); "Expand all" and print show every panel.
+//  Layout helpers: wrap several closed chips in <div class="dz-row"> to put them side by side (an open one takes the
+//  full row); <details class="no-xall"> is ignored by "Expand all". Reference page: src/pages/license.mjs.
 //  slot(value, render, pendingArg)            school.mjs TODO slot: render(value) when filled, else pending(pendingArg)
 //        e.g. ui.slot(S.schedule.bells, (b) => ui.table({…}), { note: X('…') })  — empty array / {} count as empty
 //  newsCard(item) / newsList(items, {limit})            items from src/data/news.mjs → links to news-<id>.html
@@ -408,8 +432,31 @@ export function gallery(items = [], { cols = 3, cls = '' } = {}) {
 
 // ------------------------------------------------------------------ documents
 const TYPE_LABEL = { pdf: 'PDF', jpg: 'JPG', jpeg: 'JPG', png: 'PNG', doc: 'DOC', docx: 'DOCX', xls: 'XLS', xlsx: 'XLSX', link: 'URL' };
-export function docList(items = [], { thumbs = false, cls = '' } = {}) {
-  return `<ul class="docs${thumbs ? ' docs--thumbs' : ''}${cls ? ' ' + cls : ''}" role="list">${items.map((d) => {
+const isPendingDoc = (d) => !d.file && !d.url;
+/** Document list. Options:
+ *  collapse: N      → the first N rows stay visible, the rest go under "Барлығын көрсету (total) / Показать все (total)".
+ *                     (Nothing is collapsed when only one row would hide.) Recommended: 3.
+ *  groupPending     → rows without a file/url ("Құжат жүктеледі") leave the list and become ONE pendingGroup line
+ *                     "N документов будут загружены ▾" after it (every title stays inside).
+ *  thumbs, cls      → as before. */
+export function docList(items = [], { thumbs = false, cls = '', collapse = 0, groupPending = false } = {}) {
+  let list = items.filter(Boolean);
+  let pend = [];
+  if (groupPending) { pend = list.filter(isPendingDoc); list = list.filter((d) => !isPendingDoc(d)); }
+  const ul = (rows, extra = '') => (rows.length ? `<ul class="docs${thumbs ? ' docs--thumbs' : ''}${extra}${cls ? ' ' + cls : ''}" role="list">${rows.map((d) => docRow(d, thumbs)).join('')}</ul>` : '');
+  const pendHtml = pend.length ? (pend.forEach((d) => C.onDoc && C.onDoc(d)), pendingGroup(pend.map((d) => ({ title: d.title, note: d.note })), { kind: 'docs' })) : '';
+  if (!collapse || list.length <= collapse + 1) {
+    if (!pend.length) return ul(list);
+    return `<div class="docs-group">${ul(list)}${pendHtml}</div>`;
+  }
+  const rest = disclosure({
+    kind: 'list', icon: 'doc', label: T('disc.showAll', { n: list.length }), labelOpen: T('disc.showLess'),
+    body: ul(list.slice(collapse), ' docs--rest'),
+  });
+  return `<div class="docs-group">${ul(list.slice(0, collapse))}${rest}${pendHtml}</div>`;
+}
+function docRow(d, thumbs) {
+  {
     if (C.onDoc) C.onDoc(d);
     const type = String(d.type || (d.file ? d.file.split('.').pop() : 'pdf')).toLowerCase();
     const title = tx(d.title);
@@ -431,16 +478,112 @@ export function docList(items = [], { thumbs = false, cls = '' } = {}) {
     const isImg = ['jpg', 'jpeg', 'png'].includes(type);
     const thumb = thumbs && isImg ? `<a class="doc__thumb" href="${attr(href)}" tabindex="-1" aria-hidden="true"><img src="${attr(d.thumb ? assetUrl(d.thumb) : href)}" alt="" loading="lazy" decoding="async" width="120" height="160"></a>` : `<span class="doc__type doc__type--${attr(type)}" aria-hidden="true">${icon(isImg ? 'image' : 'doc', { size: 20 })}<b>${esc(TYPE_LABEL[type] || type.toUpperCase())}</b></span>`;
     return `<li class="doc${d.archived ? ' doc--archived' : ''}">${thumb}<div class="doc__body"><p class="doc__title"><a class="doc__a" href="${attr(href)}">${title}<span class="sr-only"> (${fmt})</span></a>${d.archived ? ' ' + badge(T('doc.archive'), 'default') : ''}</p><p class="doc__meta"><span class="doc__fmt">${fmt}</span>${noTxt ? `<span>${noTxt}</span>` : ''}${dateTxt ? `<span>${dateTxt}</span>` : ''}${postedTxt}</p>${d.issuer ? `<p class="doc__issuer">${T('doc.issuer')}: ${tx(d.issuer)}</p>` : ''}${noteTxt}</div><div class="doc__actions"><a class="doc__btn" href="${attr(href)}" download aria-label="${attr(`${T('doc.download')}: ${String(title).replace(/<[^>]*>/g, '')} (${fmt})`)}">${icon('download', { size: 18 })}<span>${T('doc.download')}</span></a></div></li>`;
-  }).join('')}</ul>`;
+  }
+}
+
+// ------------------------------------------------------------------ disclosures (progressive detail, SPEC §6.1)
+// Every collapsed thing is a native <details>: keyboard/screen-reader friendly, found by Ctrl+F (Chrome opens it),
+// included in the search index and in print (main.js opens all before printing). main.js adds "Expand all".
+const isLoc = (v) => v && typeof v === 'object' && !Array.isArray(v) && ('kz' in v || 'ru' in v || 'en' in v);
+const hasBlock = (h) => /<(p|ul|ol|div|table|h[1-6]|dl|figure|section|aside|details|blockquote)\b/i.test(String(h));
+/** Plural key: base.1 / base.2 / base.5 (Russian rules; kz and en strings are mapped onto the same three keys). */
+function plural(base, n) {
+  const m10 = n % 10, m100 = n % 100;
+  const f = m10 === 1 && m100 !== 11 ? 1 : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 2 : 5;
+  return T(`${base}.${f}`, { n });
+}
+function hostOf(href) { try { return new URL(href).hostname.replace(/^www\./, ''); } catch { return ''; } }
+/** Low-level disclosure used by more / legal / pendingGroup / docList. */
+function disclosure({ kind = 'more', icon: ic, label, labelOpen, count, body = '', open = false, id, cls = '', tone } = {}) {
+  const lbl = labelOpen
+    ? `<span class="dz__lbl"><span class="dz__off">${label}</span><span class="dz__on">${labelOpen}</span></span>`
+    : `<span class="dz__lbl">${label}</span>`;
+  const c = ['dz', `dz--${kind}`, tone ? `dz--${tone}` : '', cls].filter(Boolean).join(' ');
+  return `<details class="${c}"${open ? ' open' : ''}${id ? ` id="${attr(id)}"` : ''}><summary class="dz__s">${ic ? `<span class="dz__ic" aria-hidden="true">${icon(ic, { size: 16 })}</span>` : ''}${lbl}${count != null ? `<span class="dz__n">${esc(count)}</span>` : ''}<span class="dz__chev" aria-hidden="true"></span></summary><div class="dz__body">${body}</div></details>`;
+}
+
+/** "Толығырақ / Подробнее / More" disclosure.
+ *  more({ label?, summary?, body, open?, tone?:'plain'|'card'|'tint', icon?, count?, id?, cls? })
+ *  summary = teaser that stays visible above the toggle (1–2 sentences); body = the long text (HTML or {kz,ru,en}). */
+export function more({ label, summary, body = '', open = false, tone = 'plain', icon: ic, count, id, cls = '' } = {}) {
+  const b = tx(body);
+  const dz = disclosure({ kind: 'more', tone, icon: ic, label: label ? tx(label) : T('disc.more'), labelOpen: label ? null : T('disc.less'), count, body: hasBlock(b) ? b : `<p>${b}</p>`, open, id });
+  if (!summary) return cls ? `<div class="more ${cls}">${dz}</div>` : dz;
+  const s = tx(summary);
+  return `<div class="more${cls ? ' ' + cls : ''}">${hasBlock(s) ? `<div class="more__sum">${s}</div>` : `<p class="more__sum">${s}</p>`}${dz}</div>`;
+}
+
+/** "⚖ Құқықтық негіз / Правовая основа / Legal basis" chip-style disclosure.
+ *  legal(items | html, { title?, note?, open?, id?, cls? })
+ *  items: [{ title | label, number?, date?('YYYY-MM-DD' or text), href?, note?, issuer? }]  → neat list, external links
+ *  html:  any HTML string or {kz,ru,en} (e.g. a norm quote) → shown as is inside the panel. */
+export function legal(items, { title, note: nt, open = false, id, cls = '' } = {}) {
+  let body = '', count;
+  if (Array.isArray(items)) {
+    const list = items.filter(Boolean);
+    count = list.length;
+    body = `<ul class="legal__list" role="list">${list.map((raw) => {
+      const it = typeof raw === 'string' || isLoc(raw) ? { title: raw } : raw;
+      const t = tx(it.title ?? it.label);
+      const when = it.date ? (/^\d{4}-\d{2}-\d{2}/.test(it.date) ? `<time datetime="${attr(it.date)}">${fmtDate(C.lang, it.date)}</time>` : tx(it.date)) : '';
+      const host = it.href && isExt(it.href) ? hostOf(it.href) : '';
+      const meta = [it.number ? `${T('doc.no')} ${tx(it.number)}` : '', when ? `${C.lang === 'en' ? T('doc.from') + ' ' : C.lang === 'ru' ? 'от ' : ''}${when}` : '', it.issuer ? tx(it.issuer) : '', host ? `<span class="legal__host">${esc(host)}</span>` : ''].filter(Boolean).join(' · ');
+      return `<li class="legal__item"><span class="legal__ic" aria-hidden="true">${icon('scale', { size: 16 })}</span><div class="legal__main"><p class="legal__t">${it.href ? link(it.href, t, 'legal__a') : t}</p>${meta ? `<p class="legal__m">${meta}</p>` : ''}${it.note ? `<div class="legal__n">${tx(it.note)}</div>` : ''}</div></li>`;
+    }).join('')}</ul>`;
+  } else {
+    const h = tx(items);
+    body = hasBlock(h) ? `<div class="legal__html prose">${h}</div>` : `<p class="legal__html">${h}</p>`;
+    // Name the source site(s) in plain text (e.g. adilet.zan.kz) so site search and Ctrl+F find it.
+    const hosts = [...new Set([...String(h).matchAll(/href="(https?:\/\/[^"]+)"/g)].filter((m) => isExt(m[1])).map((m) => hostOf(m[1])).filter(Boolean))];
+    if (hosts.length) body += `<p class="legal__m legal__src">${hosts.map((x) => `<span class="legal__host">${esc(x)}</span>`).join(' · ')}</p>`;
+  }
+  const ntx = nt ? tx(nt) : '';
+  const n = ntx ? (hasBlock(ntx) ? `<div class="legal__note">${ntx}</div>` : `<p class="legal__note">${ntx}</p>`) : '';
+  return disclosure({ kind: 'legal', icon: 'scale', label: title ? tx(title) : T('disc.legal'), count, body: n + body, open, id, cls });
+}
+
+/** Pending items as ONE compact line: "5 материалов готовятся ▾" → the list inside.
+ *  pendingGroup(lang?, items, { title?, note?, kind?:'items'|'docs', open?, id?, cls? })
+ *  items: [string | {kz,ru,en} | { title, note? }]. 0 items → ''. 1 item → one slim pending() line. */
+export function pendingGroup(a, b, c) {
+  const [items, opts] = Array.isArray(a) ? [a, b || {}] : [b || [], c || {}];
+  const list = items.filter(Boolean).map((it) => (typeof it === 'string' || isLoc(it) ? { title: it } : it));
+  if (!list.length) return '';
+  if (list.length === 1 && !opts.title) return pending({ title: list[0].title, note: list[0].note || T(opts.kind === 'docs' ? 'doc.pending' : 'pending.title') });
+  const label = opts.title ? tx(opts.title) : plural(opts.kind === 'docs' ? 'pgroup.docs' : 'pgroup', list.length);
+  const body = `<ul class="pgroup__list" role="list">${list.map((it) => `<li class="pgroup__item"><p class="pgroup__t">${tx(it.title)}</p>${it.note ? `<div class="pgroup__n">${tx(it.note)}</div>` : ''}</li>`).join('')}</ul><p class="pgroup__foot">${icon('info', { size: 16 })}<span>${opts.note ? tx(opts.note) : T('pending.text')}</span></p>`;
+  return disclosure({ kind: 'pending', icon: 'hourglass', label, count: null, body, open: opts.open, id: opts.id, cls: `pgroup${opts.cls ? ' ' + opts.cls : ''}` });
+}
+
+/** "Қысқаша / Коротко / In short" strip for page tops: tldr({ points:[{icon?, text} | text], title? }) (or tldr([...])). */
+export function tldr(arg = {}) {
+  const { points = [], title, cls = '' } = Array.isArray(arg) ? { points: arg } : arg;
+  const id = nextId('tldr');
+  return `<aside class="tldr${cls ? ' ' + cls : ''}" aria-labelledby="${id}"><p class="tldr__t" id="${id}">${title ? tx(title) : T('disc.inShort')}</p><ul class="tldr__list" role="list">${points.filter(Boolean).map((p) => {
+    const o = typeof p === 'string' || isLoc(p) ? { text: p } : p;
+    return `<li class="tldr__i">${o.icon ? `<span class="tldr__ic" aria-hidden="true">${icon(o.icon, { size: 20 })}</span>` : ''}<span class="tldr__x">${tx(o.text)}</span></li>`;
+  }).join('')}</ul></aside>`;
+}
+
+/** Accessible tabs: tabs([{ id?, label, body, icon?, count? }], { label?, cls?, selected? }).
+ *  Without JS every panel is shown with its own heading (no content is lost); main.js turns it into a tablist
+ *  (arrow keys / Home / End), keeps hidden panels searchable (hidden="until-found") and prints all panels. */
+export function tabs(items = [], { label, cls = '', selected = 0 } = {}) {
+  const base = nextId('tabs');
+  const list = items.filter(Boolean).map((it, i) => ({ ...it, pid: it.id || `${base}-${i + 1}` }));
+  const btns = list.map((it, i) => `<button type="button" class="tabs__tab" role="tab" id="${attr(it.pid)}-tab" aria-controls="${attr(it.pid)}" aria-selected="${i === selected}"${i === selected ? '' : ' tabindex="-1"'}>${it.icon ? icon(it.icon, { size: 18 }) : ''}<span>${tx(it.label)}</span>${it.count != null ? `<span class="tabs__n">${esc(it.count)}</span>` : ''}</button>`).join('');
+  const panels = list.map((it, i) => `<section class="tabs__panel" id="${attr(it.pid)}" role="tabpanel" aria-labelledby="${attr(it.pid)}-tab" tabindex="0" data-tab-index="${i}"><h3 class="tabs__h">${tx(it.label)}</h3>${tx(it.body)}</section>`).join('');
+  return `<div class="tabs${cls ? ' ' + cls : ''}" data-tabs data-selected="${selected}"><div class="tabs__list" role="tablist"${label ? ` aria-label="${attr(tx(label))}"` : ''}>${btns}</div><div class="tabs__panels">${panels}</div></div>`;
 }
 
 // ------------------------------------------------------------------ pending
+/** One slim line: "⌛ Ақпарат толықтырылуда · <note>" (same signature as before). */
 export function pending(a, b) {
   let title = T('pending.title'), noteHtml = '';
-  if (a && typeof a === 'object' && !('kz' in a || 'ru' in a || 'en' in a)) { if (a.title) title = tx(a.title); noteHtml = tx(a.note || ''); }
+  if (a && typeof a === 'object' && !isLoc(a)) { if (a.title) title = tx(a.title); noteHtml = tx(a.note || ''); }
   else if (typeof a === 'string' && LANGS.includes(a)) { noteHtml = tx(b || ''); }
   else if (a) { noteHtml = tx(a); }
-  return `<div class="pending" role="note"><span class="pending__icon" aria-hidden="true">${icon('hourglass', { size: 22 })}</span><div><p class="pending__title">${title}</p><p class="pending__text">${noteHtml || T('pending.text')}</p></div></div>`;
+  return `<div class="pending" role="note"><span class="pending__icon" aria-hidden="true">${icon('hourglass', { size: 16 })}</span><div class="pending__body"><p class="pending__title">${title}</p> <p class="pending__text">${noteHtml || T('pending.text')}</p></div></div>`;
 }
 
 /** A school.mjs TODO(school) slot: render(value) once the school fills it, the pending block while it is empty.
@@ -596,7 +739,7 @@ export function pageHero({ title, lead: ld, crumbs: cr = [], eyebrow: eb, theme 
 export const ui = {
   esc, icon, logo, shanyrakArt, ornament, band, panel, divider, button, extLink, badge, chips, eyebrow, lead, prose, note,
   section, grid, split, toc, cards, stat, stats, facts, table, accordion, timeline, steps, callout, quote, banner,
-  linkList, people, personCard, gallery, docList, pending, slot, newsCard, newsList, contactList, schoolEmail, requisites, mapEmbed,
+  linkList, people, personCard, gallery, docList, pending, pendingGroup, more, legal, tldr, tabs, slot, newsCard, newsList, contactList, schoolEmail, requisites, mapEmbed,
   form, crumbs, pageHero, pageMeta, ICON_NAMES, SHANYRAK_PATHS, SHANYRAK_ART, _setContext,
 };
 export default ui;

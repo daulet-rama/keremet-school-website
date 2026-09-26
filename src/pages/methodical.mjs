@@ -1,7 +1,7 @@
 // Education group — Methodological work & internal quality control (ORDER-114 §F items 48, 52).
 // Rules of methodological work: order №253 (10.08.2023, ed. 15.04.2025); internal control plan: order №130
 // (06.04.2020, ed. 30.04.2025) — plan structure from its form; texts read 24.09.2026. School plans → pending.
-import { actItems, actRef, checkedNote } from './curriculum.mjs';
+import { actLegal, actRef, pendLine } from './curriculum.mjs';
 
 const X = (kz, ru, en) => ({ kz, ru, en });
 
@@ -15,6 +15,11 @@ export default {
     'Методический совет и методобъединения (правила № 253), план внутришкольного контроля (приказ № 130), аналитические справки и управленческие решения.',
     'Methodological council and subject teams (rules No. 253), internal quality-control plan (Order No. 130), analytical reports and management decisions.',
   ),
+  lead: X(
+    '«Керемет» мұғалімдері сабаққа қалай бірге дайындалады және мектеп оқыту сапасын қалай тексеріп, жақсартады.',
+    'Как учителя «Керемет» вместе готовят уроки и как школа проверяет и улучшает качество обучения.',
+    'How Keremet’s teachers prepare lessons together, and how the school checks and improves teaching quality.',
+  ),
   styles: ['education'],
   published: '2026-09-24T10:00',
   updated: '2026-09-24T10:00',
@@ -27,19 +32,32 @@ export default {
       ratio: '2:1', align: 'center',
       left: `${ui.eyebrow(X('Мұғалімге қолдау', 'Поддержка учителя', 'Supporting teachers'))}
 <h2 class="sec__title">${L(X('Жақсы сабақ — ортақ жұмыстың нәтижесі', 'Хороший урок — результат общей работы', 'A good lesson is teamwork'))}</h2>
-${ui.lead(X(
-        'Әдістемелік жұмыс мұғалімдерге сабақты жоспарлауға, тәжірибе алмасуға, бағалау тапсырмаларын талқылауға және біліктілігін арттыруға көмектеседі. Мектепішілік бақылау оқу процесінің сапасын жүйелі түрде тексеріп, нақты шешімдер қабылдауға мүмкіндік береді.',
-        'Методическая работа помогает учителям планировать уроки, обмениваться опытом, обсуждать задания для оценивания и повышать квалификацию. Внутришкольный контроль позволяет системно проверять качество учебного процесса и принимать конкретные решения.',
-        'Methodological work helps teachers plan lessons, share practice, review assessment tasks and grow professionally. Internal quality control checks the learning process systematically and leads to concrete decisions.'))}`,
+${ui.tldr({ points: [
+        { icon: 'users', text: X('Мұғалімдер <strong>әдістемелік бірлестіктерде</strong> жұмыс істейді.', 'Учителя работают в <strong>методобъединениях</strong>.', 'Teachers work in <strong>subject teams</strong>.') },
+        { icon: 'bulb', text: X('Бірге сабақ жоспарлайды, тәжірибе алмасады, бағалау тапсырмаларын талқылайды.', 'Вместе планируют уроки, делятся опытом и обсуждают задания для оценивания.', 'Together they plan lessons, share practice and review assessment tasks.') },
+        { icon: 'target', text: X('Мектепішілік бақылау — <strong>жоспар → бақылау → талдау → шешім</strong>.', 'Внутришкольный контроль — <strong>план → проверка → анализ → решение</strong>.', 'Internal control: <strong>plan → review → analysis → decision</strong>.') },
+      ] })}`,
       right: '<!--toc-->',
     });
+    const introLead = X(
+        'Әдістемелік жұмыс мұғалімдерге сабақты жоспарлауға, тәжірибе алмасуға, бағалау тапсырмаларын талқылауға және біліктілігін арттыруға көмектеседі. Мектепішілік бақылау оқу процесінің сапасын жүйелі түрде тексеріп, нақты шешімдер қабылдауға мүмкіндік береді.',
+        'Методическая работа помогает учителям планировать уроки, обмениваться опытом, обсуждать задания для оценивания и повышать квалификацию. Внутришкольный контроль позволяет системно проверять качество учебного процесса и принимать конкретные решения.',
+        'Methodological work helps teachers plan lessons, share practice, review assessment tasks and grow professionally. Internal quality control checks the learning process systematically and leads to concrete decisions.');
 
     // ------------------------------------------------------------ structure
-    const structure = ui.cards([
-      { icon: 'sitemap', title: X('Әдістемелік кеңес', 'Методический совет', 'Methodological council'), text: X('Әдістемелік бірлестіктердің жұмысын басқарады және үйлестіреді; мазмұны бойынша педагогикалық кеңестің жұмысын қайталамайды (31-т.).', 'Руководит и координирует работу методобъединений; по содержанию не дублирует педагогический совет (п. 31).', 'Leads and coordinates the subject teams without duplicating the pedagogical council (para. 31).') },
-      { icon: 'users', tag: X('≥ 3 педагог', '≥ 3 педагога', '≥ 3 teachers'), title: X('Әдістемелік бірлестіктер (ӘБ)', 'Методические объединения (МО)', 'Subject teams'), text: X('Пән мұғалімдерінің, бастауыш сынып мұғалімдерінің, сынып жетекшілерінің кәсіби бірлестіктері; бір пәннің кемінде 3 педагогі болғанда құрылады. Жетекшісі тәжірибелі педагогтер арасынан сайланады (тағайындалады) (21, 23, 29-т.).', 'Профессиональные объединения учителей-предметников, учителей начальных классов, классных руководителей; создаются при наличии не менее 3 педагогов одного предмета. Руководитель избирается (назначается) из опытных педагогов (пп. 21, 23, 29).', 'Professional teams of subject teachers, primary teachers and class teachers, formed when there are at least 3 teachers of a subject, led by an experienced teacher (paras 21, 23, 29).') },
-      { icon: 'user', title: X('Оқу ісі жөніндегі орынбасар', 'Заместитель по учебной работе', 'Deputy head for teaching'), text: X('Мектептің оқу-әдістемелік жұмысына тікелей басшылық жасайды (25-т.).', 'Осуществляет непосредственное руководство учебно-методической работой школы (п. 25).', 'Directly manages the school’s methodological work (para. 25).') },
+    // Layer 2 adds only what the cards below lack: the norm details with paragraph numbers (no second set of cards).
+    const structure = `<p class="edu-src">${L(X(`${ref('method', '№ 253 қағидалар')} бойынша:`, `По ${ref('method', 'правилам № 253')}:`, `Under ${ref('method', 'rules No. 253')}:`))}</p><ul class="edu-dl">${[
+      X('Әдістемелік кеңес мазмұны бойынша педагогикалық кеңестің жұмысын қайталамайды (31-т.).', 'Методический совет по содержанию не дублирует педагогический совет (п. 31).', 'The council does not duplicate the pedagogical council (para. 31).'),
+      X('ӘБ бір пәннің кемінде 3 педагогі болғанда құрылады; жетекшісі тәжірибелі педагогтер арасынан сайланады (тағайындалады) (21, 23, 29-т.).', 'МО создаётся при наличии не менее 3 педагогов одного предмета; руководитель избирается (назначается) из опытных педагогов (пп. 21, 23, 29).', 'A team is formed when there are at least 3 teachers of a subject; its leader is an experienced teacher, elected or appointed (paras 21, 23, 29).'),
+      X('Оқу ісі жөніндегі орынбасар мектептің оқу-әдістемелік жұмысына тікелей басшылық жасайды (25-т.).', 'Заместитель по учебной работе осуществляет непосредственное руководство учебно-методической работой (п. 25).', 'The deputy head directly manages the methodological work (para. 25).'),
+    ].map((t) => `<li>${L(t)}</li>`).join('')}</ul>`;
+    // Layer 1: the three roles in one line each; layer 2: the wording of rules No. 253 (with paragraph numbers).
+    const structureShort = ui.cards([
+      { icon: 'sitemap', title: X('Әдістемелік кеңес', 'Методический совет', 'Methodological council'), text: X('Әдістемелік бірлестіктердің жұмысын басқарады және үйлестіреді.', 'Руководит и координирует работу методобъединений.', 'Leads and coordinates the subject teams.') },
+      { icon: 'users', tag: X('≥ 3 педагог', '≥ 3 педагога', '≥ 3 teachers'), title: X('Әдістемелік бірлестіктер (ӘБ)', 'Методические объединения (МО)', 'Subject teams'), text: X('Пән мұғалімдерінің, бастауыш сынып мұғалімдерінің, сынып жетекшілерінің бірлестіктері.', 'Объединения учителей-предметников, начальных классов, классных руководителей.', 'Teams of subject teachers, primary teachers and class teachers.') },
+      { icon: 'user', title: X('Оқу ісі жөніндегі орынбасар', 'Заместитель по учебной работе', 'Deputy head for teaching'), text: X('Оқу-әдістемелік жұмысқа басшылық жасайды.', 'Руководит учебно-методической работой.', 'Manages the methodological work.') },
     ], { cols: 3 });
+    const structureMore = ui.more({ label: X('Құрылым туралы толығырақ', 'Подробнее о структуре', 'More on the structure'), icon: 'doc', count: 3, tone: 'plain', body: structure });
     const tasks = ui.chips([
       X('Әдістемелік бірлестіктер', 'Методические объединения', 'Subject teams'), X('Шеберлік сыныптары', 'Мастер-классы', 'Master classes'), X('Озық тәжірибе мектептері', 'Школы передового опыта', 'Best-practice schools'),
       X('Тәжірибе алаңдары', 'Экспериментальные площадки', 'Pilot sites'), X('Кейстер', 'Кейсы', 'Cases'), X('Шығармашылық зертханалар', 'Творческие лаборатории', 'Creative labs'),
@@ -51,17 +69,17 @@ ${ui.lead(X(
       { title: X('ТЖБ тапсырмалары', 'Задания СОч', 'Term-test tasks'), text: X('ТЖБ алдында тапсырмалардың оқу мақсаттарына сәйкестігі, көлемі мен уақыты ӘБ-де талқыланады (№ 125 қағидалар, 21-т.).', 'Перед СОч на МО обсуждается соответствие заданий целям обучения, объём и время (правила № 125, п. 21).', 'Before term tests the team checks tasks against objectives, volume and time (rules No. 125, para. 21).') },
       { title: X('Құжаттарды мақұлдау', 'Одобрение документов', 'Approving materials'), text: X('Әкімшілік пен педагогтер әзірлеген оқу-әдістемелік құжаттама ӘБ немесе әдістемелік кеңесте талқыланады (27-т.).', 'Учебно-методическая документация обсуждается на МО или методсовете и затем утверждается (п. 27).', 'Teaching materials are discussed by the team or council before approval (para. 27).') },
     ]);
-    const structPending = ui.pending(lang, X(
+    const structPending = { title: X('Мектептің әдістемелік қызметінің құрамы', 'Состав методической службы школы', 'Keremet’s methodological service'), note: X(
       '«Керемет» мектебінің әдістемелік кеңесінің құрамы, ашылған әдістемелік бірлестіктер (мысалы, бастауыш сынып мұғалімдері, сынып жетекшілері) және олардың жетекшілері, 2026–2027 оқу жылының әдістемелік тақырыбы.',
       'Состав методического совета школы «Керемет», созданные методобъединения (например, учителей начальных классов, классных руководителей) и их руководители, методическая тема на 2026–2027 учебный год.',
       'Membership of Keremet’s methodological council, its subject teams (e.g. primary teachers, class teachers) and their leaders, and the methodological theme for 2026–2027.',
-    ));
-    const methodDocs = ui.docList([
+    ) };
+    const methodDocs = pendLine(ui, lang, { items: [structPending], docs: [
       docById('method-council'),
       docById('method-plan'),
       docById('method-teams-plans'),
       docById('method-council-minutes'),
-    ].filter(Boolean));
+    ] });
 
     // ------------------------------------------------------------ internal control (130)
     const cycle = `<ol class="edu-cycle">${[
@@ -84,11 +102,11 @@ ${ui.lead(X(
       `Разделы и графы плана (тема, цель, объект, вид контроля, методика, сроки, ответственные, место рассмотрения, управленческое решение, вторичный контроль) — по форме, утверждённой документом: ${ref('docs130')}. План разрабатывает заместитель по учебной работе, утверждает директор.`,
       `Sections and columns (topic, goal, object, type, method, deadline, responsible, where discussed, management decision, follow-up) follow the form approved by ${ref('docs130')}. The deputy head drafts the plan; the director approves it.`,
     ));
-    const vshkDocs = ui.docList([
+    const vshkDocs = pendLine(ui, lang, { docs: [
       docById('control-plan'),
       docById('control-reports'),
       docById('control-decisions'),
-    ].filter(Boolean));
+    ] });
 
     // ------------------------------------------------------------ professional development
     const growth = ui.split({
@@ -97,7 +115,7 @@ ${ui.lead(X(
         `Педагогтердің соңғы үш жылдағы курстары, санаттары және аттестаттау кестесі <a href="${href('teachers')}">Педагогтер құрамы</a> бетінде жарияланады.`,
         `Курсы педагогов за последние три года, категории и график аттестации публикуются на странице <a href="${href('teachers')}">Педагогический состав</a>.`,
         `Teachers’ courses over the last three years, categories and attestation schedule are on the <a href="${href('teachers')}">Teaching staff</a> page.`) }),
-      right: ui.pending({ title: X('Ашық сабақтар мен тәжірибе алмасу', 'Открытые уроки и обмен опытом', 'Open lessons and sharing practice'), note: X('2026–2027 оқу жылындағы ашық сабақтар, шеберлік сыныптары, семинарлар кестесі және өткен іс-шаралардың қысқаша есебі.', 'График открытых уроков, мастер-классов и семинаров на 2026–2027 год и краткие отчёты о проведённых.', 'Schedule of open lessons, master classes and seminars for 2026–2027 and short reports.') }),
+      right: pendLine(ui, lang, { items: [{ title: X('Ашық сабақтар мен тәжірибе алмасу', 'Открытые уроки и обмен опытом', 'Open lessons and sharing practice'), note: X('2026–2027 оқу жылындағы ашық сабақтар, шеберлік сыныптары, семинарлар кестесі және өткен іс-шаралардың қысқаша есебі.', 'График открытых уроков, мастер-классов и семинаров на 2026–2027 год и краткие отчёты о проведённых.', 'Schedule of open lessons, master classes and seminars for 2026–2027 and short reports.') }] }),
     });
 
     const related = ui.linkList([
@@ -113,14 +131,14 @@ ${ui.lead(X(
       { id: 'acts', label: X('Құқықтық негіз', 'Правовая основа', 'Legal basis') },
     ]);
 
+    const flowMore = ui.more({ label: X('Әдістемелік жұмыс қалай жүреді', 'Как строится методическая работа', 'How the work is organised'), icon: 'sliders', count: 4, tone: 'card', body: ui.lead(introLead) + docsFlow });
+
     return [
       intro.replace('<!--toc-->', toc),
-      ui.section({ id: 'structure', eyebrow: X('№ 253 қағидалар', 'Правила № 253', 'Rules No. 253'), title: X('Әдістемелік қызметтің құрылымы', 'Структура методической службы', 'How methodological work is organised'), body: structure + structPending }),
-      ui.section({ eyebrow: X('Ұжымдық әдістемелік жұмыс нысандары', 'Формы коллективной методической работы', 'Forms of collective work'), title: X('Мұғалімдер қалай бірге жұмыс істейді', 'Как учителя работают вместе', 'How teachers work together'), body: tasks + docsFlow + `<h3>${L(X('Құжаттар', 'Документы', 'Documents'))}</h3>` + methodDocs }),
-      ui.section({ id: 'vshk', tone: 'physics', eyebrow: X('№ 130 бұйрық', 'Приказ № 130', 'Order No. 130'), title: X('Мектепішілік бақылау', 'Внутришкольный контроль', 'Internal quality control'), lead: X('Бақылаудың бес қадамдық циклі және жоспардың алты бағыты.', 'Пятишаговый цикл контроля и шесть разделов плана.', 'A five-step review cycle and the six sections of the plan.'), body: cycle + vshkDirs + vshkNote }),
-      ui.section({ title: X('Мектепішілік бақылау құжаттары', 'Документы внутришкольного контроля', 'Internal control documents'), body: vshkDocs }),
-      ui.section({ id: 'growth', eyebrow: X('Кәсіби даму', 'Профессиональное развитие', 'Professional growth'), title: X('Біліктілік және тәжірибе алмасу', 'Квалификация и обмен опытом', 'Qualifications and sharing practice'), body: growth }),
-      ui.section({ id: 'acts', eyebrow: 'adilet.zan.kz', title: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), body: ui.linkList(actItems(['method', 'docs130', 'assess', 'attest'], lang)) + ui.note(checkedNote) }),
+      ui.section({ id: 'structure', eyebrow: X('Кім неге жауапты', 'Кто за что отвечает', 'Who does what'), title: X('Әдістемелік қызметтің құрылымы', 'Структура методической службы', 'How methodological work is organised'), body: structureShort + structureMore }),
+      ui.section({ eyebrow: X('Ұжымдық әдістемелік жұмыс нысандары', 'Формы коллективной методической работы', 'Forms of collective work'), title: X('Мұғалімдер қалай бірге жұмыс істейді', 'Как учителя работают вместе', 'How teachers work together'), body: tasks + `<div class="dz-row edu-row">${flowMore}${methodDocs}</div>` }),
+      ui.section({ id: 'vshk', tone: 'physics', eyebrow: X('Мектеп сапаны қалай тексереді', 'Как школа проверяет качество', 'How the school checks quality'), title: X('Мектепішілік бақылау', 'Внутришкольный контроль', 'Internal quality control'), lead: X('Бақылаудың бес қадамдық циклі және жоспардың алты бағыты.', 'Пятишаговый цикл контроля и шесть разделов плана.', 'A five-step review cycle and the six sections of the plan.'), body: cycle + vshkDirs + `<div class="dz-row">${ui.legal(vshkNote, { title: X('Мектепішілік бақылау жоспарының нысаны', 'Форма плана ВШК', 'Control plan form') })}${vshkDocs}</div>` }),
+      ui.section({ id: 'growth', eyebrow: X('Кәсіби даму', 'Профессиональное развитие', 'Professional growth'), title: X('Біліктілік және тәжірибе алмасу', 'Квалификация и обмен опытом', 'Qualifications and sharing practice'), body: growth + `<div class="dz-row edu-row">${actLegal(ui, ['method', 'docs130', 'assess', 'attest'], lang, { id: 'acts' })}</div>` }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');
   },

@@ -77,33 +77,41 @@ export default {
       X('мектеп қызметкерлерінің ар-намысы мен қадір-қасиетін құрметтеу;', 'уважать честь и достоинство работников школы;', 'respect the honour and dignity of school staff;'),
       X('мектеп формасына және киім үлгісіне қойылатын талаптарды сақтау.', 'соблюдать требования к школьной форме и форме одежды.', 'follow the school uniform and dress-code requirements.'),
     ];
-    const duo = `<div class="ub-duo">
+    const duoFull = `<div class="ub-duo">
 <div class="ub-duo__col"><h3 class="ub-duo__h">${ui.icon('check', { size: 24 })}${L(X('Ата-ананың құқықтары', 'Права родителей', 'Parents’ rights'))}</h3><ul>${rights.map((r) => `<li>${L(r)}</li>`).join('')}</ul></div>
 <div class="ub-duo__col ub-duo__col--b"><h3 class="ub-duo__h">${ui.icon('shield', { size: 24 })}${L(X('Ата-ананың міндеттері', 'Обязанности родителей', 'Parents’ duties'))}</h3><ul>${duties.map((r) => `<li>${L(r)}</li>`).join('')}</ul></div>
 </div>
 <p class="ub-duo__src">${L(X(`Дереккөз: ${ui.extLink(LAW, '«Білім туралы» ҚР Заңы, 49-бап')} (қысқартылған мазмұны).`, `Источник: ${ui.extLink(LAW, 'Закон РК «Об образовании», статья 49')} (в сокращении).`, `Source: ${ui.extLink(LAW, 'Law of the Republic of Kazakhstan “On Education”, Article 49')} (summary).`))}</p>`;
+    const duo = `<div class="ub-goal"><span class="ub-tiles__ic" aria-hidden="true">${ui.icon('scale', { size: 22 })}</span><p>${L(X(
+      'Қысқаша: ата-ана баланың оқуы туралы ақпарат алуға, мектепті басқаруға қатысуға және бағаларды онлайн көруге құқылы; баланың сабаққа қатысуын және қауіпсіз жағдайын қамтамасыз етуге міндетті.',
+      'Коротко: родители вправе знать об учёбе ребёнка, участвовать в управлении школой и видеть оценки онлайн; обязаны обеспечить посещение уроков и безопасные условия.',
+      'In short: parents may get information on their child’s studies, take part in running the school and see marks online; they must make sure the child attends and is safe.'))}</p></div>
+<div class="dz-row ub-row">${ui.more({ tone: 'plain', icon: 'check', count: rights.length + duties.length, label: X('Құқықтар мен міндеттердің толық тізімі', 'Полный список прав и обязанностей', 'Full list of rights and duties'), body: duoFull })}${ui.legal([{ href: LAW, title: X('«Білім туралы» ҚР Заңы, 49-бап', 'Закон РК «Об образовании», статья 49', 'Law “On Education”, Article 49') }])}</div>`;
 
     // ---------------------------------------------------------------- meetings
     const meetRows = Array.isArray(S.parentMeetings) ? S.parentMeetings.filter((r) => r && r.date) : [];
-    const meetings = meetRows.length
+    const meetFacts = `<ul class="lf-facts" role="list">${[
+      ['calendar', X('Жиналыстар — тоқсан сайын', 'Собрания — по четвертям', 'Meetings every term')],
+      ['users', X('Сынып және жалпы мектептік жиналыстар', 'Классные и общешкольные собрания', 'Class and whole-school meetings')],
+      ['doc', X('Хаттамалардың қысқаша қорытындылары осында жарияланады', 'Краткие итоги протоколов появятся здесь', 'Brief summaries of the minutes will be posted here')],
+    ].map(([ic, tx]) => `<li><span class="lf-facts__ic" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span><span>${L(tx)}</span></li>`).join('')}</ul>`;
+    const meetAll = [ubDoc(docById, 'parents-plan'), docById('parent-committee'), docById('parent-meeting-minutes')].filter(Boolean);
+    const meetWait = meetAll.filter((d) => !d.file && !d.url).map((d) => ({ title: d.title, note: d.note || X('Құжат жүктеледі', 'Документ будет загружен', 'Document to be uploaded') }));
+    const meetings = meetFacts + (meetRows.length
       ? ui.table({
         caption: X('Жалпы мектептік ата-аналар жиналыстары, 2026–2027 оқу жылы', 'Общешкольные родительские собрания, 2026–2027 учебный год', 'Whole-school parent meetings, 2026–2027'),
         head: [X('Тоқсан', 'Четверть', 'Term'), X('Күні мен уақыты', 'Дата и время', 'Date and time'), X('Тақырыбы', 'Тема', 'Topic'), X('Өтетін орны', 'Место', 'Place')],
         rows: meetRows.map((r) => [L(X(`${r.term}-тоқсан`, `${r.term} четверть`, `Term ${r.term}`)), fmt.dateTime ? fmt.dateTime(r.date) : fmt.date(r.date), L(r.topic || ''), L(r.place || '')]),
       })
-      : ui.pending({
+      : ui.pendingGroup(lang, [{
         title: X('Жиналыстар кестесі жарияланады', 'График собраний будет опубликован', 'The meeting schedule will be published'),
         note: X(
           'Мұнда 2026–2027 оқу жылының тоқсан сайынғы жиналыстар кестесі (күні, тақырыбы, өтетін орны), ата-аналар комитетінің құрамы және сынып жетекшілерінің қабылдау уақыты жарияланады. Жиналыс хаттамаларының қысқаша қорытындылары да осы жерде болады.',
           'Здесь появится график собраний по четвертям на 2026–2027 учебный год (дата, тема, место), состав родительского комитета и часы приёма классных руководителей. Здесь же будут краткие итоги протоколов собраний.',
           'The term-by-term 2026–2027 meeting schedule (date, topic, place), the parent committee members and class teachers’ hours for parents will appear here, along with brief summaries of meeting minutes.',
         ),
-      });
-    const meetingDocs = ui.docList([
-      ubDoc(docById, 'parents-plan'),
-      docById('parent-committee'),
-      docById('parent-meeting-minutes'),
-    ]);
+      }, ...meetWait]));
+    const meetingDocs = ui.docList(meetAll.filter((d) => d.file || d.url)) + (meetRows.length ? ui.pendingGroup(lang, meetWait, { kind: 'docs' }) : '');
 
     // ---------------------------------------------------------------- advice
     const tips = [

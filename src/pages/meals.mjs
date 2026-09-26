@@ -32,9 +32,9 @@ export default {
   order: 20,
   title: { kz: 'Мектептегі тамақтану', ru: 'Школьное питание', en: 'School meals' },
   description: {
-    kz: '«Мектептегі тамақтану» айдары: ыстық тамақ, перспективалық және күнделікті мәзір, сапа комиссиясы, жеткізуші, ауыз су режимі.',
-    ru: 'Рубрика «Школьное питание»: горячее питание, перспективное и ежедневное меню, комиссия по качеству, поставщик, питьевой режим.',
-    en: 'School meals: hot meals, long-term and daily menus, the meal-quality commission, the supplier and drinking water.',
+    kz: 'Балалар немен тамақтанады, тағам сапасын кім тексереді және өнімдер қайдан келеді: мәзір, сапа комиссиясы, жеткізуші, ауыз су.',
+    ru: 'Чем кормят детей, кто проверяет качество и откуда продукты: меню, комиссия по качеству, поставщик, питьевая вода.',
+    en: 'What children eat, who checks the quality and where the food comes from: menus, the quality commission, the supplier and drinking water.',
   },
   styles: ['campus'],
   published: '2026-09-24T10:00',
@@ -66,11 +66,12 @@ export default {
       { icon: 'handshake', t: X('Жеткізуші туралы мәліметтер', 'Сведения о поставщике', 'Supplier information') },
     ];
     // Compact "what this rubric publishes" list (п.105) — one shared status, shown lower on the page (docs section).
-    const rubric = `<div class="cmp-publist">
+    const rubricFull = `<div class="cmp-publist">
 <div class="cmp-publist__head"><p class="cmp-publist__t">${L(X('Бұл айдарда не жарияланады', 'Что публикуется в этой рубрике', 'What this section publishes'))}</p>${docWait}</div>
 <p class="cmp-publist__sub">${L(X(`${o598g} 105-тармағы бойынша, бракераж актілерімен қоса`, `По п. 105 ${o598g}, включая акты бракеража`, `Following para. 105 of ${o598g}, plus food-tasting records`))}</p>
 <ul class="cmp-publist__list" role="list">${rubricItems.map((r) => `<li>${ui.icon(r.icon, { size: 18 })}<span>${L(r.t)}</span></li>`).join('')}</ul>
 </div>`;
+    const rubric = ui.more({ label: X('Бұл айдарда не жарияланады', 'Что публикуется в этой рубрике', 'What this section publishes'), icon: 'doc', count: rubricItems.length, tone: 'plain', cls: 'cmp-rubric-more', body: rubricFull });
 
     // First screen: the confirmed fact (hot meals) + the drinking-water rules — real content, not a list of "not yet".
     const glanceItems = [
@@ -83,7 +84,7 @@ export default {
     const glance = ui.panel({
       theme: 'biology',
       body: `<p class="cmp-rubric-head">${L(X('Бір қарағанда', 'Коротко о главном', 'At a glance'))}</p>
-<ul class="cmp-rubric cmp-glance" role="list">${glanceItems.map((g) => `<li>${ui.icon(g.icon, { size: 20 })}<span class="cmp-glance__txt"><span class="cmp-rubric__t">${L(g.t)}</span><small>${L(g.s)}</small></span>${g.badge || ''}</li>`).join('')}</ul>
+<ul class="cmp-rubric cmp-glance" role="list">${glanceItems.map((g) => `<li>${ui.icon(g.icon, { size: 20 })}<span class="cmp-glance__txt"><span class="cmp-rubric__t">${L(g.t)}</span>${g.badge ? `<small>${L(g.s)}</small>` : ''}</span>${g.badge || ''}</li>`).join('')}</ul>
 <p class="cmp-glance__more"><a href="#water">${L(X('Ауыз су режимі толығырақ', 'Подробнее о питьевом режиме', 'More on drinking water'))} →</a></p>`,
     });
     const intro = ui.split({
@@ -116,11 +117,11 @@ ${ui.note(X(`«Ыстық тамақ» — мектептің ${igSrc} пара�
     ]);
 
     // ------------------------------------------------------------------ menus (from src/data/menu.mjs)
-    const menuBasis = ui.note(X(
+    const menuBasis = ui.legal(X(
       `Күнделікті мәзірді перспективалық (циклдік) мәзір негізінде мектеп директоры бекітеді; мәзір асханада және ата-аналарға қолжетімді жерде ілінеді (${o598g} 106-т.). Перспективалық мәзір жас ерекшелігіне сай тамақтану нормаларымен құрастырылып, денсаулық сақтау органында бекітіледі.`,
       `Ежедневное меню утверждает руководитель школы на основе перспективного (цикличного) меню и размещает его в столовой и в месте, доступном для родителей (п. 106 ${o598g}). Перспективное меню составляется с учётом возрастных норм питания и утверждается органом здравоохранения.`,
       `The daily menu is approved by the head of the school on the basis of the long-term (cyclic) menu and posted in the canteen and where parents can see it (para. 106, ${o598g}). The long-term menu follows age-appropriate nutrition norms and is approved by the health authority.`,
-    ));
+    ), { title: X('Мәзірді кім бекітеді', 'Кто утверждает меню', 'Who approves the menu') });
     const menuTable = (day, caption) => ui.table({
       compact: true,
       caption,
@@ -143,16 +144,21 @@ ${ui.note(X(`«Ыстық тамақ» — мектептің ${igSrc} пара�
       menuBody = `<article class="cmp-daily${photo ? ' cmp-daily--photo' : ''}">${photo}
 <div class="cmp-daily__main"><div class="cmp-daily__head"><h3 class="cmp-daily__date">${L(X('Мәзір:', 'Меню на', 'Menu for'))} ${dayTitle(d)}</h3>${ui.badge(X('Директор бекіткен', 'Утверждено директором', 'Approved by the director'), 'ok')}</div>
 ${menuTable(d, X('Тағамдар, шығымы және бағасы', 'Блюда, выход и цена', 'Dishes, portion and price'))}</div>
-</article>${menuBasis}`;
+</article><div class="dz-row">${menuBasis}</div>`;
     } else {
-      menuBody = `${ui.pending({
-        title: X('Мәзір әлі жарияланған жоқ', 'Меню пока не опубликовано', 'The menu has not been published yet'),
-        note: X(
+      const menuCols = `<ul class="cmp-menu-soon" role="list">${[
+        { icon: 'utensils', t: X('Тағам', 'Блюдо', 'Dish') }, { icon: 'sliders', t: X('Шығымы, г', 'Выход, г', 'Portion, g') },
+        { icon: 'coins', t: X('Бағасы, ₸', 'Цена, ₸', 'Price, ₸') }, { icon: 'image', t: X('Фото', 'Фото', 'Photo') },
+      ].map((c) => `<li>${ui.icon(c.icon, { size: 18 })}<span>${L(c.t)}</span></li>`).join('')}</ul>`;
+      menuBody = `${ui.pendingGroup(lang, [{
+        title: X('Күнделікті мәзір, апталық мәзір, мұрағат', 'Ежедневное меню, меню на неделю, архив', 'Daily menu, weekly menu, archive'),
+        note: L(X(
           'Жарияланғаннан кейін мұнда әр күннің мәзірі күнімен бірге көрсетіледі: тағамның атауы, шығымы (г), бағасы және фотосы. Сондай-ақ апталық мәзір мен өткен күндердің мұрағаты болады.',
           'После публикации здесь появится меню на каждый день с датой: название блюда, выход (г), цена и фото. Также будут меню на неделю и архив прошлых дней.',
           'Once published, each day’s menu will appear here with its date: dish name, portion (g), price and a photo — plus the weekly menu and an archive of past days.',
-        ),
-      })}${menuBasis}`;
+        )) + menuCols,
+      }], { title: X('Мәзір әлі жарияланған жоқ', 'Меню пока не опубликовано', 'The menu has not been published yet') })}
+<div class="dz-row">${menuBasis}</div>`;
     }
 
     // weekly board — only when the approved weekly menu is in the data
@@ -190,10 +196,9 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
       { title: X('Ай сайынғы қорытынды', 'Ежемесячный итог', 'Monthly summary'), text: X('Мониторинг комиссиясының жұмыс қорытындысы ай сайын педагогикалық кеңесте қаралып, осы бетте жарияланады (111-т.).', 'Итоги работы комиссии по мониторингу ежемесячно рассматриваются на педсовете и публикуются на этой странице (п. 111).', 'The monitoring commission’s results are reviewed monthly by the pedagogical council and published on this page (para. 111).') },
       { title: X('Тоқсан сайынғы есеп', 'Ежеквартальный отчёт', 'Quarterly report'), text: X('Жеткізушілердің талаптарды сақтауы туралы ақпарат жергілікті атқарушы органға тоқсаннан кейінгі айдың 15-іне дейін ұсынылады (110-т.; мемлекеттік мектептер үшін міндетті).', 'Информация о соблюдении требований поставщиками представляется в местный исполнительный орган до 15 числа месяца, следующего за кварталом (п. 110; обязательно для государственных школ).', 'Information on suppliers’ compliance goes to the local executive body by the 15th of the month after each quarter (para. 110; mandatory for state schools).') },
     ]);
-    const brakerazhNote = ui.callout({
-      type: 'info',
-      title: X('Бракераж дегеніміз не?', 'Что такое бракераж?', 'What is brakerazh?'),
-      text: X(
+    const brakerazhNote = ui.more({
+      label: X('Бракераж дегеніміз не?', 'Что такое бракераж?', 'What is brakerazh?'), icon: 'info', tone: 'card',
+      body: X(
         'Бракераж — азық-түлік пен дайын тағамның сапасын сыртқы түрі, иісі және дәмі бойынша (органолептикалық) бағалау (ҚР ДСМ-76 санитариялық қағидаларының 4-т.). «Дайын тамақтың сапасын бақылау журналы (бракераждық)» мектептің медициналық құжаттамасына кіреді (11-қосымша). Бракераж комиссиясының құрамы мен актілері төменде жарияланады.',
         'Бракераж — оценка качества продуктов и готовых блюд по органолептическим показателям: внешний вид, запах, вкус (п. 4 санитарных правил ҚР ДСМ-76). «Журнал контроля качества готовой пищи (бракеражный)» входит в медицинскую документацию школы (приложение 11). Состав бракеражной комиссии и её акты будут опубликованы ниже.',
         'Brakerazh is checking the quality of food products and ready dishes by look, smell and taste (para. 4 of sanitary rules ҚР ДСМ-76). The “ready-food quality control (brakerazh) log” is part of the school’s medical records (appendix 11). The brakerazh commission’s membership and records will be published below.',
@@ -206,6 +211,10 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
       head: [X('Аты-жөні', 'ФИО', 'Name'), X('Комиссиядағы рөлі / лауазымы', 'Роль в комиссии / должность', 'Role / position')],
       rows: list.map((m) => [esc(L(m.name)), esc(L(m.role))]),
     }) : '');
+    const commissionMore = `<div class="dz-row cmp-comm-row">${ui.more({ label: X('Бақылау қалай жүреді', 'Как проходит контроль', 'How the checks work'), icon: 'check', count: 4, tone: 'card', body: commissionSteps })}${brakerazhNote}${ui.legal(X(
+      `<p>${o598g} 109-тармағы бойынша комиссия құрамына қамқоршылық кеңестің, ата-аналар комитетінің, мектеп әкімшілігінің өкілдері және медицина қызметкері кіреді; төрағасы — мектеп басшысы.</p>`,
+      `<p>По п. 109 ${o598g} в комиссию входят представители попечительского совета, родительского комитета, администрации школы и медицинский работник; председатель — руководитель школы.</p>`,
+      `<p>Under para. 109 of ${o598g}, the commission includes representatives of the board of trustees, the parents’ committee and the school administration, plus the medical worker; it is chaired by the head of the school.</p>`))}</div>`;
     const members = memberTable(C.monitoring, X('Мониторинг комиссиясының құрамы', 'Состав комиссии по мониторингу', 'Monitoring commission members'))
       + memberTable(C.brakerazh, X('Бракераж комиссиясының құрамы', 'Состав бракеражной комиссии', 'Brakerazh commission members'));
     const commissionPending = members ? `<div class="cmp-members">${members}</div>` : ui.pending({
@@ -217,7 +226,7 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
     // from S.meals.supplier = { name, bin?, type?, contract:{number,date,term}?, sez:{number,date}?, responsible?, cost? }
     const sup = M.supplier || {};
     const noDate = (o) => [o.number ? `№ ${esc(o.number)}` : '', isDate(o.date) ? fmt.date(o.date) : '', o.term ? esc(L(o.term)) : ''].filter(Boolean).join(', ');
-    const supplier = ui.facts([
+    const supplierRows = ([
       { k: X('Тамақтану түрі', 'Вид питания', 'Type of meals'), v: `${L(X('Ыстық тамақ', 'Горячее питание', 'Hot meals'))} ${ok}` },
       { k: X('Тамақтануды ұйымдастыру тәсілі', 'Способ организации питания', 'How meals are organised'), v: sup.type ? esc(L(sup.type)) : `${L(X('Өз асханасы немесе мамандандырылған ұйыммен шарт', 'Собственная столовая или договор со специализированной организацией', 'Own canteen or a contract with a catering company'))} ${wait}` },
       { k: X('Жеткізуші', 'Поставщик', 'Supplier'), v: sup.name ? `${esc(L(sup.name))}${sup.bin ? ` <span class="cmp-muted">(${L(X('БСН', 'БИН', 'BIN'))} ${esc(sup.bin)})</span>` : ''}` : `— ${wait}` },
@@ -226,23 +235,32 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
       { k: X('Тамақтану құны', 'Стоимость питания', 'Cost of meals'), v: sup.cost ? esc(L(sup.cost)) : `${L(X(`— <a href="${href('tuition')}">оқу ақысы туралы бет</a>`, `— <a href="${href('tuition')}">страница об оплате</a>`, `— <a href="${href('tuition')}">fees page</a>`))} ${wait}` },
       { k: X('Тамақтануға жауапты тұлға', 'Ответственный за питание', 'Person responsible for meals'), v: sup.responsible ? esc(L(sup.responsible)) : `— ${wait}` },
     ]);
-    const supplierNote = ui.callout({
-      type: 'info',
-      title: X('Заң не дейді', 'Что говорит закон', 'What the rules say'),
-      text: X(
+    // Layer 1: rows that already have data; layer 2: rows still being confirmed.
+    const supKnown = supplierRows.filter((r, i) => i === 0 || !/badge--warn/.test(r.v));
+    const supWait = supplierRows.filter((r, i) => i !== 0 && /badge--warn/.test(r.v));
+    const supplier = ui.facts(supKnown) + (supWait.length ? `<div class="dz-row cmp-sup-row">${ui.more({ label: X('Нақтыланатын мәліметтер', 'Сведения, которые уточняются', 'Details being confirmed'), icon: 'hourglass', count: supWait.length, tone: 'card', body: ui.facts(supWait) })}` : '<div class="dz-row cmp-sup-row">');
+    const supplierNote = ui.legal(X(
         `${o598} мемлекеттік мектептерге жеткізуші таңдалғаннан кейін екі жұмыс күні ішінде ол туралы мәліметті сайтта жариялауды міндеттейді (70-т.). «Керемет» — жеке мектеп, бірақ біз осы ашықтық тәртібін ұстанамыз.`,
         `${o598} обязывает государственные школы в течение двух рабочих дней после выбора поставщика размещать сведения о нём на сайте (п. 70). «Керемет» — частная школа, но мы придерживаемся того же порядка открытости.`,
         `${o598} requires state schools to publish supplier details on their website within two working days of choosing them (para. 70). Keremet is a private school, but we follow the same transparency practice.`,
-      ),
-    });
+      ), { title: X('Заң не дейді', 'Что говорит закон', 'What the rules say') }) + '</div>';
 
     // ------------------------------------------------------------------ drinking water
-    const water = ui.cards([
+    const waterFull = ([
       { icon: 'check', title: X('Қауіпсіз ауыз су', 'Безопасная питьевая вода', 'Safe drinking water'), text: X('Ауыз су — бөтелкедегі немесе ыдысқа (графин, шәйнек, бак) құйылған — сапа мен қауіпсіздік талаптарына сай болуы тиіс. Жеке бөтелкені пайдалануға рұқсат етіледі (ҚР ДСМ-76, 28-т.).', 'Питьевая вода — бутилированная или расфасованная в ёмкости (графины, чайники, бачки) — должна соответствовать требованиям качества и безопасности. Разрешается индивидуальная бутылка (ҚР ДСМ-76, п. 28).', 'Drinking water — bottled or dispensed into containers (jugs, kettles, tanks) — must meet quality and safety requirements. Children may use their own bottle (ҚР ДСМ-76, para. 28).') },
       { icon: 'clock', title: X('Қайнатылған су — 3 сағаттан артық емес', 'Кипячёная вода — не дольше 3 часов', 'Boiled water — no longer than 3 hours'), text: X('Қайнатылған ауыз суды пайдалануға болады, бірақ ол үш сағаттан артық сақталмауы тиіс (28-т.).', 'Кипячёную питьевую воду использовать можно, но хранить её допускается не более трёх часов (п. 28).', 'Boiled drinking water may be used, but it may be kept for no more than three hours (para. 28).') },
       { icon: 'users', title: X('Күні бойы еркін қолжетімді', 'Свободный доступ весь день', 'Free access all day'), text: X('Оқушылар мектепте болған барлық уақытта ауыз суға еркін қол жеткізуі тиіс (30-т.).', 'Обучающимся обеспечивается свободный доступ к питьевой воде в течение всего времени пребывания в школе (п. 30).', 'Pupils must have free access to drinking water the whole time they are at school (para. 30).') },
       { icon: 'user', title: X('Жауапты тұлға', 'Ответственное лицо', 'Person in charge'), text: `${L(X('Ауыз су режимін ұйымдастыруға жауапты тұлға мектеп директорының бұйрығымен тағайындалады (30-т.). Мектептегі жауапты тұлға мен су беру тәсілі (кулер, бөтелкедегі немесе қайнатылған су) нақтылануда.', 'Ответственный за организацию питьевого режима назначается приказом руководителя (п. 30). Ответственный в школе и способ подачи воды (кулеры, бутилированная или кипячёная) уточняются.', 'A person responsible for the drinking regime is appointed by the director’s order (para. 30). Who it is at the school, and how water is provided (coolers, bottled or boiled), is being confirmed.'))} ${wait}` },
-    ], { cols: 2 });
+    ]);
+    // Layer 1: four short cards in plain words; layer 2: the exact wording of the sanitary rules (paras 28, 30).
+    const waterShort = [
+      X('Бөтелкедегі немесе ыдысқа құйылған; жеке бөтелкеге рұқсат.', 'Бутилированная или в ёмкостях; можно свою бутылку.', 'Bottled or in containers; own bottles allowed.'),
+      X('Санитариялық қағидалардың талабы.', 'Требование санитарных правил.', 'A sanitary-rules requirement.'),
+      X('Мектепте болған бүкіл уақытта.', 'Всё время, пока ребёнок в школе.', 'The whole time a child is at school.'),
+      `${L(X('Директордың бұйрығымен тағайындалады.', 'Назначается приказом директора.', 'Appointed by the director’s order.'))} ${wait}`,
+    ];
+    const water = ui.cards(waterFull.map((c, i) => ({ icon: c.icon, title: c.title, text: waterShort[i] })), { cols: 4 })
+      + `<div class="dz-row cmp-water-row">${ui.legal(`<ul class="cmp-rule-list">${waterFull.map((c) => `<li><strong>${L(c.title)}.</strong> ${L(c.text)}</li>`).join('')}</ul>`, { title: X('Санитариялық қағидалар (ҚР ДСМ-76)', 'Санитарные правила (ҚР ДСМ-76)', 'Sanitary rules (ҚР ДСМ-76)') })}</div>`;
 
     // ------------------------------------------------------------------ FAQ
     const faq = ui.accordion([
@@ -266,10 +284,10 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
       docById('brakerazh-records'),
       docById('drinking-water-order'),
       docById('meals-sez'),
-    ]);
-    const sources = ui.linkList([
-      { href: adilet('V1800017948'), icon: 'scale', label: X('Білім алушыларды тамақтандыруды ұйымдастыру қағидалары (ҚР БҒМ 31.10.2018 № 598 бұйрығы)', 'Правила организации питания обучающихся (приказ МОН РК от 31.10.2018 № 598)', 'Rules for organising pupils’ meals (MES order No. 598 of 31.10.2018)'), note: X('70, 105, 106, 109–111-тармақтар · adilet.zan.kz', 'пп. 70, 105, 106, 109–111 · adilet.zan.kz', 'paras. 70, 105, 106, 109–111 · adilet.zan.kz') },
-      { href: adilet('V2100023890'), icon: 'scale', label: X('«Білім беру объектілеріне қойылатын санитариялық-эпидемиологиялық талаптар» (ҚР ДСМ-76)', 'Санитарные правила «Санитарно-эпидемиологические требования к объектам образования» (ҚР ДСМ-76)', 'Sanitary rules for education facilities (ҚР ДСМ-76)'), note: X('4, 28, 30-т., 11-қосымша · adilet.zan.kz', 'пп. 4, 28, 30, прил. 11 · adilet.zan.kz', 'paras. 4, 28, 30, app. 11 · adilet.zan.kz') },
+    ], { collapse: 3, groupPending: true });
+    const sources = ui.legal([
+      { href: adilet('V1800017948'), title: X('Білім алушыларды тамақтандыруды ұйымдастыру қағидалары (ҚР БҒМ 31.10.2018 № 598 бұйрығы)', 'Правила организации питания обучающихся (приказ МОН РК от 31.10.2018 № 598)', 'Rules for organising pupils’ meals (MES order No. 598 of 31.10.2018)'), note: X('70, 105, 106, 109–111-тармақтар · adilet.zan.kz', 'пп. 70, 105, 106, 109–111 · adilet.zan.kz', 'paras. 70, 105, 106, 109–111 · adilet.zan.kz') },
+      { href: adilet('V2100023890'), title: X('«Білім беру объектілеріне қойылатын санитариялық-эпидемиологиялық талаптар» (ҚР ДСМ-76)', 'Санитарные правила «Санитарно-эпидемиологические требования к объектам образования» (ҚР ДСМ-76)', 'Sanitary rules for education facilities (ҚР ДСМ-76)'), note: X('4, 28, 30-т., 11-қосымша · adilet.zan.kz', 'пп. 4, 28, 30, прил. 11 · adilet.zan.kz', 'paras. 4, 28, 30, app. 11 · adilet.zan.kz') },
     ]);
 
     const related = ui.linkList([
@@ -285,11 +303,11 @@ ${(wd.meals || []).map((m) => `<div class="cmp-slot"><p class="cmp-slot__k">${ui
       ui.split({ ratio: '1:2', cls: 'cmp-menu-split', left: toc, right: ui.section({ id: 'today', eyebrow: hasMenu ? X('Соңғы жарияланған', 'Последнее опубликованное', 'Latest published') : X('Күнделікті және апталық', 'Ежедневное и недельное', 'Daily and weekly'), title: hasMenu ? X('Күнделікті мәзір', 'Ежедневное меню', 'Daily menu') : X('Мәзір', 'Меню', 'Menu'), body: menuBody }) }),
       weekData ? ui.section({ id: 'week', tone: 'biology', eyebrow: X('Перспективалық мәзір', 'Перспективное меню', 'Long-term menu'), title: X('Апталық мәзір', 'Меню на неделю', 'Weekly menu'), lead: weekPeriod || X('Аптаның әр күнінде балалар не жейді.', 'Что дети едят в каждый день недели.', 'What children eat each day of the week.'), body: week }) : '',
       archive ? ui.section({ id: 'archive', eyebrow: X('Өткен күндер', 'Прошлые дни', 'Past days'), title: X('Мәзір мұрағаты', 'Архив меню', 'Menu archive'), body: archive }) : '',
-      ui.section({ id: 'commission', eyebrow: X('Қоғамдық бақылау', 'Общественный контроль', 'Public oversight'), title: X('Тамақтану сапасына мониторинг жүргізу жөніндегі комиссия', 'Комиссия по мониторингу качества питания', 'Meal-quality monitoring commission'), lead: X(`${o598g} 109-тармағы бойынша комиссия құрамына қамқоршылық кеңестің, ата-аналар комитетінің, мектеп әкімшілігінің өкілдері және медицина қызметкері кіреді; төрағасы — мектеп басшысы.`, `По п. 109 ${o598g} в комиссию входят представители попечительского совета, родительского комитета, администрации школы и медицинский работник; председатель — руководитель школы.`, `Under para. 109 of ${o598g}, the commission includes representatives of the board of trustees, the parents’ committee and the school administration, plus the medical worker; it is chaired by the head of the school.`), body: rolesHtml + commissionSteps + brakerazhNote + commissionPending }),
+      ui.section({ id: 'commission', eyebrow: X('Қоғамдық бақылау', 'Общественный контроль', 'Public oversight'), title: X('Тамақтану сапасына мониторинг жүргізу жөніндегі комиссия', 'Комиссия по мониторингу качества питания', 'Meal-quality monitoring commission'), lead: X('Тағам сапасын директор, медицина қызметкері, ата-аналар мен қамқоршылар тексереді.', 'Качество блюд проверяют директор, медик, родители и попечители.', 'Meal quality is checked by the director, the medical worker, parents and trustees.'), body: rolesHtml + commissionMore + commissionPending }),
       ui.section({ id: 'supplier', eyebrow: X('Асхана', 'Столовая', 'Canteen'), title: X('Жеткізуші және тамақтану объектісі', 'Поставщик и объект питания', 'Supplier and catering facility'), body: supplier + supplierNote }),
       ui.section({ id: 'water', eyebrow: X('Су — денсаулық көзі', 'Вода — источник здоровья', 'Water matters'), title: X('Ауыз су режимі', 'Питьевой режим', 'Drinking water'), body: water }),
       ui.section({ id: 'faq', title: X('Жиі қойылатын сұрақтар', 'Частые вопросы', 'Frequently asked questions'), body: faq }),
-      ui.section({ id: 'docs', eyebrow: X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'), title: X('Құжаттар', 'Документы', 'Documents'), body: rubric + docs + `<h3 class="cmp-h3">${L(X('Нормативтік негіз', 'Нормативная база', 'Legal basis'))}</h3>` + sources }),
+      ui.section({ id: 'docs', eyebrow: X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'), title: X('Құжаттар', 'Документы', 'Documents'), body: docs + `<div class="dz-row cmp-law">${rubric}${sources}</div>` }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].filter(Boolean).join('\n');
   },

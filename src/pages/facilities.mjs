@@ -25,6 +25,8 @@ export default {
     const ok = ui.badge(X('Расталған', 'Подтверждено', 'Confirmed'), 'ok');
     const wait = ui.badge(t('unconfirmed'), 'warn');
     const docWait = ui.badge(t('doc.pending'), 'warn');
+    // Per-item disclosure cards (campus.css .lf-pd): title + key line visible, the explanation opens inside the card.
+    const pd = (items, { num = false, one = false } = {}) => `<${num ? 'ol' : 'ul'} class="lf-pd${one ? ' lf-pd--1' : ''}" role="list">${items.map((it, i) => `<li><details class="lf-pd__d"><summary class="lf-pd__s">${num ? `<span class="lf-pd__n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>` : it.icon ? `<span class="lf-pd__ic" aria-hidden="true">${ui.icon(it.icon, { size: 22 })}</span>` : ''}<span class="lf-pd__t"><span class="lf-pd__h">${L(it.title)}</span>${it.key ? `<span class="lf-pd__k">${L(it.key)}</span>` : ''}</span><span class="lf-pd__chev" aria-hidden="true"></span></summary><div class="lf-pd__b"><p>${L(it.text)}</p></div></details></li>`).join('')}</${num ? 'ol' : 'ul'}>`;
 
     // status checklist (local component, styled in campus.css)
     const check = (items) => `<ul class="cmp-check" role="list">${items.map((it) => `<li class="cmp-check__item cmp-check__item--${it.ok ? 'ok' : 'wait'}">
@@ -76,23 +78,16 @@ ${win.join('')}
       left: `${ui.eyebrow(X('Мектеп ортасы', 'Школьная среда', 'Campus'))}
 <h2 class="sec__title">${L(X('Екі қабатты ғимарат — бәріне қолжетімді кіреберіспен', 'Двухэтажное здание с доступным для всех входом', 'A two-storey building with an entrance open to everyone'))}</h2>
 ${ui.lead(X(
-        'Мектеп Шымкент қаласы Абай ауданының Асар шағын ауданындағы екі қабатты ғимаратта орналасқан. Кіреберісте пандус бар, кіреберіс қолжетімді, ғимарат жанында шағын автотұрақ бар.',
-        'Школа располагается в двухэтажном здании в микрорайоне Асар Абайского района Шымкента. У входа есть пандус, вход доступный, рядом со зданием — небольшая парковка.',
-        'The school occupies a two-storey building in the Asar microdistrict of Shymkent’s Abay district. The entrance has a ramp and is listed as accessible, and there is a small car park next to the building.',
+        'Мектеп Шымкенттің Абай ауданы, Асар шағын ауданындағы екі қабатты ғимаратта орналасқан.',
+        'Школа располагается в двухэтажном здании в микрорайоне Асар Абайского района Шымкента.',
+        'The school occupies a two-storey building in the Asar microdistrict of Shymkent’s Abay district.',
       ))}
-${ui.chips([
-        { icon: 'building', label: X('2 қабат', '2 этажа', '2 storeys') },
-        { icon: 'accessible', label: X('Пандус және қолжетімді кіреберіс', 'Пандус и доступный вход', 'Ramp & accessible entrance') },
-        { icon: 'parking', label: X('Автотұрақ — 7 орын', 'Парковка — 7 мест', 'Parking — 7 spaces') },
-        { icon: 'bus', label: X('Аялдамадан 250 м', '250 м от остановки', '250 m from the bus stop') },
-      ])}
 ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасындағы сипаттамасы (24.09.2026 тексерілді).`, `Источник: карточка школы в ${src2gis} (проверено 24.09.2026).`, `Source: the school’s ${src2gis} listing (checked 24.09.2026).`))}`,
       right: ui.panel({ theme: 'biology', cls: 'cmp-bld-panel', body: building }),
     });
 
     const stats = ui.stats([
-      { icon: 'building', art: true, value: String(B.floors), label: X('Қабатты ғимарат', 'Этажа в здании', 'Storeys'), note: X('Асар шағын ауданы, Абай ауданы', 'мкр. Асар, Абайский район', 'Asar microdistrict, Abay district'),
-        extra: ui.chips([{ label: X('Жобалық қуаты — нақтылануда', 'Проектная мощность — уточняется', 'Design capacity — to be confirmed') }]) },
+      { icon: 'building', art: true, value: String(B.floors), label: X('Қабатты ғимарат', 'Этажа в здании', 'Storeys'), note: X('Асар шағын ауданы, Абай ауданы', 'мкр. Асар, Абайский район', 'Asar microdistrict, Abay district') },
       { icon: 'parking', value: String(B.parking), label: X('Автотұрақ орны', 'Мест на парковке', 'Parking spaces'), note: X('ғимарат жанында', 'рядом со зданием', 'next to the building') },
       { icon: 'bus', value: X('250 м', '250 м', '250 m'), label: X('Аялдамаға дейін', 'До остановки', 'To the bus stop'), note: X('жаяу шамамен 3 минут', 'около 3 минут пешком', 'about a 3-minute walk') },
       { icon: 'accessible', value: X('Иә', 'Есть', 'Yes'), label: X('Пандус', 'Пандус', 'Ramp'), note: X('қолжетімді кіреберіс', 'доступный вход', 'accessible entrance') },
@@ -109,7 +104,7 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
     ]);
 
     // ------------------------------------------------------------------ building facts
-    const buildingFacts = ui.facts([
+    const buildingFactsAll = [
       { k: X('Нақты мекенжайы', 'Фактический адрес', 'Actual address'), v: `${A.postcode}, ${L(A.text)}`, copy: true },
       { k: X('Қабат саны', 'Этажность', 'Storeys'), v: `${B.floors} ${ok}` },
       { k: X('Кіреберіс', 'Вход', 'Entrance'), v: `${L(X('Пандус, қолжетімді кіреберіс', 'Пандус, доступный вход', 'Ramp, accessible entrance'))} ${ok}` },
@@ -118,16 +113,19 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       { k: X('Жобалық қуаты (оқушы орны)', 'Проектная мощность (ученических мест)', 'Design capacity (pupil places)'), v: `— ${wait}` },
       { k: X('Салынған / пайдалануға берілген жылы', 'Год постройки / ввода в эксплуатацию', 'Year built / commissioned'), v: `— ${wait}` },
       { k: X('Жалпы және оқу алаңы, м²', 'Общая и учебная площадь, м²', 'Total and teaching area, m²'), v: `— ${wait}` },
-    ]);
-    const addrNote = ui.callout({
-      type: 'info',
-      title: X('Мекенжайлар туралы', 'Об адресах', 'About the addresses'),
-      text: X(
+    ];
+    // Layer 1: the address (storeys, ramp and parking are already in the stat cards above);
+    // layer 2: the full building passport (confirmed + still-being-confirmed facts) and the note on the addresses.
+    const buildingFacts = ui.facts(buildingFactsAll.slice(0, 1))
+      + `<div class="dz-row">${ui.more({ label: X('Ғимарат паспорты', 'Паспорт здания', 'Building passport'), icon: 'building', count: buildingFactsAll.length - 1, tone: 'card', body: ui.facts(buildingFactsAll.slice(1)) })}`;
+    const addrNote = ui.more({
+      label: X('Мекенжайлар туралы', 'Об адресах', 'About the addresses'), icon: 'pin', tone: 'card',
+      body: X(
         `Серіктестіктің заңды мекенжайы — ${L(S.addresses.legal.text)}. Мектеп ${L(A.text)} мекенжайында жұмыс істейді. 2022 жылғы лицензияда білім беру объектісінің мекенжайы ретінде ${L(S.addresses.licence2022.text)} көрсетілген. Лицензия мен меншік немесе жалдау құжаты қай ғимаратқа қатысты екенін және бұл мекенжайлардың өзара байланысын мектеп әкімшілігі нақтылайды.`,
         `Юридический адрес товарищества — ${L(S.addresses.legal.text)}. Школа работает по адресу: ${L(A.text)}. В лицензии 2022 года адресом объекта указано: ${L(S.addresses.licence2022.text)}. Какое здание охватывают лицензия и документ о собственности или аренде и как связаны эти адреса, уточняет администрация школы.`,
         `The partnership’s legal address is ${L(S.addresses.legal.text)}; the school operates at ${L(A.text)}. The 2022 licence names the premises at ${L(S.addresses.licence2022.text)}. The school will confirm which building the licence and the ownership or lease document cover, and how these addresses relate.`,
       ),
-    });
+    }) + '</div>';
 
     // ------------------------------------------------------------------ rooms per order №70
     const W = t('unconfirmed');
@@ -148,20 +146,19 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       head: [X('Үй-жай', 'Помещение', 'Space'), X('Норма бойынша (мысалдар)', 'По норме (примеры)', 'Standard (examples)'), X('«Керемет» мектебінде', 'В школе «Керемет»', 'At Keremet')],
       rows: rooms.map(([a, b]) => [a, b, pendingCell]),
     });
-    const roomsLead = ui.prose(X(
+    const roomsLegal = ui.legal(X(
       `<p>Жалпы білім беретін мектептердің кабинеттері мен зертханалары ҚР Білім және ғылым министрінің 2016 жылғы 22 қаңтардағы № 70 бұйрығымен бекітілген <em>жабдықтармен және жиһазбен жарақтандыру нормаларына</em> сәйкес жабдықталады. Төмендегі кестеде нормада қарастырылған негізгі үй-жайлар көрсетілген; мектептегі нақты жарақтандыру туралы мәліметтер (кабинеттер саны, негізгі жабдықтар) мектеп әкімшілігі растағаннан кейін жарияланады.</p>`,
       `<p>Кабинеты и лаборатории общеобразовательных школ оснащаются по <em>нормам оснащения оборудованием и мебелью</em>, утверждённым приказом Министра образования и науки РК от 22 января 2016 года № 70. В таблице — основные помещения, которые предусматривает норма; фактическое оснащение школы (число кабинетов, основное оборудование) будет опубликовано после подтверждения администрацией.</p>`,
       `<p>Classrooms and labs in general schools are equipped under the <em>equipment and furniture standards</em> approved by order No. 70 of the Minister of Education and Science of 22 January 2016. The table lists the main spaces the standard covers; the school’s actual equipment (number of rooms, key equipment) will be published once confirmed by the administration.</p>`,
     ));
-    const roomsCaveat = ui.callout({
-      type: 'warn',
-      title: X('Кестеде норма көрсетілген', 'В таблице — норма', 'The table shows the standard'),
-      text: X(
+    const roomsCaveat = ui.note(X(
         'Бұл үй-жайлардың мектепте бар-жоғы нақтыланады. Мектепте жоқ үй-жайлар кестеден алынып тасталады, бар үй-жайлар бойынша нақты жабдықтар көрсетіледі.',
         'Наличие этих помещений в школе уточняется. Помещения, которых в школе нет, будут убраны из таблицы, по имеющимся — указано фактическое оснащение.',
         'Whether the school has each of these spaces is being confirmed. Spaces the school does not have will be removed from the table; for the rest, the actual equipment will be listed.',
-      ),
-    });
+      ));
+    // Layer 1: the spaces as a tile strip; layer 2: the equipment standard (table) and the legal basis.
+    const roomTiles = `<ul class="cmp-rooms" role="list">${rooms.map(([a], i) => `<li>${ui.icon(['school', 'sparkles', 'robot', 'calculator', 'flask', 'ball', 'book', 'mic', 'heart'][i] || 'grid', { size: 16 })}<span>${L(a)}</span></li>`).join('')}</ul>`;
+    const roomsMore = `<div class="dz-row">${ui.more({ label: X('№ 70 нормасы бойынша жарақтандыру', 'Оснащение по нормам приказа № 70', 'Equipment under order No. 70'), icon: 'grid', count: rooms.length, tone: 'card', body: roomsCaveat + roomsTable })}${roomsLegal}</div>`;
     const roomLinks = ui.cards([
       { icon: 'book', title: X('Кітапхана және цифрлық ресурстар', 'Библиотека и цифровые ресурсы', 'Library & digital resources'), text: X('Кітап қоры, оқулықтар, электрондық журнал', 'Фонд, учебники, электронный журнал', 'Book stock, textbooks, e-journal'), href: href('library') },
       { icon: 'utensils', title: X('Асхана және тамақтану', 'Столовая и питание', 'Canteen & meals'), text: X('Мәзір, сапа комиссиясы, жеткізуші', 'Меню, комиссия по качеству, поставщик', 'Menu, quality commission, supplier'), href: href('meals') },
@@ -175,15 +172,16 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       X('Сынып бөлмесі', 'Учебный класс', 'Classroom'), X('Ғимарат іші', 'Интерьер здания', 'Building interior'),
       X('Дәліз және демалыс аймағы', 'Рекреация', 'Hallway and breakout area'), X('Мектеп ауласы', 'Школьный двор', 'School grounds'),
     ];
-    const photos = `<ul class="cmp-photos" role="list">${shots.map((s) => `<li class="cmp-photo"><span class="cmp-photo__icon" aria-hidden="true">${ui.icon('image', { size: 26 })}</span><span class="cmp-photo__txt"><span class="cmp-photo__title">${L(s)}</span><span class="cmp-photo__status">${L(X('Фото жүктеледі', 'Фото будет загружено', 'Photo coming soon'))}</span></span></li>`).join('')}</ul>`;
-    const photosNote = ui.note(X(
+    const photos = `<ul class="cmp-photos" role="list">${shots.map((s) => `<li class="cmp-photo"><span class="cmp-photo__icon" aria-hidden="true">${ui.icon('image', { size: 26 })}</span><span class="cmp-photo__txt"><span class="cmp-photo__title">${L(s)}</span></span></li>`).join('')}</ul>`;
+    // One slim "coming soon" line for all six photos (the consent rule rides along as its note).
+    const photosNote = ui.pendingGroup(lang, [{ title: X('Мектептің фотосуреттері', 'Фотографии школы', 'Photos of the school'), note: X(
       'Сайтта мектептің тек өз фотосуреттері жарияланады. Оқушылар бейнеленген суреттер ата-аналардың жазбаша келісімімен ғана орналастырылады.',
       'На сайте публикуются только собственные фотографии школы. Снимки с учениками размещаются только с письменного согласия родителей.',
       'Only the school’s own photos are published. Pictures showing pupils are posted only with parents’ written consent.',
-    ));
+    ) }], { title: X(`${shots.length} фото жүктеледі`, `${shots.length} фото будут загружены`, `${shots.length} photos coming soon`) });
 
     // ------------------------------------------------------------------ accessible environment (ORDER-114 п.64)
-    const access = check([
+    const accessItems = ([
       { ok: true, icon: 'accessible', title: X('Кіреберістегі пандус', 'Пандус у входа', 'Ramp at the entrance'), text: X('2GIS деректері бойынша.', 'По данным 2GIS.', 'According to 2GIS.') },
       { ok: true, icon: 'home', title: X('Қолжетімді кіреберіс', 'Доступный вход', 'Accessible entrance'), text: X('2GIS деректері бойынша кіреберіс қолжетімді.', 'По данным 2GIS вход доступный.', 'Accessible entrance according to 2GIS.') },
       { ok: false, icon: 'parking', title: X('Мүгедектігі бар адамдарға арналған тұрақ орны', 'Парковочное место для людей с инвалидностью', 'Accessible parking space'), text: X('7 орынның ішінде белгіленген орынның бар-жоғы нақтылануда.', 'Наличие выделенного места среди 7 уточняется.', 'Whether one of the 7 spaces is designated is being confirmed.') },
@@ -193,6 +191,9 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       { ok: false, icon: 'users', title: X('Арнайы педагогтердің сүйемелдеуі', 'Сопровождение специальных педагогов', 'Support from special-needs staff'), text: X('Психолог, логопед, арнайы педагог — ПМПК ұсынымдары бойынша.', 'Психолог, логопед, специальный педагог — по рекомендациям ПМПК.', 'Psychologist, speech therapist, special-needs teacher — per PMPC recommendations.') },
       { ok: true, icon: 'eye', title: X('Сайттың көру қабілеті нашар адамдарға арналған нұсқасы', 'Версия сайта для слабовидящих', 'Low-vision version of the website'), text: `<a href="${href('accessibility')}">${L(X('Қалай пайдалану керек', 'Как пользоваться', 'How to use it'))}</a>`, badge: ok },
     ]);
+    const accWait = accessItems.filter((i) => !i.ok);
+    const access = check(accessItems.filter((i) => i.ok))
+      + ui.more({ label: X('Нақтыланып жатқан жағдайлар', 'Условия, которые уточняются', 'Arrangements being confirmed'), icon: 'hourglass', count: accWait.length, tone: 'card', cls: 'cmp-acc-more', body: check(accWait) });
     const accessAside = ui.callout({
       type: 'ok',
       title: X('Балаңызға ерекше жағдай қажет пе?', 'Ребёнку нужны особые условия?', 'Does your child need special arrangements?'),
@@ -205,14 +206,14 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
 
     // ------------------------------------------------------------------ route
     const routeItems = [
-      { title: X('«Қ. Жалайыри даңғылы» аялдамасы', 'Остановка «проспект К. Жалаири»', '“K. Zhalairi Avenue” stop'), text: X('Мектепке дейін 250 м — жаяу шамамен 3 минут.', 'До школы 250 м — около 3 минут пешком.', '250 m to the school — about a 3-minute walk.') },
-      { title: X('«школа Керемет» аялдамасы', 'Остановка «школа Керемет»', 'The “Keremet school” stop'), text: X('2GIS картасында мектеп жанындағы аялдама осылай аталады. Маршруттарды 2GIS-тен тексеріңіз.', 'Так называется остановка рядом со школой в 2GIS. Маршруты уточняйте в 2GIS.', 'That is the name of the stop next to the school in 2GIS; check routes there.') },
-      { title: X('Автокөлікпен', 'На автомобиле', 'By car'), text: X('Ғимарат жанында 7 орындық тұрақ бар. Балаларды тек тұрақта немесе тоқтауға рұқсат етілген жерде түсіріңіз.', 'У здания — парковка на 7 мест. Высаживайте детей только на парковке или там, где остановка разрешена.', 'There are 7 parking spaces by the building. Drop children off only in the car park or where stopping is allowed.') },
+      { title: X('«Қ. Жалайыри даңғылы» аялдамасы', 'Остановка «проспект К. Жалаири»', '“K. Zhalairi Avenue” stop'), key: X('250 м · жаяу ~3 мин', '250 м · ~3 мин пешком', '250 m · ~3 min walk'), text: X('Мектепке дейін 250 м — жаяу шамамен 3 минут.', 'До школы 250 м — около 3 минут пешком.', '250 m to the school — about a 3-minute walk.') },
+      { title: X('«школа Керемет» аялдамасы', 'Остановка «школа Керемет»', 'The “Keremet school” stop'), key: X('мектеп жанында, 2GIS бойынша', 'рядом со школой, по 2GIS', 'next to the school, per 2GIS'), text: X('2GIS картасында мектеп жанындағы аялдама осылай аталады. Маршруттарды 2GIS-тен тексеріңіз.', 'Так называется остановка рядом со школой в 2GIS. Маршруты уточняйте в 2GIS.', 'That is the name of the stop next to the school in 2GIS; check routes there.') },
+      { title: X('Автокөлікпен', 'На автомобиле', 'By car'), key: X('тұрақ — 7 орын', 'парковка — 7 мест', 'parking — 7 spaces'), text: X('Ғимарат жанында 7 орындық тұрақ бар. Балаларды тек тұрақта немесе тоқтауға рұқсат етілген жерде түсіріңіз.', 'У здания — парковка на 7 мест. Высаживайте детей только на парковке или там, где остановка разрешена.', 'There are 7 parking spaces by the building. Drop children off only in the car park or where stopping is allowed.') },
     ];
     const route = ui.split({
       ratio: '1:1',
       left: `<div class="cmp-duo__col"><div class="cmp-duo__head"><span class="cmp-duo__ico" aria-hidden="true">${ui.icon('bus', { size: 26 })}</span><p class="cmp-duo__t">${L(X('Қоғамдық көлікпен және автокөлікпен', 'На общественном транспорте и автомобиле', 'By public transport and car'))}</p></div>
-<ol class="cmp-ol">${routeItems.map((r) => `<li><strong>${L(r.title)}</strong><span>${L(r.text)}</span></li>`).join('')}</ol>
+${pd(routeItems, { num: true, one: true })}
 <p class="small muted">${ui.icon('pin', { size: 16 })} ${A.postcode}, ${L(A.text)}</p>
 <div class="cluster">${ui.button({ href: href('contacts'), label: X('Барлық байланыс деректері', 'Все контакты', 'All contact details'), kind: 'ghost', icon: 'arrow-right' })}${ui.button({ href: S.contacts.twoGis.url, label: X('2GIS-те маршрут', 'Маршрут в 2GIS', 'Route in 2GIS'), kind: 'link' })}</div></div>`,
       right: ui.mapEmbed(A.lat, A.lng, { zoom: 16, height: 420 }),
@@ -223,11 +224,11 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       ...['building-basis', 'sez', 'fire-safety'].map(docById).filter(Boolean),
       docById('design-capacity'),
       docById('classroom-equipment'),
-    ]);
+    ], { collapse: 3, groupPending: true });
 
-    const sources = ui.linkList([
-      { href: `https://adilet.zan.kz/${lang === 'kz' ? 'kaz' : 'rus'}/docs/V1600013272`, icon: 'scale', label: X('Жабдықтармен және жиһазбен жарақтандыру нормалары (№ 70 бұйрық)', 'Нормы оснащения оборудованием и мебелью (приказ № 70)', 'Equipment and furniture standards (order No. 70)'), note: 'adilet.zan.kz' },
-      { href: `https://adilet.zan.kz/${lang === 'kz' ? 'kaz' : 'rus'}/docs/V2100023890`, icon: 'scale', label: X('«Білім беру объектілеріне қойылатын санитариялық-эпидемиологиялық талаптар» (ҚР ДСМ-76)', 'Санитарные правила «Санитарно-эпидемиологические требования к объектам образования» (ҚР ДСМ-76)', 'Sanitary rules for education facilities (No. ҚР ДСМ-76)'), note: 'adilet.zan.kz' },
+    const sources = ui.legal([
+      { href: `https://adilet.zan.kz/${lang === 'kz' ? 'kaz' : 'rus'}/docs/V1600013272`, title: X('Жабдықтармен және жиһазбен жарақтандыру нормалары (№ 70 бұйрық)', 'Нормы оснащения оборудованием и мебелью (приказ № 70)', 'Equipment and furniture standards (order No. 70)'), note: 'adilet.zan.kz' },
+      { href: `https://adilet.zan.kz/${lang === 'kz' ? 'kaz' : 'rus'}/docs/V2100023890`, title: X('«Білім беру объектілеріне қойылатын санитариялық-эпидемиологиялық талаптар» (ҚР ДСМ-76)', 'Санитарные правила «Санитарно-эпидемиологические требования к объектам образования» (ҚР ДСМ-76)', 'Sanitary rules for education facilities (No. ҚР ДСМ-76)'), note: 'adilet.zan.kz' },
     ]);
 
     const related = ui.linkList([
@@ -242,11 +243,11 @@ ${ui.note(X(`Дереккөз: мектептің ${src2gis} картасынд�
       intro,
       stats,
       ui.split({ ratio: '1:2', left: toc, right: ui.section({ id: 'building', eyebrow: X('Паспорт', 'Паспорт', 'Passport'), title: X('Ғимарат туралы мәліметтер', 'Сведения о здании', 'About the building'), body: buildingFacts + addrNote }) }),
-      ui.section({ id: 'rooms', tone: 'biology', eyebrow: X('Материалдық-техникалық база', 'Материально-техническая база', 'Facilities'), title: X('Кабинеттер, зертханалар және залдар', 'Кабинеты, лаборатории и залы', 'Classrooms, labs and halls'), lead: X('Қандай үй-жайлар болуы керек және олардың жабдықталуы туралы мәліметтер қай жерде жарияланады.', 'Какие помещения предусмотрены и где будут опубликованы сведения об их оснащении.', 'Which spaces are provided for and where their equipment details will be published.'), body: roomsLead + roomsCaveat + roomsTable + roomLinks }),
+      ui.section({ id: 'rooms', tone: 'biology', eyebrow: X('Материалдық-техникалық база', 'Материально-техническая база', 'Facilities'), title: X('Кабинеттер, зертханалар және залдар', 'Кабинеты, лаборатории и залы', 'Classrooms, labs and halls'), lead: X('Норма бойынша қарастырылған үй-жайлар.', 'Помещения, предусмотренные нормой.', 'The spaces the standard provides for.'), body: roomTiles + roomsMore + roomLinks }),
       ui.section({ id: 'photos', eyebrow: X('Галерея', 'Галерея', 'Gallery'), title: X('Мектеп фотосуреттерде', 'Школа в фотографиях', 'The school in photos'), body: photos + photosNote }),
       ui.section({ id: 'access', eyebrow: X('Кедергісіз орта', 'Безбарьерная среда', 'Barrier-free'), title: X('Қолжетімді орта', 'Доступная среда', 'Accessible environment'), lead: X('Мүгедектігі бар балалар мен ерекше білім беру қажеттіліктері бар оқушыларға арналған жағдайлар.', 'Условия для детей с инвалидностью и учеников с особыми образовательными потребностями.', 'Arrangements for children with disabilities and pupils with special educational needs.'), body: access + accessAside }),
       ui.section({ id: 'route', eyebrow: X('Бізге келіңіз', 'Приходите к нам', 'Visit us'), title: X('Мектепке қалай жетуге болады', 'Как добраться до школы', 'How to get to the school'), body: route }),
-      ui.section({ id: 'docs', eyebrow: X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'), title: X('Құжаттар', 'Документы', 'Documents'), body: docs + `<h3 class="cmp-h3">${L(X('Нормативтік негіз', 'Нормативная база', 'Legal basis'))}</h3>` + sources }),
+      ui.section({ id: 'docs', eyebrow: X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'), title: X('Құжаттар', 'Документы', 'Documents'), body: docs + `<div class="dz-row cmp-law">${sources}</div>` }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');
   },

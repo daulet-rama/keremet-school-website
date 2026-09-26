@@ -292,12 +292,8 @@ html[data-a11y="on"] .ab-scan__frame { padding: 0 !important; }
    the linked full-size file is untouched */
 .ab-scan--trim-top .ab-scan__frame img { aspect-ratio: 960 / 1220; object-position: bottom; }
 .ab-scan--trim-left .ab-scan__frame img { aspect-ratio: 905 / 1280; object-position: right top; }
-/* license: text version as a disclosure (open on desktop, collapsed on phones by an inline script) */
-.ab-tv { margin: 0 0 14px; }
-.ab-tv > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; padding: 6px 0; min-height: 44px; }
-.ab-tv > summary::-webkit-details-marker { display: none; }
-.ab-tv > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); margin-top: -4px; transition: transform .2s; }
-.ab-tv[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
+/* license: text version of each document = ui.more (base.css .dz), closed by default */
+.ab-tv { margin-top: 14px; }
 .ab-lic .docs { margin-top: 4px; }
 /* board / leadership: a single pending row replacing an empty table */
 .ab-empty { display: grid; gap: 10px; }
@@ -339,3 +335,80 @@ html[data-a11y="on"] .ab-bignums > :last-child:nth-child(odd) { grid-column: aut
   html[data-a11y="on"] .ab-role__top { flex-direction: column; align-items: flex-start; gap: 10px; }
 }
 .ab-role__title { hyphens: auto; overflow-wrap: break-word; }
+.ab-scope-more { margin-top: 22px; }
+.ab-scope-more .ab-org__note { margin-top: 0; }
+.ab-keys { margin-bottom: 12px; }
+@media (max-width: 639px) { .ab-keys { gap: 6px; } .ab-keys .chip { font-size: .82rem; padding: 5px 11px; } }
+
+/* ------------------------------------------------------------------ compact layer (SPEC §6.1: short layer 1, details collapsed)
+   Spacing for disclosures that follow the group's own blocks; board seats & election flow; symbols rule cards. */
+:where(.ab-roles, .ab-seats, .ab-check, .ab-flow, .ab-orgpanel, .tbl-wrap, .ab-cycle, .ab-docblk, .ab-why, .facts, .docs, .docs-group, .pending, .callout, .ab-sym, .cards, .steps) + :is(.dz, .dz-row, .more, .pending) { margin-top: 18px; }
+.ab-body__dz { margin-top: 2px; }
+.ab-body > .docs-group, .ab-body > .pending, .ab-body > .docs { margin-top: 0; }
+.ab-body > p:has(> .btn) { margin: 0; }
+.ab-docblk .ab-kicker { margin-bottom: 10px; }
+.ab-intro .dz--legal { margin-top: 18px; }
+.ab-intro .tldr { margin-top: 14px; }
+.ab-gen__dz, .ab-flow__dz { align-items: center; }
+.ab-profile__body > .dz { margin-top: -4px; }
+.ab-sym__body > .dz { margin-top: 0; }
+
+/* board: seats per category (big-number tiles) */
+.ab-seats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
+.ab-seat { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; row-gap: 2px; align-items: center; padding: 14px 16px; border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-s); min-width: 0; }
+.ab-seat__ic { grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--deco) 14%, transparent); color: var(--deco-ink); }
+.ab-seat__n { font: 800 1.35rem/1.1 var(--font-display); color: var(--deco-ink); letter-spacing: -.01em; }
+.ab-seat__l { font-size: .88rem; line-height: 1.3; color: var(--muted); overflow-wrap: anywhere; }
+
+/* board: election as a compact 6-step flow */
+.ab-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
+.ab-flow li { position: relative; padding: 16px 16px 18px; border-radius: var(--r-l); background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.ab-flow__n { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: color-mix(in srgb, var(--deco) 18%, transparent); color: var(--deco-ink); font: 700 .9rem/1 var(--font-display); }
+.ab-flow__when { margin-top: 12px; font: 600 .74rem/1.35 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--deco-ink); }
+.ab-flow__t { margin-top: 4px; font: 600 .98rem/1.3 var(--font-display); overflow-wrap: anywhere; hyphens: auto; }
+@media (min-width: 1100px) {
+  .ab-flow { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .ab-flow li:not(:last-child)::after { content: ""; position: absolute; top: 31px; right: -12px; width: 12px; border-top: 2px dashed color-mix(in srgb, var(--deco) 70%, transparent); }
+}
+
+/* symbols: rule cards open on click (native <details>) */
+.ab-rules { align-items: start; }
+.ab-rules > li { min-width: 0; }
+.ab-rule { padding: 0; gap: 0; interpolate-size: allow-keywords; transition: border-color .25s, box-shadow .25s; }
+.ab-rule:hover, .ab-rule[open] { border-color: color-mix(in srgb, var(--deco) 55%, var(--line)); box-shadow: var(--shadow-s); }
+.ab-rule__s { list-style: none; cursor: pointer; display: grid; grid-template-columns: 48px minmax(0, 1fr) 26px; align-items: center; gap: 14px; padding: 16px 16px 16px 18px; border-radius: inherit; }
+.ab-rule__s::-webkit-details-marker { display: none; }
+.ab-rule__s::marker { content: ""; }
+.ab-rule__s:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.ab-rule__chev { position: relative; width: 26px; height: 26px; border-radius: 50%; background: color-mix(in srgb, var(--deco) 14%, transparent); transition: transform .45s var(--ease-out), background .3s; }
+.ab-rule__chev::before { content: ""; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -5px 0 0 -3.5px; border-right: 2px solid var(--deco-ink); border-bottom: 2px solid var(--deco-ink); transform: rotate(45deg); }
+.ab-rule[open] .ab-rule__chev { transform: rotate(180deg); background: var(--deco); }
+.ab-rule[open] .ab-rule__chev::before { border-color: var(--surface); }
+.ab-rule__b { display: flex; flex-direction: column; gap: 8px; padding: 0 18px 18px 80px; }
+@media (max-width: 520px) { .ab-rule__b { padding-left: 18px; } }
+.ab-rule::details-content { block-size: 0; overflow-y: clip; transition: block-size .45s var(--ease-out), content-visibility .45s allow-discrete; }
+.ab-rule[open]::details-content { block-size: auto; }
+@media (prefers-reduced-motion: reduce) { .ab-rule::details-content { transition: none; } }
+html[data-a11y="on"] .ab-rule::details-content { transition: none !important; }
+html[data-a11y="on"] .ab-rule__t { text-decoration: underline; text-underline-offset: 4px; }
+html[data-a11y="on"] .ab-rule__chev, html[data-a11y="on"] .ab-seat, html[data-a11y="on"] .ab-flow li { border: 2px solid var(--a-fg) !important; }
+html[data-a11y="on"] .ab-rule__chev::before { border-color: var(--a-fg) !important; }
+html[data-a11y="on"] .ab-rule[open] .ab-rule__chev { background: var(--a-fg) !important; }
+html[data-a11y="on"] .ab-rule[open] .ab-rule__chev::before { border-color: var(--a-bg) !important; }
+@media print { .ab-rule__chev { display: none; } }
+@media (min-width: 900px) { .ab-check--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ab-check--grid li { grid-template-columns: 44px 1fr; } .ab-check--grid .ab-check__s { grid-column: 2; justify-self: start; } }
+@media (min-width: 1100px) { .ab-check--grid li { grid-template-columns: 44px 1fr auto; } .ab-check--grid .ab-check__s { grid-column: auto; justify-self: end; } }
+.ab-rules { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.ab-rule__t { overflow-wrap: break-word; hyphens: auto; }
+.tldr a[href^="tel:"], .ab-profile a[href^="tel:"] { white-space: nowrap; }
+
+/* symbols · "At school": light placeholder tile next to the dark Day-of-Symbols banner (pending line inside) */
+.ab-symcorner { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; height: 100%; padding: clamp(22px, 3vw, 32px); border-radius: var(--r-xl); background: radial-gradient(90% 90% at 80% 10%, #E9F9FC 0%, color-mix(in srgb, #D2EFF5 60%, var(--surface)) 100%); border: 1.5px dashed color-mix(in srgb, var(--deco) 45%, var(--line)); }
+.ab-symcorner__ico { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: var(--surface); color: var(--deco-ink); box-shadow: var(--shadow-s); }
+.ab-symcorner__t { font: 600 1.15rem/1.3 var(--font-display); }
+.ab-symcorner__x { color: var(--muted); }
+.ab-symcorner > .pending, .ab-symcorner > .dz { margin-top: auto; }
+html[data-a11y="on"] .ab-symcorner { background: var(--a-bg, transparent) !important; border: 2px solid var(--a-fg) !important; }
+/* structure · council card: the merged "Documents & basis" panel */
+.ab-body__docs .docs { margin-top: 12px; }
+.ab-nums__dz { margin-top: 18px; }

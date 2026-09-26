@@ -36,11 +36,11 @@ export default {
         'В объявлении школы о приёме от 12 августа 2025 года говорится о <strong>бесплатном обучении на казахском и русском языках</strong> в начальных классах.',
         'The school’s admission announcement of 12 August 2025 mentions <strong>free tuition in Kazakh and Russian</strong> in the primary grades.',
       ))}
-${ui.callout({ type: 'warn', title: X('Шарттарын мектептен нақтылаңыз', 'Условия уточняйте в школе', 'Please confirm the terms with the school'), text: X(
+${ui.callout({ type: 'warn', title: X('Шарттарын мектептен нақтылаңыз', 'Условия уточняйте в школе', 'Please confirm the terms with the school'), text: `<p>${L(X('Бұл — мектептің өз хабарландыруындағы мәлімет; нақты шарттар шартта көрсетіледі.', 'Это сведения из объявления самой школы; точные условия фиксируются в договоре.', 'This comes from the school’s own announcement; the exact terms are set in the contract.'))}</p>${ui.more({ body: X(
         `Бұл — мектептің өз хабарландыруындағы мәлімет. Тегін оқытудың негізі мен шарттары, сондай-ақ қосымша ақылы қызметтер (бар болса) шартта көрсетіледі. Сұрақтар бойынша: <a href="tel:${phone.tel}">${phone.display}</a>.`,
         `Это сведения из объявления самой школы. Основание и условия бесплатного обучения, а также дополнительные платные услуги (если они есть) фиксируются в договоре. По вопросам: <a href="tel:${phone.tel}">${phone.display}</a>.`,
         `This is taken from the school’s own announcement. The basis and terms of free tuition, and any additional paid services, are set out in the contract. Questions: <a href="tel:${phone.tel}">${phone.display}</a>.`,
-      ) })}
+      ) })}` })}
 ${ui.note(X(`Дереккөз: ${ui.extLink(POST, 'мектептің хабарландыруы, 12.08.2025')}.`, `Источник: ${ui.extLink(POST, 'объявление школы от 12.08.2025')}.`, `Source: ${ui.extLink(POST, 'school announcement, 12.08.2025')}.`))}`,
       right: ui.panel({ theme: 'geography', cls: 'sa-idcard', body: `${ui.shanyrakArt()}<div class="sa-idcard__main"><p class="sa-idcard__eyebrow">${L(X('Хабарландырудан', 'Из объявления', 'From the announcement'))} · 12.08.2025</p>
 <p class="sa-idcard__big sa-idcard__big--word">${L(X('Тегін', 'Бесплатно', 'Free'))}</p>
@@ -86,17 +86,21 @@ ${ui.note(X(`Дереккөз: ${ui.extLink(POST, 'мектептің хабар
       [X('Еңсерілмейтін күш жағдайлары', 'Форс-мажор', 'Force majeure'), X('тараптардың еркінен тыс мән-жайлар', 'обстоятельства, не зависящие от воли сторон', 'circumstances beyond the parties’ control')],
       [X('Шарттың мерзімі, өзгертілуі және бұзылуы', 'Срок, изменение и расторжение договора', 'Term, amendment and termination'), X('қол қойылған күннен бастап толық орындалғанға дейін қолданылады; шарт мектеп басшысының тиісті бұйрығымен тоқтатылады', 'вступает в силу со дня подписания и действует до полного исполнения; прекращается соответствующим приказом руководителя школы', 'in force from signature until fully performed; ends with the corresponding order of the head of school')],
     ];
-    const anatomy = `<ol class="sa-contract">${secs.map(([h, d]) => `<li><b>${L(h)}</b><span>${L(d)}</span></li>`).join('')}</ol>`;
-    const anatomyNote = ui.note(X(
+    const anatomy = `<ol class="sa-contract sa-contract--short">${secs.map(([h]) => `<li><b>${L(h)}</b></li>`).join('')}</ol>`;
+    const anatomyFull = `<ol class="sa-contract">${secs.map(([h, d]) => `<li><b>${L(h)}</b><span>${L(d)}</span></li>`).join('')}</ol>`;
+    const anatomyNote = `<div class="dz-row">${ui.more({ label: X('Әр бөлімде не жазылған', 'Что сказано в каждом разделе', 'What each section says'), icon: 'doc', count: secs.length, tone: 'plain', body: anatomyFull })}${ui.legal([
+      { href: O93, title: X('Орта білім беру ұйымдарының білім беру қызметтерін көрсетуінің үлгілік шарты (ҚР БҒМ бұйрығы, 2-қосымша)', 'Типовой договор оказания образовательных услуг организаций среднего образования (приказ МОН РК, приложение 2)', 'Standard contract for educational services of secondary schools (MES order, Appendix 2)'), number: '93', date: '2016-01-28', note: X('30.04.2025 редакциясы', 'ред. от 30.04.2025', 'as amended 30.04.2025') },
+      { href: R564, title: X('Қабылдаудың үлгілік қағидалары', 'Типовые правила приёма', 'Standard Admission Rules'), number: '564', date: '2018-10-12', note: X('5-тармақ — қабылдау кезінде шарт жасалады', 'п. 5 — договор заключается при приёме', 'para. 5 — the contract is signed on admission') },
+    ], { note: X(
       `Құрылымы ${ui.extLink(O93, 'ҚР Білім және ғылым министрінің 2016 жылғы 28 қаңтардағы № 93 бұйрығымен')} бекітілген «Орта білім беру ұйымдарының білім беру қызметтерін көрсетуінің үлгілік шарты» (2-қосымша, 30.04.2025 редакциясы) бойынша қысқаша берілген. Толық мәтіні — adilet.zan.kz сайтында.`,
       `Структура кратко изложена по «Типовому договору оказания образовательных услуг организаций среднего образования» (приложение 2 к ${ui.extLink(O93, 'приказу Министра образования и науки РК от 28 января 2016 года № 93')}, ред. от 30.04.2025). Полный текст — на adilet.zan.kz.`,
       `Summarised from the “Standard contract for educational services of secondary education organisations” (Appendix 2 to ${ui.extLink(O93, 'Order No. 93 of the Minister of Education and Science, 28 January 2016')}, as amended 30.04.2025). Full text on adilet.zan.kz.`,
-    ));
+    ) })}</div>`;
 
     const contractDocs = ui.docList([
       docById('contract-template') || { title: X('Білім беру қызметтерін көрсету туралы үлгілік шарт', 'Типовой договор об оказании образовательных услуг', 'Standard contract for educational services'), file: null },
       { title: X('№ 93 бұйрық — үлгілік шарт нысандары (adilet.zan.kz)', 'Приказ № 93 — формы типового договора (adilet.zan.kz)', 'Order No. 93 — standard contract forms (adilet.zan.kz)'), url: O93, date: '2016-01-28', number: '93' },
-    ]);
+    ], { groupPending: true });
 
     const faq = ui.accordion([
       { q: X('Шартқа қашан қол қойылады?', 'Когда подписывается договор?', 'When is the contract signed?'), a: X(

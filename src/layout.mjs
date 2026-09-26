@@ -29,7 +29,7 @@ export function absUrl(slug, lang) {
 // Strings needed by main.js (search, forms, copy, motion, a11y)
 const JS_KEYS = ['extNewTab', 'copy', 'copied', 'motion.pause', 'motion.play', 'motion.pauseShort', 'motion.playShort', 'search.found', 'search.none', 'search.empty', 'search.loading', 'search.error', 'search.updated',
   'form.errSummary', 'form.err.required', 'form.err.email', 'form.err.phone', 'form.err.short', 'form.err.consent', 'form.err.contact', 'form.sending', 'form.ok', 'form.fail',
-  'nav.openMenu', 'nav.closeMenu', 'a11y.imgAlt', 'a11y.exit'];
+  'nav.openMenu', 'nav.closeMenu', 'a11y.imgAlt', 'a11y.exit', 'disc.expandAll', 'disc.collapseAll'];
 
 // ------------------------------------------------------------------ theme accents for page heroes
 // The themes are colour schemes of the site's sections, not school subjects, so literal subject glyphs (a² + b² = c²,

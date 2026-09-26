@@ -134,7 +134,7 @@ export default {
 
     // ---------------------------------------------------------------- stats
     const stats = ui.stats([
-      { icon: 'calendar', art: true, value: '01.09 → 25.05', label: X('2026–2027 оқу жылы', '2026–2027 учебный год', 'The 2026–2027 school year'), note: X('ҚР Оқу-ағарту министрлігінің 29.07.2026 № 213-НҚ бұйрығы бойынша', 'по приказу Министерства просвещения РК от 29.07.2026 № 213-НҚ', 'under Ministry of Education order No. 213-NK of 29.07.2026'),
+      { icon: 'calendar', art: true, value: '01.09 → 25.05', label: X('2026–2027 оқу жылы', '2026–2027 учебный год', 'The 2026–2027 school year'), note: X('№ 213-НҚ бұйрық бойынша', 'по приказу № 213-НҚ', 'under order No. 213-NK'),
         extra: ui.chips([{ icon: 'graduation', label: X('1-тоқсан · 1 қыркүйек', '1-я четверть · 1 сентября', 'Term 1 · 1 September') }, { icon: 'sun', label: X('Жаз · 26 мамырдан', 'Лето · с 26 мая', 'Summer · from 26 May') }]) },
       { icon: 'book', value: '34', label: X('оқу аптасы', 'учебные недели', 'teaching weeks'), note: '8 + 8 + 10 + 8' },
       { icon: 'sun', value: '28', label: X('күн демалыс', 'дней каникул', 'days of breaks'), note: X('+7 күн 1-сыныптарға', '+7 дней для 1 класса', '+7 days for Grade 1') },
@@ -157,11 +157,14 @@ export default {
         [`<span class="ev-dot ev-dot--break1" aria-hidden="true"></span>${L(X('1-сыныптарға қосымша демалыс', 'Доп. каникулы для 1 класса', 'Extra Grade 1 break'))}`, `${fmt.date('2027-02-08')} – ${fmt.date('2027-02-14')}`, L(X('7 күн', '7 дней', '7 days'))],
       ],
     });
-    const derivedNote = ui.note(X(
+    const derivedText = X(
       'Демалыс мерзімдері мен оқу жылының басталуы/аяқталуы — № 213-НҚ бұйрықтан. Тоқсандардың бірінші және соңғы күндері демалыс мерзімдеріне сәйкес көрсетілген; мектептің бекітілген академиялық күнтізбесі жарияланғаннан кейін нақтыланады.',
       'Сроки каникул и начала/окончания учебного года — из приказа № 213-НҚ. Первые и последние дни четвертей показаны по срокам каникул; уточняются после публикации утверждённого академического календаря школы.',
       'Break dates and the start/end of the year come from order No. 213-NK. The first and last days of each term follow from the break dates and will be confirmed when the school publishes its approved academic calendar.',
-    ));
+    );
+    // Layer 2: where the dates come from (the order + how term edges were derived) → one "⚖ Legal basis" chip.
+    const srcItem = (id, note) => { const s = src(id); return { title: s.title, number: lang === 'en' ? (s.numberEn || s.number) : s.number, date: s.date, href: s.url, note }; };
+    const derivedNote = ui.legal([srcItem('order')], { note: derivedText });
 
     // ---------------------------------------------------------------- toolbar: view switch + legend
     const legend = `<ul class="ev-legend" role="list" aria-label="${L(X('Шартты белгілер', 'Условные обозначения', 'Legend'))}">${['school', 'break', 'break1', 'state', 'prof', 'exam'].map((t) => `<li><span class="ev-sw ev-sw--${t}" aria-hidden="true"></span>${t === 'state' ? L(X('Ұлттық / мемлекеттік мереке', 'Национальный / государственный праздник', 'National / state holiday')) : typeLabel(t)}</li>`).join('')}<li><span class="ev-sw ev-sw--we" aria-hidden="true"></span>${L(X('Демалыс күні (сб, жс)', 'Выходной (сб, вс)', 'Weekend (Sat, Sun)'))}</li></ul>`;
@@ -200,48 +203,89 @@ export default {
 ${monthEvents.length ? `<ul class="ev-month__list" role="list">${monthEvents.map((e) => `<li class="ev-mi ev-mi--${e.type === 'national' ? 'state' : e.type}"><span class="ev-mi__d">${e.end ? `${dm(e.date)}–${dm(e.end)}` : dm(e.date)}</span><span>${L(e.title)}</span></li>`).join('')}</ul>` : `<p class="ev-month__none">${L(X('Ресми күндер жоқ · мектеп іс-шаралары жоспарланады', 'Официальных дат нет · школьные события планируются', 'No official dates · school events to be planned'))}</p>`}</article>`;
     };
     const gridHint = `<p class="ev-grid__hint">${ui.icon('info', { size: 16 })}<span>${L(X('Телефонда күндердің сипаттамасы «Тізім» көрінісінде берілген.', 'На телефоне расшифровка дат — в режиме «Список».', 'On a phone, the dates are explained in the “List” view.'))}</span></p>`;
-    const gridView = `<div class="ev-grid" id="ev-grid">${gridHint}${months.map(monthCard).join('')}</div>`;
+    // Layer 1: one season (3 month grids) at a time — tabs Autumn / Winter / Spring / Summer; the season of the build date
+    // is selected. Every other month stays in the HTML (hidden="until-found": Ctrl+F, "Expand all" and print show them).
+    const SEASONS = [
+      { label: X('Күз', 'Осень', 'Autumn'), icon: 'leaf' },
+      { label: X('Қыс', 'Зима', 'Winter'), icon: 'star' },
+      { label: X('Көктем', 'Весна', 'Spring'), icon: 'sparkles' },
+      { label: X('Жаз', 'Лето', 'Summer'), icon: 'sun' },
+    ];
+    const mKey = ({ y, m }) => `${y}-${String(m + 1).padStart(2, '0')}`;
+    const nowKey = new Date().toISOString().slice(0, 7);
+    const nowIdx = months.findIndex((x) => mKey(x) === nowKey);
+    const season = nowIdx >= 0 ? Math.floor(nowIdx / 3) : nowKey < mKey(months[0]) ? 0 : 3;
+    const gridTabs = ui.tabs(SEASONS.map((sn, si) => {
+      const ms = months.slice(si * 3, si * 3 + 3);
+      const n = EVENTS.filter((e) => ms.some((x) => e.date.slice(0, 7) === mKey(x))).length;
+      return {
+        label: `${L(sn.label)} <small class="ev-tab__m">${MONTH_SHORT[lang][ms[0].m]}–${MONTH_SHORT[lang][ms[2].m]}</small>`,
+        icon: sn.icon, count: n,
+        body: `<div class="ev-months">${ms.map(monthCard).join('')}</div>`,
+      };
+    }), { label: X('Маусым', 'Сезон', 'Season'), selected: season, cls: 'ev-tabs' });
+    const gridView = `<div class="ev-grid" id="ev-grid">${gridHint}${gridTabs}</div>`;
 
     // ---------------------------------------------------------------- list view
+    // The source of every date (was a link under each row) → one "⚖ Legal basis" chip per month: each act with the events
+    // of that month it sets (and which term edges are derived from the break dates).
+    const SHORT = {
+      order: X('Оқу жылының мерзімдері туралы бұйрық', 'Приказ о сроках учебного года', 'Order on the school-year dates'),
+      law: X('«Мерекелер туралы» Заң', 'Закон «О праздниках»', 'Law on Holidays'),
+      prof: X('Кәсіби мерекелер тізбесі', 'Перечень профессиональных праздников', 'List of professional holidays'),
+    };
+    const derivedTxt = X('демалыс мерзімдерінен есептелген', 'рассчитано по срокам каникул', 'derived from the break dates');
+    const monthLegal = (list) => {
+      const ids = [...new Set(list.map((e) => e.src))];
+      return `<div class="ev-lm__legal">${ui.legal(ids.map((id) => ({
+        title: SHORT[id],
+        number: lang === 'en' ? (src(id).numberEn || src(id).number) : src(id).number, date: src(id).date, href: src(id).url,
+        note: list.filter((e) => e.src === id).map((e) => `${L(e.title)}${e.derived ? ` (${L(derivedTxt)})` : ''}`).join('; '),
+      })), { title: X('Күндердің дереккөзі', 'Источник дат', 'Source of the dates') })}</div>`;
+    };
     const byMonth = months.map(({ y, m }) => ({ y, m, list: EVENTS.filter((e) => e.date.slice(0, 7) === `${y}-${String(m + 1).padStart(2, '0')}`) })).filter((g) => g.list.length);
     // list view: every month is a <details>; the current month (at build time) and the next two are open
-    const nowKey = new Date().toISOString().slice(0, 7);
     let firstOpen = byMonth.findIndex((g) => `${g.y}-${String(g.m + 1).padStart(2, '0')}` >= nowKey);
     if (firstOpen < 0) firstOpen = 0;
     const listHint = `<p class="ev-list__hint">${ui.icon('info', { size: 16 })}<span>${L(X('Ағымдағы және келесі екі ай ашық. Басқа айды ашу үшін оның атауын басыңыз.', 'Открыты текущий и два следующих месяца. Чтобы открыть другой месяц, нажмите на его название.', 'The current month and the next two are open. Tap a month name to open it.'))}</span></p>`;
     const listView = `<div class="ev-list" id="ev-list">${listHint}${byMonth.map((g, gi) => `<details class="ev-lm"${gi >= firstOpen && gi < firstOpen + 3 ? ' open' : ''}><summary class="ev-lm__sum"><h3 class="ev-lm__title" id="lm-${g.y}-${g.m}">${MONTHS[lang][g.m]} ${g.y}</h3><span class="ev-lm__n">${g.list.length}</span></summary><ol class="ev-rows" role="list">${g.list.map((e) => {
       const d = D(e.date);
-      return `<li class="ev-row ev-row--${e.type === 'national' ? 'state' : e.type}"><time class="ev-row__date" datetime="${e.date}"><b>${d.getUTCDate()}</b><span>${MONTH_SHORT[lang][d.getUTCMonth()]}</span></time><div class="ev-row__body"><p class="ev-row__meta"><span class="ev-type">${ui.icon(TYPES[e.type].icon, { size: 14 })}${typeLabel(e.type)}</span><span class="ev-row__range">${range(e)}${e.end ? ` · ${L(X(`${daysBetween(e.date, e.end)} күн`, `${daysBetween(e.date, e.end)} дн.`, `${daysBetween(e.date, e.end)} days`))}` : ''}</span></p><p class="ev-row__title">${L(e.title)}</p>${e.text ? `<p class="ev-row__text">${L(e.text)}</p>` : ''}<p class="ev-row__src">${ui.extLink(src(e.src).url, L(X(`Дереккөз: № ${src(e.src).number}`, `Источник: № ${src(e.src).number}`, `Source: No. ${src(e.src).numberEn || src(e.src).number}`)))}${e.derived ? ` <span class="ev-derived">· ${L(X('демалыс мерзімдерінен есептелген', 'рассчитано по срокам каникул', 'derived from the break dates'))}</span>` : ''}</p></div></li>`;
-    }).join('')}</ol></details>`).join('')}</div>`;
+      return `<li class="ev-row ev-row--${e.type === 'national' ? 'state' : e.type}"><time class="ev-row__date" datetime="${e.date}"><b>${d.getUTCDate()}</b><span>${MONTH_SHORT[lang][d.getUTCMonth()]}</span></time><div class="ev-row__body"><p class="ev-row__meta"><span class="ev-type">${ui.icon(TYPES[e.type].icon, { size: 14 })}${typeLabel(e.type)}</span><span class="ev-row__range">${range(e)}${e.end ? ` · ${L(X(`${daysBetween(e.date, e.end)} күн`, `${daysBetween(e.date, e.end)} дн.`, `${daysBetween(e.date, e.end)} days`))}` : ''}</span></p><p class="ev-row__title">${L(e.title)}</p>${e.text ? `<p class="ev-row__text">${L(e.text)}</p>` : ''}</div></li>`;
+    }).join('')}</ol>${monthLegal(g.list)}</details>`).join('')}</div>`;
 
     const calendar = `<div class="ev" id="calendar-box"><div class="nw-tools ev-tools">${viewSwitch}${legend}</div>${gridView}${listView}</div>`;
 
     // ---------------------------------------------------------------- school events (pending)
-    const school = ui.split({
-      ratio: '1:1',
-      left: `<div class="flow">${ui.pending({
-        title: X('Мектеп іс-шараларының жоспары', 'План школьных мероприятий', 'School events plan'),
-        note: X(
-          'Мектептің 2026–2027 оқу жылына арналған іс-шаралары (ата-аналар жиналыстары, мерекелік кештер, олимпиадалар мен байқаулар, ашық есік күндері, спорт жарыстары) тәрбие жұмысының жылдық жоспары бекітілгеннен кейін осы күнтізбеге енгізіледі. Әр іс-шараның күні, уақыты, өтетін орны және жауаптысы көрсетіледі.',
-          'Школьные мероприятия 2026–2027 учебного года (родительские собрания, праздники, олимпиады и конкурсы, дни открытых дверей, спортивные соревнования) будут внесены в календарь после утверждения годового плана воспитательной работы. Для каждого мероприятия будут указаны дата, время, место и ответственный.',
-          'The school’s own events for 2026–2027 (parent meetings, celebrations, olympiads and contests, open days, sports competitions) will be added once the annual upbringing plan is approved. Each entry will show the date, time, place and person in charge.',
-        ),
-      })}${ui.chips([
-        { icon: 'users', label: X('Ата-аналар жиналыстары', 'Родительские собрания', 'Parent meetings') },
-        { icon: 'trophy', label: X('Олимпиадалар мен байқаулар', 'Олимпиады и конкурсы', 'Olympiads and contests') },
-        { icon: 'sparkles', label: X('Мерекелік кештер', 'Праздничные мероприятия', 'Celebrations') },
-        { icon: 'school', label: X('Ашық есік күндері', 'Дни открытых дверей', 'Open days') },
-        { icon: 'ball', label: X('Спорт жарыстары', 'Спортивные соревнования', 'Sports events') },
-      ])}</div>`,
-      right: ui.docList([docById('academic-calendar'), docById('upbringing-plan'), docById('timetable')].filter(Boolean)),
-    });
+    // Layer 1: one card — what kinds of events are coming (chips); layer 2: the full note + the 3 pending plan documents.
+    const schoolNote = X(
+      'Мектептің 2026–2027 оқу жылына арналған іс-шаралары (ата-аналар жиналыстары, мерекелік кештер, олимпиадалар мен байқаулар, ашық есік күндері, спорт жарыстары) тәрбие жұмысының жылдық жоспары бекітілгеннен кейін осы күнтізбеге енгізіледі. Әр іс-шараның күні, уақыты, өтетін орны және жауаптысы көрсетіледі.',
+      'Школьные мероприятия 2026–2027 учебного года (родительские собрания, праздники, олимпиады и конкурсы, дни открытых дверей, спортивные соревнования) будут внесены в календарь после утверждения годового плана воспитательной работы. Для каждого мероприятия будут указаны дата, время, место и ответственный.',
+      'The school’s own events for 2026–2027 (parent meetings, celebrations, olympiads and contests, open days, sports competitions) will be added once the annual upbringing plan is approved. Each entry will show the date, time, place and person in charge.',
+    );
+    const school = `<div class="ev-soon pattern" data-theme="arts">
+<div class="ev-soon__head"><span class="ev-soon__ico" aria-hidden="true">${ui.icon('hourglass', { size: 24 })}</span><div><p class="ev-soon__k">${L(X('Мектеп іс-шараларының жоспары', 'План школьных мероприятий', 'School events plan'))}</p><p class="ev-soon__t">${L(X('Жоспар бекітілгеннен кейін күнтізбеге қосылады', 'Появится в календаре после утверждения плана', 'Will appear in the calendar once the plan is approved'))}</p></div></div>
+${ui.chips([
+      { icon: 'users', label: X('Ата-аналар жиналыстары', 'Родительские собрания', 'Parent meetings') },
+      { icon: 'trophy', label: X('Олимпиадалар мен байқаулар', 'Олимпиады и конкурсы', 'Olympiads and contests') },
+      { icon: 'sparkles', label: X('Мерекелік кештер', 'Праздничные мероприятия', 'Celebrations') },
+      { icon: 'school', label: X('Ашық есік күндері', 'Дни открытых дверей', 'Open days') },
+      { icon: 'ball', label: X('Спорт жарыстары', 'Спортивные соревнования', 'Sports events') },
+    ])}
+<div class="dz-row">${ui.more({ body: `<p>${L(schoolNote)}</p>` })}${ui.docList([docById('academic-calendar'), docById('upbringing-plan'), docById('timetable')].filter(Boolean), { groupPending: true }).replace(/^<div class="docs-group">([\s\S]*)<\/div>$/, '$1')}</div>
+</div>`;
 
     // ---------------------------------------------------------------- sources
-    const sources = ui.docList(Object.values(SOURCES).map((s) => ({ title: s.title, url: s.url, type: 'link', number: lang === 'en' ? (s.numberEn || s.number) : s.number, date: s.date })));
-    const holidayNote = ui.callout({
-      type: 'info',
-      title: X('Демалыс күндері туралы', 'О выходных днях', 'About days off'),
-      text: X(
+    // The three acts (full titles, adilet links) → one legal chip; the note on days off → "More".
+    const SETS = {
+      order: X('Оқу жылының басталуы мен аяқталуы, демалыстар, қорытынды аттестаттау', 'Начало и конец учебного года, каникулы, итоговая аттестация', 'Start and end of the school year, breaks, final exams'),
+      law: X('Ұлттық және мемлекеттік мерекелер', 'Национальные и государственные праздники', 'National and state holidays'),
+      prof: X('Мұғалім күні', 'День учителя', 'Teachers’ Day'),
+    };
+    const sources = ui.legal(Object.keys(SOURCES).map((id) => srcItem(id, SETS[id])), { title: X('Ресми құжаттар', 'Официальные документы', 'Official documents') });
+    const holidayNote = ui.more({
+      icon: 'info',
+      label: X('Демалыс күндері туралы', 'О выходных днях', 'About days off'),
+      body: X(
         'Мерекелердің қайсысы демалыс күні болатыны және демалыс күндерінің ауыстырылуы ҚР Еңбек кодексімен және Үкімет қаулыларымен белгіленеді. Діни мерекелердің ішінде православиелік Рождество күні тұрақты — 7 қаңтар (2027 жылы қысқы демалыс кезеңіне келеді), ал Құрбан айттың бірінші күні жыл сайын жеке айқындалады, сондықтан ол ресми жарияланғаннан кейін күнтізбеге қосылады.',
         'Какие праздники являются выходными днями и переносы выходных определяются Трудовым кодексом РК и постановлениями Правительства. Из религиозных праздников дата Православного Рождества постоянна — 7 января (в 2027 году приходится на зимние каникулы), а первый день Курбан айта определяется ежегодно отдельно, поэтому он будет добавлен в календарь после официального объявления.',
         'Which holidays are days off, and any moved days off, are set by the Labour Code and Government resolutions. Among the religious holidays, Orthodox Christmas has a fixed date, 7 January (in 2027 it falls in the winter break), while the first day of Kurban Ait is set each year and will be added once officially announced.',
@@ -266,10 +310,10 @@ ${monthEvents.length ? `<ul class="ev-month__list" role="list">${monthEvents.map
     return [
       stats,
       `<div class="nw-tocrow">${toc}</div>`,
-      ui.section({ id: 'year', eyebrow: X('Тоқсандар мен демалыстар', 'Четверти и каникулы', 'Terms and breaks'), title: X('Оқу жылының құрылымы', 'Структура учебного года', 'How the year is structured'), body: ribbon + `<div class="ev-year-grid">${periodTable}${derivedNote}</div>` }),
-      ui.section({ id: 'calendar', eyebrow: X('Қыркүйек 2026 — тамыз 2027', 'Сентябрь 2026 — август 2027', 'September 2026 — August 2027'), title: X('Күнтізбе', 'Календарь', 'Calendar'), lead: X('Ай торын немесе тізімді таңдаңыз. Ай торында белгіленген күндердің сипаттамасы әр айдың астында, ал телефонда — «Тізім» көрінісінде берілген.', 'Выберите сетку месяцев или список. В сетке расшифровка отмеченных дат — под каждым месяцем, на телефоне — в режиме «Список».', 'Choose the month grid or the list. In the grid the marked dates are explained under each month; on a phone, in the “List” view.'), body: calendar }),
+      ui.section({ id: 'year', eyebrow: X('Тоқсандар мен демалыстар', 'Четверти и каникулы', 'Terms and breaks'), title: X('Оқу жылының құрылымы', 'Структура учебного года', 'How the year is structured'), body: ribbon + `<div class="ev-year-grid">${periodTable}<div class="ev-year-law">${derivedNote}</div></div>` }),
+      ui.section({ id: 'calendar', eyebrow: X('Қыркүйек 2026 — тамыз 2027', 'Сентябрь 2026 — август 2027', 'September 2026 — August 2027'), title: X('Күнтізбе', 'Календарь', 'Calendar'), lead: X('Ай торы немесе тізім — ыңғайлы көріністі таңдаңыз. Ай торында күндердің сипаттамасы әр айдың астында.', 'Сетка месяцев или список — выберите удобный вид. В сетке расшифровка дат — под каждым месяцем.', 'Month grid or list — pick the view you prefer. In the grid, dates are explained under each month.'), body: calendar }),
       ui.section({ id: 'school-events', eyebrow: X('Мектепте', 'В школе', 'At school'), title: X('Мектеп іс-шаралары', 'Школьные мероприятия', 'School events'), body: school }),
-      ui.section({ id: 'sources', eyebrow: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), title: X('Ресми дереккөздер', 'Официальные источники', 'Official sources'), body: sources + holidayNote }),
+      ui.section({ id: 'sources', tone: 'tint', eyebrow: X('Құқықтық негіз', 'Правовая основа', 'Legal basis'), title: X('Ресми дереккөздер', 'Официальные источники', 'Official sources'), lead: X('Күнтізбедегі барлық күндер үш ресми құжаттан алынған.', 'Все даты календаря взяты из трёх официальных документов.', 'Every date in the calendar comes from three official documents.'), body: `<div class="dz-row">${sources}${holidayNote}</div>` }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');
   },

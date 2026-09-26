@@ -68,14 +68,15 @@ export default {
   <div class="cluster"><button type="button" class="copy-btn" data-copy="${ui.esc(addr(a.legal))}">${ui.icon('copy', { size: 16 })}<span class="copy-btn__txt">${t('copy')}</span></button></div>
 </article>
 </div>`;
-    const addrNote = ui.pending({
-      title: X('Хат-хабарға арналған мекенжай нақтылануда', 'Почтовый адрес для корреспонденции уточняется', 'Postal address for correspondence is being confirmed'),
+    const addrTitle = X('Хат-хабарға арналған мекенжай нақтылануда', 'Почтовый адрес для корреспонденции уточняется', 'Postal address for correspondence is being confirmed');
+    const addrNote = ui.pendingGroup(lang, [{
+      title: addrTitle,
       note: X(
         'Заңды мекенжай (Сейхун к-сі, 125) мен мектептің нақты орны (Асар ш/а, 911/2) бір нысан ба, әлде әртүрлі ме — мектеп әкімшілігі нақтылап жатыр. Хаттарды қай мекенжайға жіберу керектігі расталғаннан кейін осында көрсетіледі.',
         'Администрация школы уточняет, являются ли юридический адрес (ул. Сейхун, 125) и фактическое место работы школы (мкр. Асар, 911/2) одним объектом. После подтверждения здесь будет указано, по какому адресу направлять письма.',
         'The school is confirming whether the legal address (125 Seikhun St.) and the site where it operates (Asar, 911/2) are the same property. Once confirmed, this page will state which address to use for letters.',
       ),
-    });
+    }], { title: addrTitle });
 
     // ---------------------------------------------------------------- channels
     const ch = (o) => `<li class="fb-ch${o.pending ? ' fb-ch--pending' : ''}${o.cls ? ' ' + o.cls : ''}"><span class="fb-ch__ico">${ui.icon(o.icon, { size: 22 })}</span><div class="fb-ch__body"><p class="fb-ch__k">${L(o.k)}${o.badge ? ' ' + o.badge : ''}</p><p class="fb-ch__v">${o.v}</p>${o.note ? `<p class="fb-ch__note">${L(o.note)}</p>` : ''}</div></li>`;
@@ -93,8 +94,8 @@ export default {
       { icon: 'star', k: X('2GIS карточкасы', 'Карточка в 2ГИС', '2GIS listing'), v: ui.extLink(c.twoGis.url, `${String(c.twoGis.rating).replace('.', lang === 'en' ? '.' : ',')} ★`), note: X(`${c.twoGis.ratings} бағалау (${fmt.date(c.twoGis.checked)} жағдай бойынша)`, `${c.twoGis.ratings} оценка (на ${fmt.date(c.twoGis.checked)})`, `${c.twoGis.ratings} ratings (as of ${fmt.date(c.twoGis.checked)})`) },
       { icon: 'chat', k: X('Онлайн-өтініш', 'Онлайн-обращение', 'Online appeal'), v: `<a href="${href('feedback')}">${L(X('Кері байланыс формасы', 'Форма обратной связи', 'Feedback form'))}</a>`, note: X('Ұсыныс, сұрақ немесе шағым үшін', 'Для вопросов, предложений и жалоб', 'For questions, suggestions and complaints') },
       // No official mailbox is confirmed (SCHOOL-FACTS: keremet.edu.kz does not resolve) → no address and no mailto link until the school confirms one.
-      // Full-width strip at the end so its longer explanation does not stretch the other cards.
-      { icon: 'mail', k: t('email'), badge: unconf, cls: 'fb-ch--wide', v: `<span class="fb-ch__pend">${L(X('Ресми электрондық пошта нақтылануда', 'Официальный e-mail уточняется', 'Official e-mail to be confirmed'))}</span>`, note: X(`Жазбаша хабарласу үшін <a href="${href('feedback')}#form">онлайн-форманы</a> немесе WhatsApp-ты пайдаланыңыз. Пошта мекенжайы мектеп растағаннан кейін осында жарияланады.${city ? '' : ' Қалалық телефон нөмірі де нақтыланып жатыр.'}`, `Чтобы написать в школу, используйте <a href="${href('feedback')}#form">онлайн-форму</a> или WhatsApp. Адрес почты появится здесь после подтверждения школой.${city ? '' : ' Городской номер телефона также уточняется.'}`, `To write to the school, use the <a href="${href('feedback')}#form">online form</a> or WhatsApp. The e-mail address will appear here once the school confirms it.${city ? '' : ' The landline number is also being confirmed.'}`), pending: true },
+      // Full-width card at the end (a normal channel card with the «нақтылануда» badge) so its longer note does not stretch the others.
+      { icon: 'mail', k: t('email'), badge: unconf, cls: 'fb-ch--wide', v: `<span class="fb-ch__pend">${L(X('Ресми электрондық пошта нақтылануда', 'Официальный e-mail уточняется', 'Official e-mail to be confirmed'))}</span>`, note: X(`Жазбаша хабарласу үшін <a href="${href('feedback')}#form">онлайн-форманы</a> немесе WhatsApp-ты пайдаланыңыз. Пошта мекенжайы мектеп растағаннан кейін осында жарияланады.${city ? '' : ' Қалалық телефон нөмірі де нақтыланып жатыр.'}`, `Чтобы написать в школу, используйте <a href="${href('feedback')}#form">онлайн-форму</a> или WhatsApp. Адрес почты появится здесь после подтверждения школой.${city ? '' : ' Городской номер телефона также уточняется.'}`, `To write to the school, use the <a href="${href('feedback')}#form">online form</a> or WhatsApp. The e-mail address will appear here once the school confirms it.${city ? '' : ' The landline number is also being confirmed.'}`) },
     ].filter(Boolean).map(ch).join('')}</ul>`;
 
     // ---------------------------------------------------------------- hours (week strip)
@@ -108,11 +109,11 @@ export default {
 <p class="fb-week__off">${ui.icon('calendar', { size: 18 })}<span>${L(X('Сенбі, жексенбі — нақтылануда', 'Суббота, воскресенье — уточняется', 'Saturday, Sunday — to be confirmed'))}</span></p>`;
     const hoursBlock = ui.split({
       ratio: '3:2', align: 'center',
-      left: `${week}${ui.note(X(
+      left: `${week}${ui.more({ icon: 'info', label: X('Дереккөз және демалыс күндері', 'Источник и выходные дни', 'Source and days off'), body: X(
         'Жұмыс уақыты 2GIS анықтамалығының деректері бойынша көрсетілген (мектеп 09:00-де ашылады) және мектеп әкімшілігімен нақтылануда. Демалыс күндері мен мереке күндерінің кестесі расталғаннан кейін жарияланады.',
         'Время работы указано по данным справочника 2ГИС (школа открывается в 09:00) и уточняется администрацией. График в выходные и праздничные дни будет опубликован после подтверждения.',
         'Hours follow the 2GIS directory (the school opens at 09:00) and are being confirmed by the administration. Weekend and holiday hours will be published once confirmed.',
-      ))}`,
+      ) })}`,
       right: ui.cards([
         { icon: 'user', title: X('Директордың қабылдау кестесі', 'График приёма директора', 'Director’s reception hours'), text: X('Жеке қабылдау күндері мен уақыты', 'Дни и часы личного приёма', 'Days and hours of personal reception'), href: href('director-blog') + '#reception' },
         { icon: 'calendar', title: X('Сабақ кестесі мен қоңыраулар', 'Расписание уроков и звонков', 'Timetable and bells'), href: href('schedule') },
@@ -128,7 +129,7 @@ export default {
         { title: X('Көлікпен', 'На автомобиле', 'By car'), text: X('Ғимарат жанында 7 орындық автотұрақ бар.', 'У здания есть парковка на 7 мест.', 'There is a 7-space car park by the building.') },
         { title: X('Кедергісіз кіру', 'Доступный вход', 'Step-free access'), text: X('2 қабатты ғимаратқа пандус және кедергісіз кіреберіс арқылы кіруге болады.', 'В 2-этажное здание можно попасть через пандус и доступный вход.', 'The 2-storey building has a ramp and a step-free entrance.') },
       ])}
-${ui.pending(lang, X('Аялдамадан өтетін автобус маршруттарының нөмірлері нақтыланып жатыр. Ағымдағы маршрутты 2GIS-тен құра аласыз.', 'Номера автобусных маршрутов уточняются. Актуальный маршрут можно построить в 2ГИС.', 'Bus route numbers are being confirmed. You can plan an up-to-date route in 2GIS.'))}`,
+${ui.pendingGroup(lang, [{ title: X('Автобус маршруттарының нөмірлері нақтылануда', 'Номера автобусных маршрутов уточняются', 'Bus route numbers are being confirmed'), note: X('Аялдамадан өтетін автобус маршруттарының нөмірлері нақтыланып жатыр. Ағымдағы маршрутты 2GIS-тен құра аласыз.', 'Номера автобусных маршрутов уточняются. Актуальный маршрут можно построить в 2ГИС.', 'Bus route numbers are being confirmed. You can plan an up-to-date route in 2GIS.') }], { title: X('Автобус маршруттарының нөмірлері нақтылануда', 'Номера автобусных маршрутов уточняются', 'Bus route numbers are being confirmed') })}`,
       right: ui.mapEmbed(a.actual.lat, a.actual.lng, { zoom: 16, height: 480, title: X('«Керемет» мектебінің картадағы орны: Шымкент, Асар ш/а, 911/2', 'Школа «Керемет» на карте: Шымкент, мкр. Асар, 911/2', 'Keremet School on the map: 911/2 Asar, Shymkent') }),
     });
 
@@ -138,19 +139,20 @@ ${ui.pending(lang, X('Аялдамадан өтетін автобус марш�
       left: ui.facts([
         { k: X('Толық атауы', 'Полное наименование', 'Full legal name'), v: L(S.legal.fullName) },
         { k: t('bin'), v: S.legal.bin, copy: S.legal.bin },
+        { k: t('licence'), v: `№ ${S.licence.current.number} (${fmt.date(S.licence.current.date)}, ${L(S.licence.current.term)})`, copy: S.licence.current.number },
+      ]) + ui.more({ icon: 'doc', count: 6, label: X('Барлық деректемелер', 'Все реквизиты', 'All requisites'), body: ui.facts([
         { k: X('Мемлекеттік тіркелген күні', 'Дата государственной регистрации', 'State registration date'), v: fmt.date(S.legal.registered) },
         { k: t('legalAddress'), v: addr(a.legal), copy: true },
         { k: t('actualAddress'), v: addr(a.actual), copy: true },
         { k: X('ЭҚЖЖ коды', 'ОКЭД', 'Activity code (OKED)'), v: `${S.legal.oked.code} — ${L(S.legal.oked.title)}` },
-        { k: t('licence'), v: `№ ${S.licence.current.number} (${fmt.date(S.licence.current.date)}, ${L(S.licence.current.term)})`, copy: S.licence.current.number },
         { k: t('hdr.licensor'), v: L(S.licensorShort) },
         { k: X('Директор', 'Директор', 'Director'), v: L(S.legal.director.name) },
-      ]),
+      ]) }),
       right: `<div class="stack">${ui.cards([
         { icon: 'shield', title: X('Лицензия және тіркеу құжаттары', 'Лицензия и регистрационные документы', 'Licence and registration documents'), text: X('Сканерленген көшірмелер', 'Сканы документов', 'Document scans'), href: href('license') },
         { icon: 'doc', title: X('Барлық құжаттар', 'Все документы', 'All documents'), href: href('documents') },
       ], { cols: 1 })}
-${ui.callout({ type: 'info', title: X('Банк деректемелері', 'Банковские реквизиты', 'Bank details'), text: X('ЖСК, БСК және банк атауы мектеп бухгалтериясы растағаннан кейін жарияланады.', 'ИИК, БИК и наименование банка будут опубликованы после подтверждения бухгалтерией школы.', 'IBAN, BIC and bank name will be published once confirmed by the school’s accountant.') })}</div>`,
+${ui.pendingGroup(lang, [{ title: X('Банк деректемелері', 'Банковские реквизиты', 'Bank details'), note: X('ЖСК, БСК және банк атауы мектеп бухгалтериясы растағаннан кейін жарияланады.', 'ИИК, БИК и наименование банка будут опубликованы после подтверждения бухгалтерией школы.', 'IBAN, BIC and bank name will be published once confirmed by the school’s accountant.') }], { title: X('Банк деректемелері нақтылануда', 'Банковские реквизиты уточняются', 'Bank details are being confirmed') })}</div>`,
     });
 
     // ---------------------------------------------------------------- official links

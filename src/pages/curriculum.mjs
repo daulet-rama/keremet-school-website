@@ -41,6 +41,28 @@ export const passFail = (tail = X('', '', '')) => X(
 /** Decimal number in the page language (4,5 / 4.5). */
 export const num = (v, lang) => (v == null ? '—' : String(v).replace('.', lang === 'en' ? '.' : ','));
 
+// ---------------------------------------------------------------- progressive-disclosure helpers (SPEC §6.1) shared by the education pages
+/** Concatenate localised strings / plain strings into one {kz,ru,en}. */
+export const joinX = (...xs) => X(...['kz', 'ru', 'en'].map((k) => xs.filter(Boolean).map((x) => (typeof x === 'string' ? x : x[k] ?? '')).join('')));
+const PEND_DOC = X('Құжат жүктеледі', 'Документ будет загружен', 'Document will be uploaded');
+const isPendDoc = (d) => d && !d.file && !d.url;
+const withTail = (t, tail) => (t && typeof t === 'object' ? X(`${t.kz} · ${tail.kz}`, `${t.ru} · ${tail.ru}`, `${t.en} · ${tail.en}`) : t);
+/** Everything still awaited in a section as ONE compact line: documents without a file + other pending items
+ *  → ui.pendingGroup ("N материалов готовятся ▾"; a single item → "<its title> · готовится ▾", its note inside).
+ *  Documents that already have a file/url render as a normal docList (first 3 + "Показать все"). */
+export function pendLine(ui, lang, { docs = [], items = [], title, note } = {}) {
+  const list = docs.filter(Boolean);
+  const ready = list.filter((d) => !isPendDoc(d));
+  const all = [...list.filter(isPendDoc).map((d) => ({ title: d.title, note: d.note || PEND_DOC })), ...items.filter(Boolean)];
+  const t = title || (all.length === 1 ? withTail(all[0].title, X('дайындалуда', 'готовится', 'in preparation')) : null);
+  return (ready.length ? ui.docList(ready, { collapse: 3 }) : '') + ui.pendingGroup(lang, all, { ...(t ? { title: t } : {}), ...(note ? { note } : {}) });
+}
+/** "⚖ Legal basis N ▾" chip for a set of acts (adilet links + editions); `lead` = norm text shown above the list. */
+export const actLegal = (ui, ids, lang, { id, lead, title } = {}) => ui.legal(
+  ids.map((k) => ({ title: ACTS[k].title, href: actUrl(k, lang), note: ACTS[k].note })),
+  { id, title, note: lead ? joinX(lead, '<p class="edu-checked">', checkedNote, '</p>') : checkedNote },
+);
+
 // ---------------------------------------------------------------- typical curriculum data (TUP №500, appendices 1–2, ed. №161)
 const A = (name) => ({ area: true, name });
 const R = (name, h, w) => ({ name, h, w });
@@ -154,26 +176,39 @@ export default {
     'Рабочий учебный план, ГОСО (№348), типовой учебный план (№500) и программы (№399), предметы начальной школы, ОБЖ и ПДД, программы Keremet.',
     'Working curriculum, state standard (No. 348), standard curriculum (No. 500) and syllabuses (No. 399), primary subjects, safety courses, Keremet programmes.',
   ),
+  lead: X(
+    '1–4-сыныптарда не және аптасына қанша сағат оқытылады, қандай бағдарламалар бойынша, «Керемет» мектебінің өз бағыттары қандай.',
+    'Что и сколько часов изучают в 1–4 классах, по каким программам и какие собственные направления есть у «Керемет».',
+    'What grades 1–4 study and for how many hours, which syllabuses we follow, and Keremet’s own programmes.',
+  ),
   styles: ['education'],
   published: '2026-09-24T10:00',
   updated: '2026-09-24T10:00',
 
   render(lang, { ui, S, L, href, docById }) {
     const ref = (id, label) => actRef(ui, id, lang, label);
+    // Layer 1 (visible): short "in short" strip, key numbers, Keremet's programmes, the document chain, an hours-by-area
+    // chart and the safety courses. Layer 2 (collapsed, still in the HTML): legal explanations, the hours tables,
+    // the syllabus list, the RUP procedure and every pending item (SPEC §6.1).
 
     // ------------------------------------------------------------ intro + stats
     const intro = ui.split({
-      ratio: '3:2', align: 'center',
+      ratio: '3:2', align: 'start',
       left: `${ui.eyebrow(X('Оқу процесінің негізі', 'Основа учебного процесса', 'The backbone of learning'))}
 <h2 class="sec__title">${L(X('Мемлекеттік стандарттан — сыныптағы сабаққа дейін', 'От государственного стандарта — до урока в классе', 'From the state standard to the lesson in class'))}</h2>
-${ui.lead(X(
-        'Мектеп мемлекеттік жалпыға міндетті білім беру стандартына, үлгілік оқу жоспары мен үлгілік оқу бағдарламаларына сүйеніп, әр оқу жылына жұмыс оқу жоспарын (ЖОЖ) бекітеді. Төменде — осы құжаттардың не белгілейтіні, бастауыш сыныптардың пәндері мен сағат саны және «Керемет» мектебінің қосымша бағыттары.',
-        'Школа ежегодно утверждает рабочий учебный план (РУП) на основе государственного общеобязательного стандарта образования, типового учебного плана и типовых учебных программ. Ниже — что устанавливают эти документы, предметы и часы начальной школы и дополнительные направления школы «Керемет».',
-        'Every year the school approves a working curriculum based on the state compulsory education standard, the standard curriculum and the standard syllabuses. Below: what these documents set, the primary-school subjects and hours, and Keremet’s additional programmes.',
-      ))}`,
+${ui.tldr({ points: [
+        { icon: 'graduation', text: X('Бастауыш мектеп — <strong>4 жыл</strong> (1–4-сыныптар), қазақ және орыс тілдерінде.', 'Начальная школа — <strong>4 года</strong> (1–4 классы), на казахском и русском языках.', 'Primary school takes <strong>4 years</strong> (grades 1–4), in Kazakh and Russian.') },
+        { icon: 'sparkles', text: X(`Мемлекеттік стандартқа қосымша — мектептің <strong>${S.programmes.length} бағыты</strong>.`, `Сверх госстандарта — <strong>${S.programmes.length} направлений</strong> школы.`, `On top of the state standard: <strong>${S.programmes.length} Keremet programmes</strong>.`) },
+        { icon: 'clock', text: X('Аптасына <strong>27 сағаттан</strong> аспайды; пәндер бойынша сағаттар — төмендегі кестеде.', 'Не более <strong>27 часов</strong> в неделю; часы по предметам — в таблице ниже.', 'No more than <strong>27 hours</strong> a week; hours per subject are in the table below.') },
+      ] })}`,
       right: '<!--toc-->',
     });
-    const chain = ui.panel({ theme: 'physics', cls: 'edu-chain', body: `<p class="edu-chain__t">${L(X('Құжаттар тізбегі', 'Цепочка документов', 'Document chain'))}</p><ol class="edu-chain__list">
+    const introLead = X(
+      'Мектеп мемлекеттік жалпыға міндетті білім беру стандартына, үлгілік оқу жоспары мен үлгілік оқу бағдарламаларына сүйеніп, әр оқу жылына жұмыс оқу жоспарын (ЖОЖ) бекітеді. Төменде — осы құжаттардың не белгілейтіні, бастауыш сыныптардың пәндері мен сағат саны және «Керемет» мектебінің қосымша бағыттары.',
+      'Школа ежегодно утверждает рабочий учебный план (РУП) на основе государственного общеобязательного стандарта образования, типового учебного плана и типовых учебных программ. Ниже — что устанавливают эти документы, предметы и часы начальной школы и дополнительные направления школы «Керемет».',
+      'Every year the school approves a working curriculum based on the state compulsory education standard, the standard curriculum and the standard syllabuses. Below: what these documents set, the primary-school subjects and hours, and Keremet’s additional programmes.',
+    );
+    const chain = ui.panel({ theme: 'physics', cls: 'edu-chain edu-chain--row', body: `<p class="edu-chain__t">${L(X('Құжаттар тізбегі', 'Цепочка документов', 'Document chain'))}</p><ol class="edu-chain__list">
 <li><b>${L(X('МЖМБС', 'ГОСО', 'Standard'))}</b><span>№ 348 · ${L(X('нәтижелер мен ең жоғары жүктеме', 'результаты и предельная нагрузка', 'outcomes & maximum load'))}</span></li>
 <li><b>${L(X('ҮОЖ', 'ТУП', 'Standard curriculum'))}</b><span>№ 500 · ${L(X('пәндер мен апталық сағаттар', 'предметы и часы в неделю', 'subjects & weekly hours'))}</span></li>
 <li><b>${L(X('ҮОБ', 'ТУПр', 'Syllabuses'))}</b><span>№ 399 · ${L(X('әр пәннің мазмұны мен оқу мақсаттары', 'содержание и цели обучения по предметам', 'content & learning objectives'))}</span></li>
@@ -187,7 +222,7 @@ ${ui.lead(X(
       { icon: 'shield', value: '6 + 6', label: X('ӨҚН мен ЖҚЕ, жылына сағат', 'ОБЖ и ПДД, часов в год', 'Safety & road rules, h/year'), note: X('1–3-сыныптар; 4-сыныпта ӨҚН — 10 сағат', '1–3 классы; в 4 классе ОБЖ — 10 часов', 'grades 1–3; grade 4 life safety — 10 h') },
     ], { cls: 'stats--bento' });
 
-    // ------------------------------------------------------------ legal basis
+    // ------------------------------------------------------------ legal basis (layer 2)
     const basis = ui.cards([
       { icon: 'shield', tag: '№ 348', title: X('МЖМБС — мемлекеттік стандарт', 'ГОСО — государственный стандарт', 'The state standard'), text: X(
         `Білім беру мазмұнына, оқу жүктемесінің ең жоғары көлеміне, оқушылардың дайындық деңгейіне және оқу мерзіміне қойылатын талаптарды белгілейді. ${ref('goso', 'adilet.zan.kz')}`,
@@ -208,21 +243,36 @@ ${ui.lead(X(
       { title: X('Бекіту', 'Утверждение', 'Approval'), text: X(`Оқу ісі жөніндегі орынбасар ЖОЖ-ды оқу жылы басталғанға дейін әзірлейді, директор бекітеді (${ref('docs130', '№ 130 бұйрық, 5–6-тармақтар')}).`, `Заместитель по учебной работе разрабатывает РУП до начала учебного года, директор утверждает (${ref('docs130', 'приказ № 130, пп. 5–6')}).`, `The deputy head for teaching drafts it before the school year and the director approves it (${ref('docs130', 'Order No. 130, paras 5–6')}).`) },
       { title: X('КТЖ және сабақ кестесі', 'КТП и расписание', 'Lesson plans and timetable'), text: X(`Педагогтер ҮОБ негізінде күнтізбелік-тақырыптық жоспар жасайды; ол әдістемелік бірлестікте қаралып, директор бекітеді (${ref('method', '№ 253 бұйрық, 26-т.')}).`, `Педагоги составляют КТП по типовым программам; они рассматриваются на методобъединении и утверждаются директором (${ref('method', 'приказ № 253, п. 26')}).`, `Teachers write calendar-thematic plans from the syllabuses; the subject team reviews them and the director approves (${ref('method', 'Order No. 253, para. 26')}).`) },
     ]);
+    const basisRow = `<div class="dz-row">${ui.more({ label: X('Әр құжат нені белгілейді', 'Что устанавливает каждый документ', 'What each document sets'), icon: 'doc', count: 3, tone: 'plain', body: ui.lead(introLead) + basis })}
+${ui.more({ label: X('Жұмыс оқу жоспары қалай жасалады', 'Как составляется рабочий учебный план', 'How the working curriculum is built'), icon: 'sliders', count: 4, tone: 'card', body: rupSteps })}
+${actLegal(ui, ['goso', 'tup', 'tupr', 'docs130', 'method'], lang, { id: 'acts' })}</div>`;
 
-    // ------------------------------------------------------------ working curriculum 2026–2027
-    const rupDocs = ui.docList([docById('curriculum-rup')].filter(Boolean).map((d) => ({ ...d, note: X(
+    // ------------------------------------------------------------ working curriculum 2026–2027 (pending → one line)
+    const rupDoc = [docById('curriculum-rup')].filter(Boolean).map((d) => ({ ...d, note: X(
       'Мектеп жүктейді: әр сынып пен оқыту тілі бойынша бекітілген ЖОЖ (PDF), бекіту күні мен бұйрық нөмірі көрсетіледі.',
       'Школа загружает утверждённый РУП по каждому классу и языку обучения (PDF) с датой и номером приказа об утверждении.',
       'To be uploaded by the school: the approved working curriculum per grade and language of instruction (PDF), with the approval date and order number.',
-    ) })));
-    const rupPending = ui.pending(lang, X(
+    ) }));
+    const rupPending = { title: X('ЖОЖ 2026–2027: онда не көрсетіледі', 'РУП 2026–2027: что в нём будет указано', 'Working curriculum 2026–2027: what it will show'), note: X(
       '2026–2027 оқу жылына арналған ЖОЖ: қай сыныптар ашық (0–6), оқыту тілі, вариативтік компоненттің қай сабақтарға бөлінгені және тереңдетілген бағыттардың (математика, тілдер) сағаты. 5–6-сыныптар болса, негізгі орта білім берудің үлгілік оқу жоспары (№ 500 бұйрықтың 6–7-қосымшалары) қолданылады.',
       'РУП на 2026–2027 учебный год: какие классы открыты (0–6), язык обучения, на что распределён вариативный компонент и часы углублённых направлений (математика, языки). Если есть 5–6 классы, для них применяется типовой план основного среднего образования (приложения 6–7 к приказу № 500).',
       'Working curriculum for 2026–2027: which grades are open (0–6), language of instruction, how the variable component is used and the hours of the in-depth tracks (maths, languages). If grades 5–6 exist, the lower-secondary standard curriculum (appendices 6–7 of Order No. 500) applies.',
-    ));
+    ) };
+    const rup = `<div class="edu-rup" id="rup"><div class="edu-rup__h"><span class="edu-rup__ic" aria-hidden="true">${ui.icon('calendar', { size: 22 })}</span><div><h3 class="edu-rup__t">${L(X('Жұмыс оқу жоспары 2026–2027', 'Рабочий учебный план 2026–2027', 'Working curriculum 2026–2027'))}</h3><p class="edu-rup__s">${L(X('Директор оқу жылы басталғанға дейін бекітеді; бекітілген жоспар осы жерде жарияланады.', 'Утверждается директором до начала учебного года; утверждённый план публикуется здесь.', 'Approved by the director before the school year; the approved plan is published here.'))}</p></div></div>
+${pendLine(ui, lang, { docs: rupDoc, items: [rupPending] })}</div>`;
 
-    // ------------------------------------------------------------ TUP tables
+    // ------------------------------------------------------------ TUP: hours by area (visible) + tables (collapsed)
     const ctx = { L, lang };
+    const AREA_IC = ['languages', 'calculator', 'leaf', 'users', 'palette', 'ball'];
+    const areasKz = TUP_KZ.filter((r) => r.area), areasRu = TUP_RU.filter((r) => r.area);
+    const sumKz = TUP_KZ_TOTAL.inv[4], sumRu = TUP_RU_TOTAL.inv[4];
+    const hrs = (v) => L(X(`${num(v, lang)} сағ`, `${num(v, lang)} ч`, `${num(v, lang)} h`));
+    const bar = (areas, sum, label) => `<div class="edu-areas__row"><p class="edu-areas__k">${L(label)}<b>${hrs(sum)}</b></p><div class="edu-areas__bar" role="img" aria-label="${L(label)}: ${areas.map((a) => `${L(a.name)} ${hrs(a.w)}`).join(', ')}">${areas.map((a, i) => `<span class="edu-areas__seg" style="--w:${(a.w / sum * 100).toFixed(2)}%;--c:var(--ea-${i})"><b>${num(a.w, lang)}</b></span>`).join('')}</div></div>`;
+    const areaChart = `<figure class="edu-areas">
+<figcaption class="edu-areas__cap">${L(X('Білім салалары бойынша сағаттар: 1–4-сыныптардың апталық сағаттарының қосындысы (инварианттық компонент)', 'Часы по образовательным областям: сумма недельных часов 1–4 классов (инвариантный компонент)', 'Hours by subject area: weekly hours summed over grades 1–4 (core component)'))}</figcaption>
+${bar(areasKz, sumKz, X('Қазақ тілінде оқыту', 'Казахский язык обучения', 'Kazakh-medium'))}
+${bar(areasRu, sumRu, X('Орыс тілінде оқыту', 'Русский язык обучения', 'Russian-medium'))}
+<ul class="edu-areas__key" role="list">${areasKz.map((a, i) => `<li style="--c:var(--ea-${i})"><span class="edu-areas__ic" aria-hidden="true">${ui.icon(AREA_IC[i], { size: 16 })}</span>${L(a.name)}</li>`).join('')}</ul></figure>`;
     const tables = ui.split({
       ratio: '1:1',
       left: tupTable(TUP_KZ, TUP_KZ_TOTAL, L(X('Қазақ тілінде оқытатын сыныптар (1-қосымша)', 'Классы с казахским языком обучения (приложение 1)', 'Kazakh-medium classes (appendix 1)')), ctx),
@@ -234,8 +284,7 @@ ${ui.lead(X(
       left: tupTable(TUP5_KZ, TUP5_KZ_TOTAL, L(X('5–6-сыныптар, қазақ тілінде оқыту (6-қосымша)', '5–6 классы с казахским языком обучения (приложение 6)', 'Grades 5–6, Kazakh-medium (appendix 6)')), ctx, opt56),
       right: tupTable(TUP5_RU, TUP5_RU_TOTAL, L(X('5–6-сыныптар, орыс тілінде оқыту (7-қосымша)', '5–6 классы с русским языком обучения (приложение 7)', 'Grades 5–6, Russian-medium (appendix 7)')), ctx, opt56),
     });
-    const block56 = `<h3 id="tup-56">${L(X('5–6-сыныптар (ашылған жағдайда)', '5–6 классы (если открыты)', 'Grades 5–6 (if opened)'))}</h3>
-<p class="edu-src">${L(X(
+    const block56 = `<p class="edu-src">${L(X(
       `Мектеп парақшасында 0–6-сыныптар көрсетілген. 5–6-сыныптар ашылса, оларға негізгі орта білім берудің үлгілік оқу жоспары қолданылады: ${ref('tup', '№ 500 бұйрықтың 6–7-қосымшалары')} (ҚР Оқу-ағарту министрінің 2023 жылғы 26 қазандағы № 323 бұйрығының редакциясы). Кестеде — осы қосымшалардың 5- және 6-сынып бағандары, аптасына сағат. МЖМБС бойынша 5–6-сыныптарда апталық жүктеме 30,5 сағаттан аспауы тиіс (негізгі орта білім беру стандарты, 40-т.).`,
       `На странице школы указаны 0–6 классы. Если открыты 5–6 классы, для них применяется типовой учебный план основного среднего образования: ${ref('tup', 'приложения 6–7 к приказу № 500')} (в ред. приказа Министра просвещения РК от 26 октября 2023 года № 323). В таблицах — столбцы 5 и 6 классов из этих приложений, часов в неделю. По ГОСО недельная нагрузка в 5–6 классах — не более 30,5 часа (стандарт основного среднего образования, п. 40).`,
       `The school’s page lists grades 0–6. If grades 5–6 are opened, the lower-secondary standard curriculum applies: ${ref('tup', 'appendices 6–7 of Order No. 500')} (as amended by Order No. 323 of 26 October 2023). The tables show the grade 5 and grade 6 columns of those appendices, hours per week. Under the state standard, the weekly load in grades 5–6 may not exceed 30.5 hours (lower-secondary standard, para. 40).`,
@@ -251,6 +300,9 @@ ${ui.lead(X(
         ` Подробнее: <a href="${href('assessment')}">Оценивание и результаты</a>.`,
         ` More: <a href="${href('assessment')}">Assessment & results</a>.`))) },
     ]);
+    const edition = X('2025 жылғы 1 қыркүйектен бастап қолданылатын редакция (2024 жылғы 27 маусымдағы № 161 бұйрық).', 'Редакция, действующая с 1 сентября 2025 года (приказ № 161 от 27 июня 2024 года).', 'Edition in force since 1 September 2025 (Order No. 161 of 27 June 2024).');
+    const tupBody = areaChart + `<div class="dz-row">${ui.more({ label: X('Пәндер бойынша сағаттар кестесі, 1–4-сыныптар', 'Таблица часов по предметам, 1–4 классы', 'Hours per subject, grades 1–4'), icon: 'grid', tone: 'plain', count: TUP_KZ.filter((r) => !r.area).length, body: `<p class="edu-src">${L(edition)}</p>` + tupLegend + tables + tupNotes, cls: 'edu-wide' })}
+${ui.more({ label: X('5–6-сыныптар (ашылған жағдайда)', '5–6 классы (если открыты)', 'Grades 5–6 (if opened)'), icon: 'grid', tone: 'plain', body: `<h3 id="tup-56" class="sr-only">${L(X('5–6-сыныптар (ашылған жағдайда)', '5–6 классы (если открыты)', 'Grades 5–6 (if opened)'))}</h3>` + block56 + tables56, cls: 'edu-wide' })}</div>`;
 
     // ------------------------------------------------------------ typical programmes (399)
     const P = (kz, ru, en, grades, lng) => [X(kz, ru, en), grades, lng];
@@ -275,11 +327,22 @@ ${ui.lead(X(
     const progTable = `<p class="edu-prog__cap">${L(X('Бастауыш білім беру деңгейінің үлгілік оқу бағдарламалары (№ 399 бұйрық)', 'Типовые учебные программы уровня начального образования (приказ № 399)', 'Primary-level standard syllabuses (Order No. 399)'))}</p>
 <p class="edu-prog__legend">${L(X('Белгілер: сынып және бағдарлама арналған сыныптардың оқыту тілі.', 'Метки: классы и язык обучения классов, для которых предназначена программа.', 'Badges: grades, and the language of instruction of the classes the syllabus is for.'))}</p>
 <ul class="edu-prog" role="list">${progRows.map(([n, g, l]) => `<li><span class="edu-prog__n">${L(n)}</span><span class="edu-prog__m"><span class="badge badge--info">${L(X(g.includes("–") ? `${g}-сыныптар` : `${g}-сынып`, `${g} кл.`, g.includes("–") ? `grades ${g}` : `grade ${g}`))}</span><span class="badge">${L(l)}</span></span></li>`).join('')}</ul>`;
-    const progNote = ui.note(X(
-      `Бағдарламалардың толық мәтіні (мазмұны, оқу мақсаттары, ұзақ мерзімді жоспар): ${ref('tupr')}. № 399 бұйрыққа 2024 жылғы 5 қарашадағы № 323 бұйрықпен енгізілген өзгерістер 2025 жылғы 1 қыркүйектен бастап қолданылады.`,
-      `Полный текст программ (содержание, цели обучения, долгосрочный план): ${ref('tupr')}. Изменения, внесённые в приказ № 399 приказом № 323 от 5 ноября 2024 года, действуют с 1 сентября 2025 года.`,
-      `Full texts (content, learning objectives, long-term plans): ${ref('tupr')}. Amendments made to Order No. 399 by Order No. 323 of 5 November 2024 apply from 1 September 2025.`,
-    ));
+    const progNote = X(
+      `<p>Бағдарламалардың толық мәтіні (мазмұны, оқу мақсаттары, ұзақ мерзімді жоспар): ${ref('tupr')}. № 399 бұйрыққа 2024 жылғы 5 қарашадағы № 323 бұйрықпен енгізілген өзгерістер 2025 жылғы 1 қыркүйектен бастап қолданылады.</p>`,
+      `<p>Полный текст программ (содержание, цели обучения, долгосрочный план): ${ref('tupr')}. Изменения, внесённые в приказ № 399 приказом № 323 от 5 ноября 2024 года, действуют с 1 сентября 2025 года.</p>`,
+      `<p>Full texts (content, learning objectives, long-term plans): ${ref('tupr')}. Amendments made to Order No. 399 by Order No. 323 of 5 November 2024 apply from 1 September 2025.</p>`,
+    );
+    // Layer 1: the subjects as icon tiles; layer 2: the syllabus list with grade/language badges + the source.
+    const SUBJ = [
+      ['book', X('Сауат ашу', 'Обучение грамоте', 'Literacy')], ['languages', X('Қазақ және орыс тілі', 'Казахский и русский языки', 'Kazakh & Russian')],
+      ['globe', X('Шетел тілі', 'Иностранный язык', 'Foreign language')], ['calculator', X('Математика', 'Математика', 'Mathematics')],
+      ['code', X('Цифрлық сауаттылық', 'Цифровая грамотность', 'Digital literacy')], ['leaf', X('Жаратылыстану', 'Естествознание', 'Natural science')],
+      ['compass', X('Дүниетану', 'Познание мира', 'Knowledge of the world')], ['palette', X('Өнер, еңбек, музыка', 'Искусство, труд, музыка', 'Arts, crafts, music')],
+      ['ball', X('Дене шынықтыру', 'Физкультура', 'PE')],
+    ];
+    const subjTiles = `<ul class="edu-subj" role="list">${SUBJ.map(([ic, t]) => `<li><span class="edu-subj__ic" aria-hidden="true">${ui.icon(ic, { size: 22 })}</span>${L(t)}</li>`).join('')}</ul>`;
+    const progBody = subjTiles + `<div class="dz-row">${ui.more({ label: X('Бағдарламалар тізімі', 'Список программ', 'List of syllabuses'), icon: 'book', tone: 'card', count: progRows.length, body: progTable })}
+${ui.legal(progNote, { title: X('Бағдарламалардың толық мәтіні', 'Полный текст программ', 'Full texts of the syllabuses') })}</div>`;
 
     // ------------------------------------------------------------ OBZh / PDD
     const course = (icon, name, hours, who) => `<article class="edu-course"><header><span class="card__icon">${ui.icon(icon, { size: 24 })}</span><h3>${L(name)}</h3></header>
@@ -290,31 +353,26 @@ ${ui.lead(X(
     }${
       course('compass', X('Жол қозғалысы ережелері (ЖҚЕ)', 'Правила дорожного движения (ПДД)', 'Road safety rules'), [6, 6, 6, 6], X('сынып жетекшілері, сынып сағаттары есебінен және сабақтан тыс уақытта', 'классные руководители за счёт классных часов и во внеурочное время', 'class teachers, in form periods and after lessons'))
     }</div>`;
-    const safetyPending = ui.docList([
-      docById('life-safety-topics'),
-      docById('road-safety-plan'),
-    ]);
+    const safetyPending = pendLine(ui, lang, { docs: [docById('life-safety-topics'), docById('road-safety-plan')] });
 
-    // ------------------------------------------------------------ Keremet programmes
+    // ------------------------------------------------------------ Keremet programmes (lead block)
     const keremet = ui.cards(S.programmes.map((p) => ({ icon: p.icon, title: p.label })), { cols: 3, cls: 'edu-kprog' });
-    const keremetSrc = ui.note(X(
+    const keremetSrc = `<p class="edu-src edu-src--on">${ui.icon('instagram', { size: 16 })}<span>${L(X(
       `Дереккөз: мектептің 12.08.2025 жарияланған қабылдау туралы хабарландыруы (${ui.extLink('https://www.instagram.com/p/DNR-UIYM5uW/', 'instagram.com')}).`,
       `Источник: объявление школы о приёме от 12.08.2025 (${ui.extLink('https://www.instagram.com/p/DNR-UIYM5uW/', 'instagram.com')}).`,
       `Source: the school’s admission announcement of 12.08.2025 (${ui.extLink('https://www.instagram.com/p/DNR-UIYM5uW/', 'instagram.com')}).`,
-    ));
-    const keremetPending = ui.pending(lang, X(
+    ))}</span></p>`;
+    const keremetPending = { title: X('Бағыттар бойынша мәліметтер', 'Подробности по направлениям', 'Programme details'), note: X(
       'Әр бағыт бойынша нақтыланады: қай сыныптарға арналғаны, аптасына қанша сағат, ЖОЖ-дың вариативтік компоненті есебінен өте ме, әлде тегін үйірме ретінде өте ме, қолданылатын оқу-әдістемелік кешен.',
       'По каждому направлению уточняется: для каких классов, сколько часов в неделю, проводится ли оно за счёт вариативного компонента РУП или как бесплатный кружок, какой УМК используется.',
       'For each programme the school will confirm: which grades, hours per week, whether it runs within the variable component or as a free club, and which teaching materials are used.',
-    ));
-    const extra = ui.split({
-      ratio: '1:1',
-      left: ui.callout({ type: 'info', title: X('Бейіндік оқыту', 'Профильное обучение', 'Specialised (profile) streams'), text: X(
-        'Бейіндік оқыту жалпы орта білім беру деңгейінде (10–11-сыныптар) ұйымдастырылады. Мектеп парақшасында көрсетілген сынып аралығында (0–6) ол қолданылмайды; ашылған жағдайда осы бөлімде жарияланады.',
-        'Профильное обучение организуется на уровне общего среднего образования (10–11 классы). При указанном на странице школы диапазоне классов (0–6) оно не применяется; при открытии будет опубликовано в этом разделе.',
-        'Profile streams exist at upper-secondary level (grades 10–11). They do not apply to the grade range stated by the school (0–6); if opened, they will be listed here.') }),
-      right: ui.pending({ title: X('Факультативтер мен таңдау курстары', 'Факультативы и курсы по выбору', 'Optional and elective courses'), note: X('2026–2027 оқу жылындағы факультативтер тізімі, сыныптары мен сағаты.', 'Перечень факультативов на 2026–2027 учебный год, классы и часы.', 'List of optional courses for 2026–2027, grades and hours.') }),
-    });
+    ) };
+    const electives = { title: X('Факультативтер мен таңдау курстары', 'Факультативы и курсы по выбору', 'Optional and elective courses'), note: X('2026–2027 оқу жылындағы факультативтер тізімі, сыныптары мен сағаты.', 'Перечень факультативов на 2026–2027 учебный год, классы и часы.', 'List of optional courses for 2026–2027, grades and hours.') };
+    const profile = ui.more({ label: X('Бейіндік оқыту және факультативтер', 'Профильное обучение и факультативы', 'Profile streams and optional courses'), icon: 'compass', tone: 'card', body: ui.callout({ type: 'info', title: X('Бейіндік оқыту', 'Профильное обучение', 'Specialised (profile) streams'), text: X(
+      'Бейіндік оқыту жалпы орта білім беру деңгейінде (10–11-сыныптар) ұйымдастырылады. Мектеп парақшасында көрсетілген сынып аралығында (0–6) ол қолданылмайды; ашылған жағдайда осы бөлімде жарияланады.',
+      'Профильное обучение организуется на уровне общего среднего образования (10–11 классы). При указанном на странице школы диапазоне классов (0–6) оно не применяется; при открытии будет опубликовано в этом разделе.',
+      'Profile streams exist at upper-secondary level (grades 10–11). They do not apply to the grade range stated by the school (0–6); if opened, they will be listed here.') }) });
+    const keremetBody = keremet + keremetSrc + `<div class="dz-row">${profile}${pendLine(ui, lang, { items: [keremetPending, electives] })}</div>`;
 
     const related = ui.linkList([
       { href: href('schedule'), icon: 'calendar', label: X('Сабақ кестесі және оқу жылы', 'Расписание и учебный год', 'Timetable & school year'), note: X('Демалыстар, апталық жүктеме', 'Каникулы, недельная нагрузка', 'Holidays, weekly load') },
@@ -323,29 +381,23 @@ ${ui.lead(X(
       { href: href('clubs'), icon: 'sparkles', label: X('Үйірмелер', 'Кружки', 'Clubs'), note: X('Робототехника, бағдарламалау, спорт', 'Робототехника, программирование, спорт', 'Robotics, coding, sport') },
       { href: href('legislation'), icon: 'scale', label: X('Нормативтік құқықтық актілер', 'Нормативные правовые акты', 'Legislation') },
     ]);
-    const acts = ui.linkList(actItems(['goso', 'tup', 'tupr', 'docs130', 'method'], lang)) + ui.note(checkedNote);
 
     const toc = ui.toc([
-      { id: 'basis', label: X('Нормативтік негіз', 'Нормативная основа', 'Legal basis') },
-      { id: 'rup', label: X('Жұмыс оқу жоспары 2026–2027', 'Рабочий учебный план 2026–2027', 'Working curriculum 2026–2027') },
-      { id: 'tup', label: X('Бастауыш сынып пәндері', 'Предметы начальной школы', 'Primary subjects') },
-      { id: 'programmes', label: X('Үлгілік оқу бағдарламалары', 'Типовые учебные программы', 'Standard syllabuses') },
-      { id: 'safety', label: X('ӨҚН және ЖҚЕ', 'ОБЖ и ПДД', 'Safety courses') },
       { id: 'keremet', label: X('Keremet бағдарламалары', 'Программы Keremet', 'Keremet programmes') },
-      { id: 'acts', label: X('Құқықтық актілер', 'Правовые акты', 'Legal acts') },
+      { id: 'basis', label: X('Құжаттар мен ЖОЖ', 'Документы и РУП', 'Documents & working curriculum') },
+      { id: 'tup', label: X('Пәндер мен сағаттар', 'Предметы и часы', 'Subjects & hours') },
+      { id: 'programmes', label: X('Оқу бағдарламалары', 'Учебные программы', 'Syllabuses') },
+      { id: 'safety', label: X('ӨҚН және ЖҚЕ', 'ОБЖ и ПДД', 'Safety courses') },
     ]);
 
     return [
       intro.replace('<!--toc-->', toc),
       stats,
-      ui.section({ id: 'basis', eyebrow: X('Үш негізгі құжат', 'Три базовых документа', 'Three key documents'), title: X('Нормативтік негіз', 'Нормативная основа', 'Legal basis'), body: basis + `<h3>${L(X('Жұмыс оқу жоспары қалай жасалады', 'Как составляется рабочий учебный план', 'How the working curriculum is built'))}</h3>` + ui.split({ ratio: '3:2', left: rupSteps, right: chain }) }),
-      ui.section({ id: 'rup', eyebrow: X('Ағымдағы оқу жылы', 'Текущий учебный год', 'Current school year'), title: X('Жұмыс оқу жоспары 2026–2027', 'Рабочий учебный план 2026–2027', 'Working curriculum 2026–2027'), body: rupDocs + rupPending }),
-      ui.section({ id: 'tup', tone: 'physics', eyebrow: X('Үлгілік оқу жоспары, № 500', 'Типовой учебный план, № 500', 'Standard curriculum, No. 500'), title: X('Бастауыш сыныптардың пәндері мен сағаттары', 'Предметы и часы начальной школы', 'Primary subjects and weekly hours'), lead: X('1–4-сыныптар, аптасына сағат. 2025 жылғы 1 қыркүйектен бастап қолданылатын редакция (2024 жылғы 27 маусымдағы № 161 бұйрық).', '1–4 классы, часов в неделю. Редакция, действующая с 1 сентября 2025 года (приказ № 161 от 27 июня 2024 года).', 'Grades 1–4, hours per week. Edition in force since 1 September 2025 (Order No. 161 of 27 June 2024).'), body: tupLegend + tables + tupNotes + block56 + tables56 }),
-      ui.section({ id: 'programmes', eyebrow: X('Не оқытамыз', 'Чему учим', 'What we teach'), title: X('Үлгілік оқу бағдарламалары', 'Типовые учебные программы', 'Standard syllabuses'), body: progTable + progNote }),
+      ui.section({ id: 'keremet', tone: 'hero', eyebrow: X('Мектептің ерекшелігі', 'Особенность школы', 'What’s special'), title: X('«Керемет» мектебінің бағдарламалары', 'Программы школы «Керемет»', 'Keremet’s programmes'), lead: X('Мемлекеттік стандартқа қосымша мектеп жариялаған бағыттар.', 'Направления, которые школа заявляет в дополнение к государственному стандарту.', 'Tracks the school offers on top of the state standard.'), body: keremetBody }),
+      ui.section({ id: 'basis', eyebrow: X('Үш негізгі құжат', 'Три базовых документа', 'Three key documents'), title: X('Нормативтік негіз', 'Нормативная основа', 'Legal basis'), lead: X('Мемлекет нені және қанша сағат оқыту керегін белгілейді, мектеп соның негізінде өз жоспарын бекітеді.', 'Государство задаёт, чему и сколько часов учить, — школа на этой основе утверждает свой план.', 'The state sets what to teach and for how many hours; the school approves its own plan on that basis.'), body: chain + basisRow + rup }),
+      ui.section({ id: 'tup', tone: 'physics', eyebrow: X('Аптасына қанша сағат', 'Сколько часов в неделю', 'Hours per week'), title: X('Бастауыш сыныптардың пәндері мен сағаттары', 'Предметы и часы начальной школы', 'Primary subjects and weekly hours'), lead: X('1–4-сыныптар, аптасына сағат.', '1–4 классы, часов в неделю.', 'Grades 1–4, hours per week.'), body: tupBody }),
+      ui.section({ id: 'programmes', eyebrow: X('Не оқытамыз', 'Чему учим', 'What we teach'), title: X('Үлгілік оқу бағдарламалары', 'Типовые учебные программы', 'Standard syllabuses'), lead: X('Әр пән мемлекеттік үлгілік бағдарлама бойынша оқытылады.', 'Каждый предмет ведётся по государственной типовой программе.', 'Every subject follows a state standard syllabus.'), body: progBody }),
       ui.section({ id: 'safety', eyebrow: X('Міндетті курстар', 'Обязательные курсы', 'Compulsory courses'), title: X('Өмір қауіпсіздігінің негіздері және жол қозғалысы ережелері', 'ОБЖ и правила дорожного движения', 'Life safety and road rules'), lead: X('Екі курс та 1–4-сыныптарда міндетті түрде оқытылады.', 'Оба курса обязательны в 1–4 классах.', 'Both courses are compulsory in grades 1–4.'), body: safetyTable + safetyPending }),
-      ui.section({ id: 'keremet', tone: 'hero', eyebrow: X('Мектептің ерекшелігі', 'Особенность школы', 'What’s special'), title: X('«Керемет» мектебінің бағдарламалары', 'Программы школы «Керемет»', 'Keremet’s programmes'), lead: X('Мемлекеттік стандартқа қосымша мектеп жариялаған бағыттар.', 'Направления, которые школа заявляет в дополнение к государственному стандарту.', 'Tracks the school offers on top of the state standard.'), body: keremet + keremetSrc + keremetPending }),
-      ui.section({ title: X('Бейіндік оқыту және факультативтер', 'Профильное обучение и факультативы', 'Profile streams and optional courses'), body: extra }),
-      ui.section({ id: 'acts', eyebrow: 'adilet.zan.kz', title: X('Құқықтық актілер', 'Правовые акты', 'Legal acts'), body: acts }),
       ui.banner({ theme: 'physics', icon: 'calendar', eyebrow: X('Келесі бет', 'Следующая страница', 'Next'), title: X('Оқу жылы қашан басталып, қашан аяқталады?', 'Когда начинается и заканчивается учебный год?', 'When does the school year start and end?'), text: X('2026–2027 оқу жылының ресми күнтізбесі мен демалыстары.', 'Официальный календарь 2026–2027 учебного года и каникулы.', 'The official 2026–2027 calendar and holidays.'), href: href('schedule'), label: X('Сабақ кестесі', 'Расписание', 'Timetable') }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');

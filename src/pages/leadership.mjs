@@ -50,8 +50,10 @@ export default {
     const val = (v, hint) => (v ? L(v) : `${wait}${hint ? muted(hint) : ''}`);
 
     // ---------------------------------------------------------------- director profile
-    const rows = [
+    const rowsKey = [
       { k: X('Толық аты-жөні', 'Фамилия, имя, отчество', 'Full name'), v: `<strong>${L(d.name)}</strong> ${ok(X('Расталған', 'Подтверждено', 'Verified'))}` },
+    ];
+    const rowsMore = [
       { k: X('Лауазымы', 'Должность', 'Position'), v: L(X(
         'Директор — заңды тұлғаның уәкілетті органы тағайындаған басшы',
         'Директор — руководитель, назначенный уполномоченным органом юридического лица',
@@ -61,6 +63,8 @@ export default {
       { k: X('Біліктілік санаты', 'Квалификационная категория', 'Qualification category'), v: val(edu.category) },
       { k: X('Тағайындау туралы бұйрық', 'Приказ о назначении', 'Appointment order'), v: ordTxt || `${wait}${muted(X('нөмірі мен күні', 'номер и дата', 'number and date'))}` },
       { k: X('№ 338 үлгілік біліктілік сипаттамаларына сәйкестігі', 'Соответствие Типовым квалификационным характеристикам (приказ № 338)', 'Compliance with Standard Qualification Characteristics (Order No. 338)'), v: val(edu.compliance) },
+    ];
+    const rowsContact = [
       { k: X('Байланыс', 'Контакты', 'Contacts'), v: `<a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a> ${muted(X('(мектеп телефоны)', '(телефон школы)', '(school phone)'))}${d.email ? `<br>${mail(d.email)}` : ''}` },
       { k: X('Жеке қабылдау', 'Личный приём', 'Personal reception'), v: d.reception ? `${L(d.reception)} <a href="#reception">${L(X('Кесте', 'График', 'Schedule'))}</a>` : `<a href="#reception">${L(X('Қабылдау кестесін қараңыз', 'См. график приёма', 'See the reception schedule'))}</a>` },
     ];
@@ -74,13 +78,16 @@ ${portrait}
 <h3 class="ab-profile__name" id="dir-name">${L(d.name)}</h3>
 <p class="ab-profile__src">${pill('ok', X('Мемлекеттік тіркеу анықтамасы, 25.01.2026', 'Справка о госрегистрации, 25.01.2026', 'State registration certificate, 25.01.2026'), 'check')}</p></div>
 </div>
-<div class="ab-profile__body">${ui.facts(rows)}</div>
+<div class="ab-profile__body">${ui.facts([...rowsKey, ...rowsContact])}${ui.more({ label: X('Лауазымы, білімі, өтілі, тағайындау', 'Должность, образование, стаж, назначение', 'Position, education, experience, appointment'), icon: 'graduation', count: rowsMore.length, tone: 'tint', body: ui.facts(rowsMore) })}</div>
 </article>`;
-    const dirDocs = ui.docList([
+    // Uploaded documents are listed with thumbnails; the ones still missing join the single pending line below.
+    const dirDocsAll = [
       docById('director-order'),
       docById('director-diploma'),
       reg && { ...reg, note: `${L(reg.note)} <a href="${href('license')}#registration">${L(X('Мәтіндік нұсқасы', 'Текстовая версия', 'Text version'))}</a>` },
-    ].filter(Boolean), { thumbs: true });
+    ].filter(Boolean);
+    const dirDocs = ui.docList(dirDocsAll.filter((dc) => dc.file || dc.url), { thumbs: true });
+    const dirDocsPending = dirDocsAll.filter((dc) => !(dc.file || dc.url)).map((dc) => ({ title: dc.title, note: X('Құжат жүктеледі', 'Документ будет загружен', 'Document will be uploaded') }));
     // Pending note lists only what is still missing (disappears once every slot is filled).
     const missing = [
       !d.photo && X('директордың ресми фотосы (келісімімен)', 'официальное фото директора (с согласия)', 'the director’s official photo (with consent)'),
@@ -92,23 +99,21 @@ ${portrait}
       !d.email && X('жұмыс электрондық поштасы', 'рабочий адрес электронной почты', 'work e-mail'),
     ].filter(Boolean);
     const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-    const dirNote = missing.length ? ui.pending({
-      title: X('Толықтырылатын мәліметтер', 'Сведения будут дополнены', 'Details to be added'),
-      note: X(...['kz', 'ru', 'en'].map((lg) => `${cap(missing.map((m) => m[lg]).join(', '))}.`)),
-    }) : '';
+    // ONE standard counted line ("N материалов готовятся ▾") for the director: missing details + missing documents.
+    const dirNote = ui.pendingGroup(lang, [...missing.map((m) => X(cap(m.kz), cap(m.ru), cap(m.en))), ...dirDocsPending]);
 
     // ---------------------------------------------------------------- deputies (typical positions)
-    const role = (icon, title, text, areas) => `<li class="ab-role"><div class="ab-role__top"><span class="ab-role__icon">${ui.icon(icon, { size: 24 })}</span><div><h3 class="ab-role__title">${L(title)}</h3></div></div>
+    const role = (icon, title, text, areas) => (roleTexts.push({ title, text }), `<li class="ab-role"><div class="ab-role__top"><span class="ab-role__icon">${ui.icon(icon, { size: 24 })}</span><div><h3 class="ab-role__title">${L(title)}</h3></div></div>
 <p>${pill('typ', X('Типтік лауазым — нақтылануда', 'Типовая должность — уточняется', 'Typical position — to be confirmed'), 'info')}</p>
-<p class="ab-role__text">${L(text)}</p>
 <ul class="ab-role__list" role="list">${areas.map((a) => `<li>${ui.icon('check', { size: 16 })}<span>${L(a)}</span></li>`).join('')}</ul>
-<p class="muted small">${L(X('Аты-жөні, телефоны мен қабылдау кестесі:', 'ФИО, телефон и график приёма:', 'Name, phone and reception hours:'))} ${wait}</p></li>`;
+<p class="muted small">${L(X('Аты-жөні, телефоны мен қабылдау кестесі:', 'ФИО, телефон и график приёма:', 'Name, phone and reception hours:'))} ${wait}</p></li>`);
     const deps = Array.isArray(S.deputies) ? S.deputies.filter((p) => p && p.name) : [];
     const depPeople = deps.length ? ui.people(deps.map((p) => ({
       name: p.name, role: p.position, photo: p.photo || null, text: p.text || null,
       reception: p.reception || null,
       contacts: [p.phone && { type: 'phone', value: p.phone.display || p.phone }, p.email && { type: 'email', value: p.email }].filter(Boolean),
     }))) : '';
+    const roleTexts = [];
     const deputiesTypical = `<ul class="ab-roles" role="list">
 ${role('book', X('Директордың оқу-әдістемелік ісі жөніндегі орынбасары', 'Заместитель директора по учебно-методической работе', 'Deputy Director for Teaching and Methodology'),
       X('Оқу-әдістемелік және ғылыми-әдістемелік жұмысты тікелей басқарады (№ 253 бұйрық, 25-тармақ).', 'Непосредственно руководит учебно-методической и научно-методической работой (приказ № 253, п. 25).', 'Directly manages teaching and methodological work (Order No. 253, para. 25).'),
@@ -123,10 +128,14 @@ ${role('heart', X('Директордың тәрбие ісі жөніндегі
         X('Психологиялық-әлеуметтік қызмет', 'Психолого-социальная служба', 'Psychological and social service'),
         X('Буллинг пен құқық бұзушылықтың алдын алу', 'Профилактика буллинга и правонарушений', 'Preventing bullying and offences')])}
 </ul>`;
-    const depNote = ui.note(X(
+    const depNoteText = (X(
       'Орынбасарлар лауазымдарының атауы — жалпы білім беретін мектептерге тән типтік үлгі. Мектептің нақты штаттық құрылымы бекітілгеннен кейін карточкалар нақты деректермен ауыстырылады.',
       'Названия должностей заместителей — типовая схема для общеобразовательных школ. После утверждения штатной структуры школы карточки будут заменены реальными данными.',
       'The deputy titles follow the typical pattern for general schools. Once the school’s staffing structure is approved, these cards will be replaced with real data.'));
+    const depNote = ui.more({
+      label: X('Типтік схема туралы', 'О типовой схеме', 'About the typical scheme'), icon: 'info', tone: 'tint',
+      body: `<p>${L(depNoteText)}</p><ul class="bullets">${roleTexts.map((r) => `<li><strong>${L(r.title)}.</strong> ${L(r.text)}</li>`).join('')}</ul>`,
+    });
 
     // ---------------------------------------------------------------- reception schedule
     // Schedule not yet approved → one pending block instead of a table full of "to be confirmed" cells.
@@ -140,13 +149,13 @@ ${role('heart', X('Директордың тәрбие ісі жөніндегі
       caption: X('Азаматтарды жеке қабылдау кестесі', 'График личного приёма граждан', 'Personal reception schedule'),
       head: [X('Аты-жөні', 'ФИО', 'Name'), X('Лауазымы', 'Должность', 'Position'), X('Күндері, уақыты, орны', 'Дни, время, место', 'Days, time, place')],
       rows: recRows,
-    }) : `<div class="ab-empty">${ui.pending({
+    }) : ui.pendingGroup(lang, [{
       title: X('2026–2027 оқу жылына арналған жеке қабылдау кестесі жарияланады', 'График личного приёма на 2026–2027 учебный год будет опубликован', 'The personal reception schedule for 2026–2027 will be published'),
       note: X(
         `Директор (${L(d.name)}) және оның орынбасарлары бойынша: қабылдау күндері, уақыты, орны (кабинет). Кесте бекітілгенге дейін алдын ала жазылу мектеп телефоны бойынша: ${tel}.`,
         `По директору (${L(d.name)}) и его заместителям: дни приёма, время, место (кабинет). До утверждения графика записаться можно по телефону школы: ${tel}.`,
         `For the director (${L(d.name)}) and the deputies: reception days, time and place (room). Until the schedule is approved, book via the school phone: ${tel}.`),
-    })}</div>`;
+    }], { title: X('Қабылдау кестесі дайындалуда — әзірге телефон арқылы жазылыңыз', 'График приёма готовится — пока запись по телефону', 'Reception schedule in preparation — book by phone for now') });
     const howTo = ui.steps([
       { title: X('Алдын ала жазылыңыз', 'Запишитесь заранее', 'Book in advance'), text: X(`Мектеп телефоны бойынша қоңырау шалыңыз немесе WhatsApp-қа жазыңыз: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`, `Позвоните или напишите в WhatsApp по телефону школы: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`, `Call or message the school on WhatsApp: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`) },
       { title: X('Мәселені қысқаша сипаттаңыз', 'Кратко опишите вопрос', 'Describe your question'), text: X('Жазылу кезінде сұрағыңыздың тақырыбын айтсаңыз, қажетті маман қабылдауға дайындалады.', 'При записи назовите тему вопроса — это поможет подготовить ответ и пригласить нужного специалиста.', 'Tell us the topic when booking so the right person can prepare.') },
@@ -154,14 +163,19 @@ ${role('heart', X('Директордың тәрбие ісі жөніндегі
     ]);
 
     // ---------------------------------------------------------------- what attestation checks
-    const law = ui.callout({
-      type: 'info', icon: 'scale',
-      title: X('Мемлекеттік аттестаттауда не тексеріледі', 'Что проверяется при государственной аттестации', 'What the state attestation checks'),
-      text: L(X(
+    // Officialese → layer 2: criterion 3 wording and the two orders sit in one ⚖ chip.
+    const intro44 = X(
+        '«Білім туралы» Заңның 44-бабына сәйкес білім беру ұйымын басқару дара басшылық пен алқалылық қағидаттарында жүзеге асырылады, ал ұйымды тікелей оның басшысы басқарады.',
+        'Согласно статье 44 Закона «Об образовании» управление организацией образования осуществляется на принципах единоначалия и коллегиальности, а непосредственное управление осуществляет её руководитель.',
+        'Under Article 44 of the Law on Education, a school is governed on the principles of single leadership and collegiality; day-to-day management is carried out by its head.');
+    const law = `<div class="dz-row">${ui.legal([
+      { href: ADILET('V2600038645', lang), title: X('№ 114-НҚ бұйрық (аттестаттау), 2-қосымша, 3-өлшемшарт', 'Приказ № 114-НҚ (аттестация), приложение 2, критерий 3', 'Order No. 114-NK (attestation), Annex 2, criterion 3') },
+      { href: ADILET('V090005750_', lang), title: X('№ 338 бұйрық (үлгілік біліктілік сипаттамалары)', 'Приказ № 338 (Типовые квалификационные характеристики)', 'Order No. 338 (Standard Qualification Characteristics)') },
+      { href: ADILET('Z070000319_', lang), title: X('ҚР «Білім туралы» Заңы, 44-бап', 'Закон РК «Об образовании», ст. 44', 'Law of the RK “On Education”, Art. 44'), note: intro44 },
+    ], { note: '<p><strong>' + L(X('Мемлекеттік аттестаттауда не тексеріледі', 'Что проверяется при государственной аттестации', 'What the state attestation checks')) + '</strong></p><p>' + L(X(
         `№ 114-НҚ бұйрықпен бекітілген Қағидалардың 2-қосымшасындағы 3-өлшемшарт: басшының педагогтер лауазымдарының үлгілік біліктілік сипаттамаларына (№ 338 бұйрық) сәйкестігі. 5 балл: «біліктілік талаптарына сәйкес келеді; тағайындау белгіленген тәртіппен рәсімделген». Дереккөздер: ${ui.extLink(ADILET('V2600038645', lang), '№ 114-НҚ бұйрық')}, ${ui.extLink(ADILET('V090005750_', lang), '№ 338 бұйрық')}.`,
         `Критерий 3 Приложения 2 к Правилам, утверждённым приказом № 114-НҚ: соответствие руководителя Типовым квалификационным характеристикам должностей педагогов (приказ № 338). 5 баллов — «соответствует квалификационным требованиям; назначение оформлено в установленном порядке». Источники: ${ui.extLink(ADILET('V2600038645', lang), 'приказ № 114-НҚ')}, ${ui.extLink(ADILET('V090005750_', lang), 'приказ № 338')}.`,
-        `Criterion 3 of Annex 2 to the Rules approved by Order No. 114-NK: the head must meet the Standard Qualification Characteristics for teaching positions (Order No. 338). 5 points: “meets the qualification requirements; the appointment is formalised as prescribed”. Sources: ${ui.extLink(ADILET('V2600038645', lang), 'Order No. 114-NK')}, ${ui.extLink(ADILET('V090005750_', lang), 'Order No. 338')} (in Russian/Kazakh).`)),
-    });
+        `Criterion 3 of Annex 2 to the Rules approved by Order No. 114-NK: the head must meet the Standard Qualification Characteristics for teaching positions (Order No. 338). 5 points: “meets the qualification requirements; the appointment is formalised as prescribed”. Sources: ${ui.extLink(ADILET('V2600038645', lang), 'Order No. 114-NK')}, ${ui.extLink(ADILET('V090005750_', lang), 'Order No. 338')} (in Russian/Kazakh).`)) + '</p>' })}</div>`;
 
     // ---------------------------------------------------------------- contacts & related
     const contacts = ui.split({
@@ -191,21 +205,21 @@ ${role('heart', X('Директордың тәрбие ісі жөніндегі
     ]);
     const intro = ui.split({
       ratio: '2:1', align: 'start', cls: 'ab-intro',
-      left: `${ui.eyebrow(X('Дара басшылық және алқалылық', 'Единоначалие и коллегиальность', 'Single leadership and collegiality'))}
-<p class="lead">${L(X(
-        '«Білім туралы» Заңның 44-бабына сәйкес білім беру ұйымын басқару дара басшылық пен алқалылық қағидаттарында жүзеге асырылады, ал ұйымды тікелей оның басшысы басқарады.',
-        'Согласно статье 44 Закона «Об образовании» управление организацией образования осуществляется на принципах единоначалия и коллегиальности, а непосредственное управление осуществляет её руководитель.',
-        'Under Article 44 of the Law on Education, a school is governed on the principles of single leadership and collegiality; day-to-day management is carried out by its head.'))}</p>
-<p class="ab-src">${L(X('Дереккөз', 'Источник', 'Source'))}: ${ui.extLink(ADILET('Z070000319_', lang), X('ҚР «Білім туралы» Заңы, 44-бап', 'Закон РК «Об образовании», ст. 44', 'Law of the RK “On Education”, Art. 44'))}</p>`,
+      left: `${ui.eyebrow(X('Мектеп басшылығы', 'Руководство школы', 'School leadership'))}
+${ui.tldr({ points: [
+        { icon: 'user', text: X(`Мектепті директор <strong>${L(d.name)}</strong> басқарады.`, `Школой руководит директор <strong>${L(d.name)}</strong>.`, `The school is run by Director <strong>${L(d.name)}</strong>.`) },
+        { icon: 'calendar', text: X(`Жеке қабылдауға мектеп телефоны арқылы жазылыңыз: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`, `На личный приём можно записаться по телефону школы: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`, `Book a personal meeting via the school phone: <a href="tel:${S.contacts.phone.tel}">${S.contacts.phone.display}</a>.`) },
+        { icon: 'chat', text: X(`Сұрақтарды <a href="${href('director-blog')}">директор блогында</a> қоюға болады.`, `Вопросы можно задать в <a href="${href('director-blog')}">блоге директора</a>.`, `Questions can be asked in the <a href="${href('director-blog')}">director’s blog</a>.`) },
+      ] })}`,
       right: toc,
     });
 
     return [
       intro,
-      ui.section({ id: 'director', eyebrow: X('Мектеп басшысы', 'Руководитель школы', 'Head of school'), title: X('Директор', 'Директор', 'Director'), body: profile + dirNote + `<h3>${L(X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'))}</h3>` + dirDocs }),
+      ui.section({ id: 'director', eyebrow: X('Мектеп басшысы', 'Руководитель школы', 'Head of school'), title: X('Директор', 'Директор', 'Director'), body: profile + `<h3>${L(X('Растайтын құжаттар', 'Подтверждающие документы', 'Supporting documents'))}</h3>` + dirDocs + dirNote }),
       ui.section({ id: 'deputies', eyebrow: X('Басқару командасы', 'Управленческая команда', 'Management team'), title: X('Директордың орынбасарлары', 'Заместители директора', 'Deputy directors'), lead: X('Әр орынбасар бойынша толық аты-жөні, жетекшілік ететін бағыттары, байланыс деректері және қабылдау кестесі жарияланады.', 'По каждому заместителю публикуются ФИО полностью, курируемые направления, контакты и график приёма.', 'For each deputy we publish the full name, areas of responsibility, contacts and reception hours.'), body: depPeople || (deputiesTypical + depNote) }),
       ui.section({ id: 'reception', tone: 'hero', eyebrow: X('Азаматтарды қабылдау', 'Приём граждан', 'Meeting the public'), title: X('Жеке қабылдау кестесі', 'График личного приёма', 'Personal reception schedule'), lead: X('Ата-аналар мен азаматтар басшылыққа алдын ала жазылып, жеке қабылдауға келе алады.', 'Родители и граждане могут записаться и прийти на личный приём к руководству школы.', 'Parents and members of the public can book a personal meeting with the school’s leadership.'), body: reception + howTo }),
-      ui.section({ id: 'attestation', title: X('Басшыға қойылатын талаптар', 'Требования к руководителю', 'Requirements for the head'), body: law }),
+      ui.section({ id: 'attestation', tone: 'tint', eyebrow: X('Заң не талап етеді', 'Что требует закон', 'What the law requires'), title: X('Басшыға қойылатын талаптар', 'Требования к руководителю', 'Requirements for the head'), lead: X('Директордың біліктілігі үлгілік талаптарға сәйкес келуі, ал тағайындалуы белгіленген тәртіппен рәсімделуі тиіс.', 'Квалификация директора должна соответствовать типовым требованиям, а назначение — быть оформлено в установленном порядке.', 'The director’s qualifications must meet the standard requirements, and the appointment must be formalised as prescribed.'), body: law }),
       ui.section({ id: 'contacts', eyebrow: X('Хабарласыңыз', 'Свяжитесь с нами', 'Get in touch'), title: X('Байланыс', 'Контакты', 'Contacts'), body: contacts }),
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
     ].join('\n');

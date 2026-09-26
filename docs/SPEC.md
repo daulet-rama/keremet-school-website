@@ -233,10 +233,29 @@ Pages must NEVER invent facts (names, numbers, results, prices, dates). Unknown 
 `section({title, id, body, tone})`, `cards(items:[{title, text, icon?, href?, tag?}])`, `docList(items:[{title, file, type:'pdf'|'jpg'|'doc'|'link', date?, size?, note?}])`,
 `table({head:[], rows:[[]], caption})` (responsive: stacks on mobile), `accordion(items:[{q, a}])`, `timeline(items:[{time|date, title, text}])`,
 `people(items:[{name, role, photo?, text?, contacts?}])`, `facts(items:[{k, v}])` (definition list), `steps(items)`, `callout({type:'info'|'warn'|'ok', title, text})`,
-`pending(lang, note?)`, `button({href, label, kind:'primary'|'ghost'})`, `form({kind:'feedback'|'blog'|'admission', lang})`, `icon(name)` (inline SVG set).
+`pending(lang, note?)` (slim one line), `pendingGroup(lang, items)`, `more`, `legal`, `tldr`, `tabs` (§6.1), `button({href, label, kind:'primary'|'ghost'})`, `form({kind:'feedback'|'blog'|'admission', lang})`, `icon(name)` (inline SVG set).
 Escape user data with `esc()`.
 
 ---------------------------------------------------------------------------------------------------
+### 6.1 Progressive disclosure: compact pages that still hold everything (2026-09 redesign)
+The owner asked for less officialese on screen. **Nothing is deleted.** Every Order-114 item, document slot, legal reference
+and pending placeholder stays in the HTML, where the search index, Ctrl+F, print and the commission still find it. Only the
+presentation changes: **layer 1** is a short human summary that stays visible (2–3 lines, icons, cards, key numbers), and
+**layer 2** holds the details, collapsed in native `<details>`.
+- `tldr({points:[{icon,text}]})` is the "Қысқаша / Коротко / In short" strip for page tops.
+- `more({summary?, body, label?, tone?, icon?, count?})` holds long explanations: a 1–2 sentence summary plus "Толығырақ / Подробнее / More ▾".
+- `legal(items|html, {title?, note?})` holds legal bases, "согласно приказу №…", norm quotes and adilet links. It renders as the compact
+  "⚖ Құқықтық негіз / Правовая основа / Legal basis N ▾" chip, usually at the end of the section or page.
+- `docList(items, {collapse: 3, groupPending: true})` shows the first 3 documents. The rest go under "Барлығын көрсету (N) / Показать все (N)",
+  and missing files become one "N документов будут загружены ▾" line.
+- `pendingGroup(lang, items)` gives ONE line per section, "5 материал дайындалуда / 5 материалов готовятся / 5 items in preparation ▾".
+  `pending()` itself is now a slim single line.
+- `tabs([{label, body}])` renders accessible tabs. Without JS every panel shows. Hidden panels stay findable (`hidden="until-found"`).
+- Wrap several closed chips in `<div class="dz-row">` to set them side by side.
+- `main.js` shows "Барлығын ашу / Развернуть всё / Expand all" at the top of the page body when a page has ≥ 3 closed
+  disclosures. It opens everything before printing and opens the ancestors of a `#hash` target. Low-vision mode shows the toggles large, underlined and without animation.
+- Target on heavy pages: the visible text (`main` rendered text on load) drops by ≥ 50%, while the total text (`main.textContent`) stays ≥ 95%.
+  `src/pages/license.mjs` is the reference implementation.
 ## 7. Order 114-НҚ constraints that override "wow" (read `docs/ORDER-114.md` — the full checklist)
 - **Default language is Kazakh**: `dist/index.html` → `/kz/` unless the visitor previously chose another language
   (localStorage `keremet-lang`). Language switch keeps the same page.

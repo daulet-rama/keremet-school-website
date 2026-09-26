@@ -189,3 +189,122 @@ html[data-a11y="on"]:is([data-a11y-font="2"], [data-a11y-font="3"]) .sa-form { g
 html[data-a11y="on"] .sa-path__stage::before { display: none; }
 html[data-a11y="on"] .sa-form__icon, html[data-a11y="on"] .sa-exp { background: transparent !important; color: inherit !important; border: 1px solid currentColor; }
 @media (max-width: 420px) { .sa-keystats .stat__label { font-size: .86rem; hyphens: auto; } }
+
+/* =====================================================================================
+   Progressive disclosure (SPEC §6.1) — compact layer-1 widgets for this group
+   ===================================================================================== */
+@media (min-width: 900px) { .sa-intro .toc { position: sticky; top: calc(var(--bar-h) + 20px); } }
+
+/* admission: programmes + announcement next to the id card */
+.sa-keremet { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 28px; margin-top: 22px; }
+.sa-keremet h3 { font-size: 1rem; margin-bottom: 10px; color: var(--muted); font-weight: 600; }
+.sa-keremet > .dz { margin: 0; }
+
+/* admission: who is admitted — three icon tiles */
+.sa-who { list-style: none; margin: 0 0 4px; padding: 0; display: grid; gap: 10px; }
+.sa-who__i { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--surface-line); color: var(--surface-ink); min-width: 0; }
+.sa-who__ic { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: color-mix(in srgb, var(--deco) 14%, transparent); color: var(--deco-ink); }
+.sa-who__t { font: 700 1.05rem/1.25 var(--font-display); }
+.sa-who__x { color: var(--surface-muted); font-size: .94rem; }
+.sa-who__i:nth-child(2) .sa-who__ic { background: color-mix(in srgb, var(--sky) 16%, transparent); color: #04627A; }
+.sa-who__i:nth-child(3) .sa-who__ic { background: color-mix(in srgb, var(--mint) 18%, transparent); color: #0B6B50; }
+
+/* admission: documents to bring — tiles */
+.sa-need { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
+.sa-need__i { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 2px 14px; align-items: center; padding: 16px 18px; border-radius: var(--r-l); background: var(--surface); border: 1px solid var(--surface-line); color: var(--surface-ink); min-width: 0; transition: transform .3s var(--ease-out), box-shadow .3s; }
+.sa-need__i:hover { transform: translateY(-2px); box-shadow: var(--shadow-s); }
+.sa-need__ic { grid-row: span 2; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: color-mix(in srgb, var(--deco) 14%, transparent); color: var(--deco-ink); }
+.sa-need__tag { position: absolute; top: 12px; right: 14px; font: 700 .72rem/1 var(--font-mono); letter-spacing: .06em; color: color-mix(in srgb, var(--deco-ink) 70%, transparent); }
+.sa-need__t { font-weight: 700; line-height: 1.3; padding-right: 2.6em; align-self: end; }
+.sa-need__h { font-size: .88rem; color: var(--surface-muted); align-self: start; }
+.sa-needlist { display: grid; gap: 0; margin: 0; }
+.sa-needlist > div { padding: 10px 0; border-top: 1px solid var(--surface-line); }
+.sa-needlist > div:first-child { border-top: 0; padding-top: 0; }
+.sa-needlist dt { font-weight: 700; display: flex; gap: 10px; align-items: baseline; }
+.sa-needlist__tag { font: 700 .74rem/1 var(--font-mono); color: var(--deco-ink); min-width: 2.6em; }
+.sa-needlist dd { margin: 4px 0 0 calc(2.6em + 10px); color: var(--surface-muted); font-size: .94rem; }
+
+/* step titles only (layer 1); the full steps sit in a disclosure */
+.steps.sa-mini { grid-template-columns: 1fr; gap: 8px; counter-reset: none; }
+.sa-mini .step { flex-direction: row; align-items: center; gap: 14px; padding: 10px 16px; border-radius: var(--r-m); }
+.sa-mini .step__n { font-size: 1.35rem; min-width: 2ch; }
+.sa-mini .step__title { font-size: 1rem; }
+@media (min-width: 760px) { .steps.sa-mini--row { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); } .sa-mini--row .step { flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px; } }
+.sa-route .dz { margin-top: 0; }
+.sa-route .dz__body .steps { grid-template-columns: 1fr; }
+.sa-route .dz__body .step { flex-direction: row; gap: 14px; padding: 12px 14px; }
+.sa-route .dz__body .step__n { font-size: 1.3rem; min-width: 2ch; }
+.steps.sa-steps-full { grid-template-columns: 1fr; gap: 8px; }
+.sa-steps-full .step { flex-direction: row; gap: 14px; padding: 12px 14px; box-shadow: none; }
+.sa-steps-full .step__n { font-size: 1.3rem; min-width: 2ch; }
+.sa-route .dz--card > .dz__body { color: var(--surface-ink); }
+
+/* tabs (transfer / leaving / graduation) */
+.sa-tabs .tabs__panel > * + * { margin-top: 16px; }
+.sa-tabsum { font-size: 1.05rem; max-width: 70ch; }
+.sa-subh { font: 600 .95rem/1.3 var(--font-body); color: var(--muted); margin-top: 22px !important; }
+.sa-aside__hint { font-size: .86rem; color: var(--muted); }
+.sa-aside > .dz { margin: 0; }
+
+/* low-vision mode */
+html[data-a11y="on"] :is(.sa-who__ic, .sa-need__ic) { background: transparent !important; color: inherit !important; border: 1px solid currentColor; }
+html[data-a11y="on"] .sa-need__i:hover { transform: none; }
+html[data-a11y="on"] :is(.sa-who, .sa-need) :is(p, span) { overflow-wrap: break-word; hyphens: auto; }
+html[data-a11y-font="3"] .sa-need { grid-template-columns: 1fr; }
+html[data-a11y="on"]:is([data-a11y-font="2"], [data-a11y-font="3"]) .steps.sa-mini--row { grid-template-columns: 1fr; }
+html[data-a11y="on"]:is([data-a11y-font="2"], [data-a11y-font="3"]) .sa-mini--row .step { flex-direction: row; }
+
+/* contingent: explanations glossary (icon chips that open in place) + group-split summary */
+.sa-glosstxt { max-width: 70ch; padding: 18px 22px; border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--surface-line); color: var(--surface-ink); font-size: 1.02rem; }
+.sa-glosstabs .tabs__panel > * + * { margin-top: 10px; }
+@media (min-width: 900px) { .sa-ladder { grid-template-columns: minmax(10rem, 1.1fr) 3fr 2fr; } }
+.sa-srcrow { margin-top: 18px; }
+.sa-splitsum { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; padding: clamp(18px, 2.4vw, 26px); border-radius: var(--r-l); background: var(--surface); border: 1px solid var(--surface-line); color: var(--surface-ink); margin-bottom: 14px; }
+.sa-splitsum__big { display: flex; align-items: center; gap: 14px; max-width: 26rem; }
+.sa-splitsum__big b { font: 800 clamp(2.4rem, 1.8rem + 2vw, 3.4rem)/1 var(--font-display); letter-spacing: -.03em; color: var(--deco-ink); flex: none; }
+.sa-splitsum__big span { color: var(--surface-muted); font-size: .95rem; line-height: 1.4; }
+.sa-splitsum .chips { flex: 1 1 22rem; }
+
+/* teachers: category ladder, short form (title + minimum experience) */
+.sa-cats--short .step { gap: 10px; }
+.sa-cats--short .step__text { margin-top: 0; }
+.sa-cats--short .sa-exp { margin-top: 4px; }
+.sa-chiplink { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--surface-line); background: var(--surface); color: var(--deco-ink); font-weight: 600; font-size: .92rem; text-decoration: none; }
+.sa-chiplink:hover { border-color: color-mix(in srgb, var(--deco) 60%, transparent); }
+.sa-meters + .dz-row { margin-top: 18px; }
+
+/* vacancies: four short requirement cards */
+.sa-cards--short .card { gap: 8px; }
+.sa-cards--short .card__text { font-size: .92rem; }
+.sa-cards--short + .dz-row { margin-top: 16px; }
+
+/* tuition: contract sections as a compact numbered grid */
+.sa-contract--short { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); background: transparent; border: 0; gap: 10px; overflow: visible; }
+.sa-contract--short li { grid-template-columns: 44px 1fr; align-items: center; padding: 12px 14px; border: 1px solid var(--surface-line); border-radius: var(--r-m); background: var(--surface); }
+.sa-contract--short li:last-child { border-bottom: 1px solid var(--surface-line); }
+.sa-contract--short li::before { grid-row: auto; width: 40px; height: 40px; }
+.sa-contract--short + .dz-row { margin-top: 16px; }
+.dz__body .sa-contract { box-shadow: none; }
+
+/* forms: pending template inside its row */
+.sa-form__title { font-weight: 700; line-height: 1.35; }
+.sa-form__note { font-size: .9rem; color: var(--surface-muted); margin-top: 2px; }
+.sa-form__status { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600; background: color-mix(in srgb, var(--sun) 22%, transparent); color: #7A4B00; }
+.sa-after { margin-top: 16px; }
+
+html[data-a11y="on"] :is(.sa-form__status, .sa-chiplink) { background: transparent !important; color: inherit !important; border: 1px solid currentColor; }
+html[data-a11y="on"] .sa-splitsum__big { flex-wrap: wrap; }
+html[data-a11y="on"] .sa-need__i { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+html[data-a11y="on"] .sa-need__ic { grid-row: auto; }
+html[data-a11y="on"] .sa-need__tag { position: static; order: -1; }
+html[data-a11y="on"] .sa-need__t { padding-right: 0; }
+html[data-a11y="on"] .sa-who__i { flex-wrap: wrap; }
+
+/* phones: tab strips wrap onto rows instead of a hidden sideways scroll (every tab stays visible) */
+@media (max-width: 599px) {
+  :is(.sa-tabs, .sa-glosstabs) .tabs__list { flex-wrap: wrap; width: 100%; overflow: visible; border-radius: 22px; }
+  :is(.sa-tabs, .sa-glosstabs) .tabs__tab { flex: 1 1 auto; justify-content: center; min-height: 40px; padding: 8px 12px; font-size: .88rem; }
+}
+/* contingent: the pre-school card title fits without a mid-word break */
+.sa-level__name { hyphens: manual; overflow-wrap: normal; }
+@media (min-width: 900px) { .sa-ladder { grid-template-columns: minmax(min-content, 1fr) minmax(0, 3.3fr) minmax(0, 2fr); } }

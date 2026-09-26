@@ -21,9 +21,9 @@ export default {
     en: 'Send an appeal to the school online: response times under Kazakh law, the person responsible and how to appeal a decision.',
   },
   lead: {
-    kz: 'Сұрақ, ұсыныс, арыз немесе шағым — жазыңыз. Келіп түскен өтініш тіркеледі және белгіленген мерзімде қаралады.',
-    ru: 'Вопрос, предложение, заявление или жалоба — напишите нам. Поступившее обращение регистрируется и рассматривается в установленные сроки.',
-    en: 'A question, suggestion, application or complaint — write to us. What you send is registered and considered within the set time limits.',
+    kz: 'Сұрақ, ұсыныс, арыз немесе шағым — жазыңыз: өтініш мерзімінде қаралады.',
+    ru: 'Вопрос, предложение, заявление или жалоба — напишите нам: обращение рассмотрят в срок.',
+    en: 'A question, suggestion, application or complaint — write to us: it will be answered on time.',
   },
   styles: ['feedback'],
   published: '2026-09-24T10:00',
@@ -43,34 +43,41 @@ export default {
     // ---------------------------------------------------------------- key terms (bento)
     const terms = ui.stats([
       { icon: 'hourglass', art: true, value: X('15 жұмыс күні', '15 рабочих дней', '15 working days'), label: X('Арызды қарау мерзімі', 'Срок рассмотрения заявления', 'Time limit to consider an application'),
-        note: X(`${L(APPK)} 76-бабы, 1-тармақ — жолданым тіркелген күннен бастап`, `${L(APPK)}, ст. 76 п. 1 — со дня регистрации обращения`, `${L(APPK)} Art. 76(1) — from the day the appeal is registered`),
+        note: X('жолданым тіркелген күннен бастап', 'со дня регистрации обращения', 'from the day the appeal is registered'),
         extra: ui.chips([X('Тіркеу — келіп түскен күні', 'Регистрация — в день поступления', 'Registered the day it arrives'), X('Қабылдаудан бас тартуға тыйым салынған', 'Отказ в приёме запрещён', 'Refusal to accept is prohibited')]) },
-      { icon: 'scale', value: '20', label: X('жұмыс күні — шағымды қарау', 'рабочих дней — рассмотрение жалобы', 'working days to consider a complaint'), note: X(`${L(APPK)} 99-бабы`, `${L(APPK)}, ст. 99`, `${L(APPK)} Art. 99`) },
-      { icon: 'calendar', value: X('3 ай', '3 мес.', '3 mo.'), label: X('шағым беру мерзімі', 'срок подачи жалобы', 'deadline to file a complaint'), note: X(`${L(APPK)} 92-бабы, 1-тармақ`, `${L(APPK)}, ст. 92 п. 1`, `${L(APPK)} Art. 92(1)`) },
-      { icon: 'info', value: '15', label: X('күнтізбелік күн — ақпарат сұрауына жауап', 'календарных дней — ответ на запрос информации', 'calendar days to answer an information request'), note: X('«Ақпаратқа қол жеткізу туралы» Заң, 11-бап, 10-тармақ', 'Закон «О доступе к информации», ст. 11 п. 10', 'Law on Access to Information, Art. 11(10)') },
-      { icon: 'coins', value: '0 ₸', label: X('ақпарат сұрау тегін', 'информация по запросу — бесплатно', 'information on request is free'), note: X('Сол Заң, 11-бап, 1-тармақ', 'Тот же закон, ст. 11 п. 1', 'Same law, Art. 11(1)') },
+      { icon: 'scale', value: '20', label: X('жұмыс күні — шағымды қарау', 'рабочих дней — рассмотрение жалобы', 'working days to consider a complaint') },
+      { icon: 'calendar', value: X('3 ай', '3 мес.', '3 mo.'), label: X('шағым беру мерзімі', 'срок подачи жалобы', 'deadline to file a complaint'), note: X('шешім белгілі болған күннен', 'с того дня, как узнали о решении', 'from learning of the decision') },
+      { icon: 'info', value: '15', label: X('күнтізбелік күн — ақпарат сұрауына жауап', 'календарных дней — ответ на запрос информации', 'calendar days to answer an information request') },
+      { icon: 'coins', value: '0 ₸', label: X('ақпарат сұрау тегін', 'информация по запросу — бесплатно', 'information on request is free') },
     ], { cls: 'stats--bento fb-terms' });
 
     // ---------------------------------------------------------------- form + aside
     const aside = `<div class="stack fb-aside">
 ${ui.panel({ theme: 'chemistry', cls: 'fb-aside__panel', body: `<p class="fb-aside__title">${L(X('Өтінішке не жазу керек', 'Что указать в обращении', 'What to include'))}</p>
-<ul class="bullets">${[
+${ui.chips([
+      { icon: 'user', label: X('Аты-жөні және байланыс', 'Имя и контакт', 'Name and contact') },
+      { icon: 'info', label: X('Мәселенің мәні', 'Суть вопроса', 'The essence') },
+      { icon: 'target', label: X('Өтінішіңіз', 'Ваша просьба', 'Your request') },
+      { icon: 'graduation', label: X('Баланың сыныбы', 'Класс ребёнка', 'Child’s grade') },
+    ], { cls: 'fb-need' })}
+${ui.more({ body: `<ul class="bullets">${[
       X('Аты-жөніңіз және жауап алатын байланыс (пошта немесе телефон)', 'Ваше имя и контакт для ответа (почта или телефон)', 'Your name and a contact for the reply (e-mail or phone)'),
       X('Мәселенің мәні: не болды, қашан, кімге қатысты', 'Суть вопроса: что произошло, когда, кого касается', 'The essence: what happened, when and whom it concerns'),
       X('Нені сұрайсыз немесе ұсынасыз', 'Чего вы просите или что предлагаете', 'What you are asking for or suggesting'),
       X('Балаңыздың сыныбы (қажет болса)', 'Класс ребёнка (если нужно)', 'Your child’s grade (if relevant)'),
     ].map((x) => `<li>${L(x)}</li>`).join('')}</ul>
-<p class="fb-aside__small">${L(X(`Ресми жазбаша өтініштің мазмұнына қойылатын талаптар ${L(APPK)} 63-бабында белгіленген.`, `Требования к содержанию письменного обращения установлены ст. 63 ${L(APPK)}.`, `Formal requirements for a written appeal are set in Art. 63 of the ${L(APPK)}.`))}</p>` })}
+<p class="muted">${L(X('Қате болса, форма нені түзету керектігін мәтінмен көрсетеді.', 'При ошибке форма текстом укажет, что исправить.', 'If something is wrong, the form says in words what to fix.'))}</p>
+${ui.legal([{ title: X(`${L(APPK)}, 63-бап`, `${L(APPK)}, ст. 63`, `${L(APPK)}, Art. 63`), href: LAW.appk, note: X(`Ресми жазбаша өтініштің мазмұнына қойылатын талаптар ${L(APPK)} 63-бабында белгіленген.`, `Требования к содержанию письменного обращения установлены ст. 63 ${L(APPK)}.`, `Formal requirements for a written appeal are set in Art. 63 of the ${L(APPK)}.`) }])}` })}` })}
 ${ui.callout({ type: 'warn', title: X('Шұғыл жағдайда', 'В экстренной ситуации', 'In an emergency'), text: X('Балаға қауіп төнсе, форманы күтпеңіз: <strong>112</strong> бірыңғай құтқару қызметі, <strong>111</strong> — балалар құқықтарын қорғау байланыс орталығы, <strong>150</strong> — балалар мен жастарға арналған сенім телефоны.', 'Если ребёнку угрожает опасность, не ждите ответа на форму: <strong>112</strong> — единая служба спасения, <strong>111</strong> — контакт-центр по защите прав детей, <strong>150</strong> — телефон доверия для детей и молодёжи.', 'If a child is in danger, do not wait for a form reply: <strong>112</strong> — emergency services, <strong>111</strong> — children’s rights contact centre, <strong>150</strong> — helpline for children and young people.') })}
-<div class="fb-ways"><p class="fb-aside__title">${L(X('Өтініш берудің басқа тәсілдері', 'Другие способы обратиться', 'Other ways to reach us'))}</p>${ui.chips([
+<div class="fb-ways"><div class="cluster fb-ways__btns">${ui.button({ href: `tel:${c.phone.tel}`, label: c.phone.display, kind: 'ghost', size: 's', iconLeft: 'phone', icon: null })}${ui.button({ href: `https://wa.me/${c.phone.whatsapp}`, label: 'WhatsApp', kind: 'ghost', size: 's', iconLeft: 'whatsapp', icon: null, ext: true })}</div>
+${ui.more({ icon: 'chat', count: 5, label: X('Өтініш берудің басқа тәсілдері', 'Другие способы обратиться', 'Other ways to reach us'), body: ui.chips([
       { icon: 'phone', label: X('Телефон арқылы ауызша', 'Устно по телефону', 'Orally by phone') },
       { icon: 'doc', label: X('Мектепке жазбаша', 'Письменно в школу', 'In writing at the school') },
       { icon: 'user', label: X('Директордың жеке қабылдауында', 'На личном приёме у директора', 'At the director’s reception'), href: href('director-blog') + '#reception' },
-    ])}</div>
-${ui.linkList([
+    ]) + ui.linkList([
       { href: `tel:${c.phone.tel}`, icon: 'phone', label: c.phone.display, note: X('Ауызша сұрақ — телефон арқылы', 'Устный вопрос — по телефону', 'An oral question — by phone') },
       { href: `https://wa.me/${c.phone.whatsapp}`, icon: 'whatsapp', label: 'WhatsApp', note: X('Жылдам хабарлама', 'Быстрое сообщение', 'A quick message') },
-    ])}
+    ]) })}</div>
 </div>`;
     const formBlock = ui.split({ ratio: '3:2', left: ui.form({ kind: 'feedback', lang }), right: aside });
 
@@ -78,23 +85,47 @@ ${ui.linkList([
     // APPK Art. 4: подп. 16) обращение = заявление или жалоба (kz: жолданым = арыз немесе шағым); 1) заявление; 38) жалоба;
     // 32) запрос; 35) предложение; 36) отклик; 37) сообщение (kz: хабар) — the last four are defined separately, not as forms of обращение.
     const appealTag = X('Жолданым', 'Обращение', 'Appeal');
-    const types = ui.cards([
-      { icon: 'doc', tag: appealTag, title: X('Арыз', 'Заявление', 'Application'), text: X('Өз құқықтарыңызды немесе басқа адамдардың құқықтарын іске асыруға жәрдем сұрау: анықтама, құжат, ауыстыру т.б. (1) тармақша).', 'Ходатайство о содействии в реализации ваших прав или прав других лиц: справка, документ, перевод и т. п. (подп. 1).', 'A request for help in exercising your rights or those of others: a certificate, a document, a transfer, etc. (subpara. 1).') },
-      { icon: 'scale', tag: appealTag, title: X('Шағым', 'Жалоба', 'Complaint'), text: X('Әкімшілік акт немесе әрекет (әрекетсіздік) бұзған құқықтарды қалпына келтіру не қорғау талабы (38) тармақша).', 'Требование о восстановлении или защите прав, нарушенных административным актом или действием (бездействием) (подп. 38).', 'A demand to restore or protect rights violated by an administrative act or action (inaction) (subpara. 38).') },
-      { icon: 'search', title: X('Сұрау салу', 'Запрос', 'Information request'), text: X('Сізді қызықтыратын мәселе бойынша ақпарат беру туралы өтініш (32) тармақша). Жазбаша сұрау салуға «Ақпаратқа қол жеткізу туралы» Заң бойынша жауап беріледі.', 'Просьба предоставить информацию по интересующему вопросу (подп. 32). На письменный запрос отвечают по Закону «О доступе к информации».', 'A request for information on a matter of interest (subpara. 32). Written requests are answered under the Law on Access to Information.') },
-      { icon: 'bulb', title: X('Ұсыныс', 'Предложение', 'Suggestion'), text: X('Жұмысты жетілдіру және жақсарту жөніндегі ұсынымыңыз (35) тармақша).', 'Ваша рекомендация по совершенствованию и улучшению работы (подп. 35).', 'Your recommendation on improving how things work (subpara. 35).') },
-      { icon: 'chat', title: X('Үн қосу', 'Отклик', 'Response'), text: X('Қоғамдық сипаттағы оқиғалар мен құбылыстарға өз көзқарасыңызды білдіру (36) тармақша).', 'Выражение своего отношения к событиям и явлениям общественного характера (подп. 36).', 'Expressing your view on events and developments of public significance (subpara. 36).') },
-      { icon: 'warn', title: X('Хабар', 'Сообщение', 'Report'), text: X('Заң бұзушылық немесе жұмыстағы кемшіліктер туралы хабарлау (37) тармақша).', 'Уведомление о нарушении законов или о недостатках в работе (подп. 37).', 'Notice of a breach of the law or of shortcomings in the work (subpara. 37).') },
-    ], { cols: 3, variant: 'feature' }) + `<div class="fb-defs">${ui.callout({ type: 'info', title: X('Заң тілінде', 'Юридически', 'In legal terms'), text: X(
-      `${L(APPK)} бойынша <strong>жолданым</strong> (өтініш) — бұл <strong>арыз немесе шағым</strong> (4-баптың 16) тармақшасы). Сұрау салу, ұсыныс, үн қосу және хабар сол баптың 32), 35)–37) тармақшаларында жеке анықталған. Сайттағы форма арқылы олардың кез келгенін жіберуге болады.`,
-      `По ${L(APPK)} <strong>обращение</strong> — это <strong>заявление или жалоба</strong> (ст. 4 подп. 16). Запрос, предложение, отклик и сообщение определены отдельно — в подп. 32), 35)–37) той же статьи. Через форму на сайте можно направить любое из них.`,
-      `Under the ${L(APPK)}, an <strong>appeal</strong> (обращение) means an <strong>application or a complaint</strong> (Art. 4, subpara. 16). Information requests, suggestions, responses and reports are defined separately in subparas. 32 and 35–37 of the same article. You can send any of them through the form on this site.`,
-    ) })}</div>`;
+    // Layer 1: six cards with one plain line each; layer 2: the APPC Art. 4 definitions (word for word) in a legal chip.
+    const TYPES = [
+      { icon: 'doc', tag: appealTag, title: X('Арыз', 'Заявление', 'Application'),
+        short: X('Көмек сұрау: анықтама, құжат, ауыстыру.', 'Просьба помочь: справка, документ, перевод.', 'Asking for help: a certificate, a document, a transfer.'),
+        def: X('Өз құқықтарыңызды немесе басқа адамдардың құқықтарын іске асыруға жәрдем сұрау: анықтама, құжат, ауыстыру т.б. (1) тармақша).', 'Ходатайство о содействии в реализации ваших прав или прав других лиц: справка, документ, перевод и т. п. (подп. 1).', 'A request for help in exercising your rights or those of others: a certificate, a document, a transfer, etc. (subpara. 1).') },
+      { icon: 'scale', tag: appealTag, title: X('Шағым', 'Жалоба', 'Complaint'),
+        short: X('Құқығыңыз бұзылса — оны қалпына келтіру талабы.', 'Если нарушены ваши права — требование их восстановить.', 'If your rights were violated — a demand to restore them.'),
+        def: X('Әкімшілік акт немесе әрекет (әрекетсіздік) бұзған құқықтарды қалпына келтіру не қорғау талабы (38) тармақша).', 'Требование о восстановлении или защите прав, нарушенных административным актом или действием (бездействием) (подп. 38).', 'A demand to restore or protect rights violated by an administrative act or action (inaction) (subpara. 38).') },
+      { icon: 'search', title: X('Сұрау салу', 'Запрос', 'Information request'),
+        short: X('Ақпарат беру туралы өтініш.', 'Просьба предоставить информацию.', 'Asking for information.'),
+        def: X('Сізді қызықтыратын мәселе бойынша ақпарат беру туралы өтініш (32) тармақша). Жазбаша сұрау салуға «Ақпаратқа қол жеткізу туралы» Заң бойынша жауап беріледі.', 'Просьба предоставить информацию по интересующему вопросу (подп. 32). На письменный запрос отвечают по Закону «О доступе к информации».', 'A request for information on a matter of interest (subpara. 32). Written requests are answered under the Law on Access to Information.') },
+      { icon: 'bulb', title: X('Ұсыныс', 'Предложение', 'Suggestion'),
+        short: X('Жұмысты жақсарту идеясы.', 'Идея, как улучшить работу.', 'An idea to improve how things work.'),
+        def: X('Жұмысты жетілдіру және жақсарту жөніндегі ұсынымыңыз (35) тармақша).', 'Ваша рекомендация по совершенствованию и улучшению работы (подп. 35).', 'Your recommendation on improving how things work (subpara. 35).') },
+      { icon: 'chat', title: X('Үн қосу', 'Отклик', 'Response'),
+        short: X('Қоғамдық оқиғаларға көзқарасыңыз.', 'Ваше мнение о событиях общественной жизни.', 'Your view on public events.'),
+        def: X('Қоғамдық сипаттағы оқиғалар мен құбылыстарға өз көзқарасыңызды білдіру (36) тармақша).', 'Выражение своего отношения к событиям и явлениям общественного характера (подп. 36).', 'Expressing your view on events and developments of public significance (subpara. 36).') },
+      { icon: 'warn', title: X('Хабар', 'Сообщение', 'Report'),
+        short: X('Заң бұзушылық немесе кемшілік туралы.', 'О нарушении закона или недостатках в работе.', 'About a breach of the law or shortcomings.'),
+        def: X('Заң бұзушылық немесе жұмыстағы кемшіліктер туралы хабарлау (37) тармақша).', 'Уведомление о нарушении законов или о недостатках в работе (подп. 37).', 'Notice of a breach of the law or of shortcomings in the work (subpara. 37).') },
+    ];
+    const types = ui.cards(TYPES.map((x) => ({ icon: x.icon, tag: x.tag, title: x.title, text: x.short })), { cols: 3, variant: 'feature' })
+      + `<div class="fb-defs">${ui.legal(TYPES.map((x) => ({ title: x.title, note: x.def })), {
+        title: X('Заң тілінде', 'На языке закона', 'In legal terms'),
+        note: X(
+          `${L(APPK)} бойынша <strong>жолданым</strong> (өтініш) — бұл <strong>арыз немесе шағым</strong> (4-баптың 16) тармақшасы). Сұрау салу, ұсыныс, үн қосу және хабар сол баптың 32), 35)–37) тармақшаларында жеке анықталған. Сайттағы форма арқылы олардың кез келгенін жіберуге болады.`,
+          `По ${L(APPK)} <strong>обращение</strong> — это <strong>заявление или жалоба</strong> (ст. 4 подп. 16). Запрос, предложение, отклик и сообщение определены отдельно — в подп. 32), 35)–37) той же статьи. Через форму на сайте можно направить любое из них.`,
+          `Under the ${L(APPK)}, an <strong>appeal</strong> (обращение) means an <strong>application or a complaint</strong> (Art. 4, subpara. 16). Information requests, suggestions, responses and reports are defined separately in subparas. 32 and 35–37 of the same article. You can send any of them through the form on this site.`,
+        ) })}</div>`;
 
     // ---------------------------------------------------------------- procedure (steps) + terms table
+    const STAGES = [
+      { icon: 'chat', t: X('Жіберу', 'Отправка', 'Send') },
+      { icon: 'doc', t: X('Тіркеу', 'Регистрация', 'Registration') },
+      { icon: 'search', t: X('Қарау', 'Рассмотрение', 'Consideration') },
+      { icon: 'check', t: X('Жауап', 'Ответ', 'Answer') },
+    ];
+    const flow = `<ol class="fb-flow" role="list">${STAGES.map((st, i) => `<li class="fb-flow__i"><span class="fb-flow__ic" aria-hidden="true">${ui.icon(st.icon, { size: 22 })}</span><span class="fb-flow__n" aria-hidden="true">0${i + 1}</span><span class="fb-flow__t">${L(st.t)}</span></li>`).join('')}</ol>`;
     const procedure = ui.steps([
       { title: X('Жіберу', 'Отправка', 'Send'), text: X('Онлайн-форма, WhatsApp, ауызша (телефонмен немесе жеке келіп) не жазбаша түрде мектепке өтініш бересіз.', 'Вы подаёте обращение через онлайн-форму, WhatsApp, устно (по телефону или лично) или письменно в школу.', 'You send the appeal via the online form, WhatsApp, orally (by phone or in person) or in writing.') },
-      { title: X('Тіркеу', 'Регистрация', 'Registration'), text: X('Өтініш келіп түскен күні тіркеледі; жұмыс уақытынан кейін келсе — келесі жұмыс күні (ӘРПК 64-бабы, 3-тармақ).', 'Обращение регистрируется в день поступления, а после окончания рабочего дня — на следующий рабочий день (АППК, ст. 64 п. 3).', 'The appeal is registered on the day it arrives, or on the next working day if it comes after hours (APPC Art. 64(3)).') },
+      { title: X('Тіркеу', 'Регистрация', 'Registration'), text: X('Өтініш келіп түскен күні тіркеледі; жұмыс уақытынан кейін келсе — келесі жұмыс күні.', 'Обращение регистрируется в день поступления, а после окончания рабочего дня — на следующий рабочий день.', 'The appeal is registered on the day it arrives, or on the next working day if it comes after hours.') },
       { title: X('Қарау', 'Рассмотрение', 'Consideration'), text: X('Өтінішті жауапты қызметкер қарайды, қажет болса сізбен байланысып, мән-жайын нақтылайды.', 'Обращение рассматривает ответственный работник; при необходимости он свяжется с вами, чтобы уточнить обстоятельства.', 'A responsible staff member considers it and may contact you to clarify the facts.') },
       { title: X('Жауап', 'Ответ', 'Answer'), text: X('Жауап өтініш тілінде, сіз таңдаған тәсілмен (қағаз немесе электрондық түрде) беріледі.', 'Ответ даётся на языке обращения, в выбранной вами форме (бумажной или электронной).', 'The answer is given in the language of the appeal, on paper or electronically, as you choose.') },
     ]);
@@ -110,7 +141,7 @@ ${ui.linkList([
         [X('Шағымды қарау', 'Рассмотрение жалобы', 'Considering a complaint'), X('20 жұмыс күні', '20 рабочих дней', '20 working days'), X('ӘРПК, 99-бап', 'АППК, ст. 99', 'APPC Art. 99')],
       ],
     });
-    const scopeNote = ui.callout({ type: 'info', title: X('Бұл мерзімдер кімге қолданылады', 'К кому применяются эти сроки', 'Who these time limits apply to'), text: X(
+    const scopeNote = ui.more({ icon: 'info', label: X('Бұл мерзімдер кімге қолданылады', 'К кому применяются эти сроки', 'Who these time limits apply to'), body: X(
       `ӘРПК мемлекеттік органдарға, сондай-ақ заң бойынша әкімшілік акт қабылдау өкілеттігі берілген өзге де ұйымдарға қолданылады (4-бап, 7-тармақ) — мысалы, мектепке қабылдау сияқты мемлекеттік қызметтер көрсету кезінде. Мектептің өтініштерді қарау жөніндегі ішкі тәртібі бекітілгеннен кейін осы бетте жарияланады.`,
       `АППК распространяется на государственные органы, а также на иные организации, наделённые законом полномочиями по принятию административного акта (ст. 4 п. 7), — например, при оказании государственных услуг, таких как приём в школу. Внутренний порядок рассмотрения обращений школы будет опубликован на этой странице после утверждения.`,
       `The APPC applies to state bodies and to other organisations empowered by law to take administrative acts (Art. 4(7)) — for example, when providing public services such as school admission. The school’s internal procedure for appeals will be published here once approved.`,
@@ -122,35 +153,52 @@ ${ui.linkList([
     const r = c.responsibleForAppeals || {};
     const rPhone = typeof r.phone === 'string' ? { display: r.phone, tel: r.phone.replace(/[^+\d]/g, '') } : r.phone;
     const rName = [L(r.name), L(r.position)].filter(Boolean).join(', ');
-    const responsible = ui.split({
-      ratio: '1:1', align: 'start',
-      left: `<div class="fb-resp panel pattern" data-theme="chemistry"><div class="fb-resp__head"><span class="fb-resp__ava" aria-hidden="true">${ui.icon('user', { size: 34 })}</span><div><p class="fb-resp__role">${L(X('Өтініштерге жауапты тұлға', 'Ответственный за обращения', 'Person responsible for appeals'))}</p><p class="fb-resp__name">${L(r.name) || t('pending.title')}</p></div></div>
-${ui.facts([
+    const rFacts = ui.facts([
         { k: X('Аты-жөні, лауазымы', 'ФИО, должность', 'Name, position'), v: rName || unconf },
         { k: t('phone'), v: rPhone && rPhone.display ? `<a href="tel:${rPhone.tel}">${rPhone.display}</a>` : `<a href="tel:${c.phone.tel}">${c.phone.display}</a> <small class="muted">(${L(X('уақытша — мектептің негізгі нөмірі', 'временно — основной номер школы', 'meanwhile — the school’s main number'))})</small>` },
         { k: t('email'), v: r.email ? `<a href="mailto:${r.email}">${r.email}</a>` : unconf },
         { k: X('Қабылдау уақыты', 'Часы приёма', 'Reception hours'), v: L(r.hours) || unconf },
-      ])}</div>`,
-      right: (c.responsibleForAppeals ? '' : ui.pending({
-        title: X('Жарияланатын мәліметтер', 'Что будет опубликовано', 'To be published'),
+      ]);
+    // Side column: ONE pending line for the whole section (the person's details + the two documents), SPEC §6.1 p.5.
+    // Once a document gets a file it leaves the group and is listed normally; the details item goes when the person is set.
+    const respDocs = [docById('appeals-officer-order'), docById('appeals-regulation')].filter(Boolean);
+    const isPend = (d) => !d.file && !d.url;
+    const respItems = [
+      c.responsibleForAppeals ? null : {
+        title: X('Жауапты тұлға туралы мәліметтер', 'Сведения об ответственном', 'Details of the responsible person'),
         note: X(
           'Өтініштерге жауапты қызметкердің аты-жөні мен лауазымы, байланыс телефоны мен поштасы, қабылдау күндері мен сағаттары; оны тағайындау туралы бұйрық (нөмірі, күні); өтініштерді қарау тәртібі туралы ішкі ереже (PDF).',
           'ФИО и должность ответственного за обращения, телефон и почта, дни и часы приёма; приказ о его назначении (номер, дата); внутреннее положение о порядке рассмотрения обращений (PDF).',
           'Name and position of the person responsible for appeals, phone and e-mail, reception days and hours; the appointment order (number, date); the internal regulation on handling appeals (PDF).',
         ),
-      })) + ui.docList([
-        docById('appeals-officer-order'),
-        docById('appeals-regulation'),
-      ]),
+      },
+      ...respDocs.filter(isPend).map((d) => ({ title: d.title, note: d.note || t('doc.pending') })),
+    ].filter(Boolean);
+    // (docById already registers both slots for the page's document stamps.)
+    const respSide = ui.pendingGroup(lang, respItems) + ui.docList(respDocs.filter((d) => !isPend(d)));
+    const responsible = ui.split({
+      ratio: '1:1', align: 'start',
+      left: `<div class="fb-resp panel pattern" data-theme="chemistry"><div class="fb-resp__head"><span class="fb-resp__ava" aria-hidden="true">${ui.icon('user', { size: 34 })}</span><div><p class="fb-resp__role">${L(X('Өтініштерге жауапты тұлға', 'Ответственный за обращения', 'Person responsible for appeals'))}</p><p class="fb-resp__name">${L(r.name) || unconf}</p></div></div>
+${r.name ? rFacts : `<p class="fb-resp__now">${ui.icon('phone', { size: 18 })}<span>${L(X('Әзірге — мектептің негізгі нөмірі', 'Пока — основной номер школы', 'Meanwhile — the school’s main number'))}: <a href="tel:${c.phone.tel}">${c.phone.display}</a></span></p>${ui.more({ icon: 'user', count: 4, label: X('Байланыс карточкасы', 'Карточка контакта', 'Contact card'), body: rFacts })}`}</div>`,
+      right: `<div class="stack fb-resp__side">${respSide}</div>`,
     });
 
     // ---------------------------------------------------------------- how to appeal a decision (timeline)
     const appeal = ui.timeline([
       { time: X('1-қадам', 'Шаг 1', 'Step 1'), title: X('Мектепте сөйлесу', 'Разговор в школе', 'Talk it through at school'), text: X('Көп мәселе сынып жетекшісімен, пән мұғалімімен немесе директордың орынбасарымен сөйлескенде шешіледі.', 'Многие вопросы решаются в разговоре с классным руководителем, учителем или заместителем директора.', 'Many issues are settled by talking to the class teacher, the subject teacher or a deputy director.') },
       { time: X('2-қадам', 'Шаг 2', 'Step 2'), title: X('Директорға жүгіну', 'Обращение к директору', 'Go to the director'), text: X(`Директордың жеке қабылдауына жазылыңыз немесе <a href="${href('director-blog')}">директор блогы</a> арқылы сұрақ қойыңыз.`, `Запишитесь на личный приём к директору или задайте вопрос через <a href="${href('director-blog')}">блог директора</a>.`, `Book a personal meeting with the director or ask through the <a href="${href('director-blog')}">director’s blog</a>.`) },
-      { time: X('3-қадам', 'Шаг 3', 'Step 3'), title: X('Жазбаша шағым', 'Письменная жалоба', 'Written complaint'), text: X('Шешімге шағым сол шешімді қабылдаған ұйымға 3 ай ішінде беріледі. Ол шағымды 3 жұмыс күні ішінде қарауға өкілетті органға жібереді немесе осы мерзімде талапты өзі толық қанағаттандырады (ӘРПК 91-бабы, 4-тармақ; 92-бап).', 'Жалоба на решение подаётся в течение 3 месяцев в организацию, которая его приняла. В течение 3 рабочих дней она передаёт жалобу органу, рассматривающему жалобу, либо в этот срок сама полностью удовлетворяет требования (АППК, ст. 91 п. 4; ст. 92).', 'A complaint is filed within 3 months with the organisation that made the decision. Within 3 working days it forwards the complaint to the reviewing body, or fully satisfies the demand itself (APPC Art. 91(4); Art. 92).') },
-      { time: X('4-қадам', 'Шаг 4', 'Step 4'), title: X('Білім беру органдары', 'Органы образования', 'Education authorities'), text: X(`Білім беру сапасына қатысты мәселелер бойынша ${ui.extLink(S.gov.department.url, S.gov.department.label)} немесе ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)} мекемесіне, соның ішінде ${ui.extLink(LAW.eotinish, 'eOtinish')} порталы арқылы жүгінуге болады.`, `По вопросам качества образования можно обратиться в ${ui.extLink(S.gov.department.url, S.gov.department.label)} или ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)}, в том числе через портал ${ui.extLink(LAW.eotinish, 'eOtinish')}.`, `On matters of education quality you can contact the ${ui.extLink(S.gov.department.url, S.gov.department.label)} or the ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)}, including via the ${ui.extLink(LAW.eotinish, 'eOtinish')} portal.`) },
-      { time: X('5-қадам', 'Шаг 5', 'Step 5'), title: X('Сот', 'Суд', 'Court'), text: X('Заңда өзгеше көзделмесе, сотқа дейінгі (әкімшілік) тәртіппен шағымданғаннан кейін сотқа жүгінуге болады (ӘРПК 91-бабы, 5-тармақ).', 'Если иное не предусмотрено законом, обращение в суд допускается после досудебного обжалования (АППК, ст. 91 п. 5).', 'Unless the law provides otherwise, you may go to court after the pre-trial complaint stage (APPC Art. 91(5)).') },
+      { time: X('3-қадам', 'Шаг 3', 'Step 3'), title: X('Жазбаша шағым', 'Письменная жалоба', 'Written complaint'), text: ui.more({
+        summary: X('Шағым шешім қабылдаған ұйымға 3 ай ішінде беріледі.', 'Жалоба на решение подаётся в течение 3 месяцев в организацию, которая его приняла.', 'A complaint is filed within 3 months with the organisation that made the decision.'),
+        body: X('Ол шағымды 3 жұмыс күні ішінде қарауға өкілетті органға жібереді немесе осы мерзімде талапты өзі толық қанағаттандырады (ӘРПК 91-бабы, 4-тармақ; 92-бап).', 'В течение 3 рабочих дней она передаёт жалобу органу, рассматривающему жалобу, либо в этот срок сама полностью удовлетворяет требования (АППК, ст. 91 п. 4; ст. 92).', 'Within 3 working days it forwards the complaint to the reviewing body, or fully satisfies the demand itself (APPC Art. 91(4); Art. 92).'),
+      }) },
+      { time: X('4-қадам', 'Шаг 4', 'Step 4'), title: X('Білім беру органдары', 'Органы образования', 'Education authorities'), text: ui.more({
+        summary: X('Білім беру органдарына немесе eOtinish арқылы.', 'В органы образования или через eOtinish.', 'To the education authorities or via eOtinish.'),
+        body: X(`Білім беру сапасына қатысты мәселелер бойынша ${ui.extLink(S.gov.department.url, S.gov.department.label)} немесе ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)} мекемесіне, соның ішінде ${ui.extLink(LAW.eotinish, 'eOtinish')} порталы арқылы жүгінуге болады.`, `По вопросам качества образования можно обратиться в ${ui.extLink(S.gov.department.url, S.gov.department.label)} или ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)}, в том числе через портал ${ui.extLink(LAW.eotinish, 'eOtinish')}.`, `On matters of education quality you can contact the ${ui.extLink(S.gov.department.url, S.gov.department.label)} or the ${ui.extLink(S.gov.cityEducation.url, S.gov.cityEducation.label)}, including via the ${ui.extLink(LAW.eotinish, 'eOtinish')} portal.`),
+      }) },
+      { time: X('5-қадам', 'Шаг 5', 'Step 5'), title: X('Сот', 'Суд', 'Court'), text: ui.more({
+        summary: X('Шағымданғаннан кейін сотқа жүгінуге болады.', 'После досудебного обжалования можно обратиться в суд.', 'After the pre-trial complaint you may go to court.'),
+        body: X('Заңда өзгеше көзделмесе, сотқа дейінгі (әкімшілік) тәртіппен шағымданғаннан кейін сотқа жүгінуге болады.', 'Если иное не предусмотрено законом, обращение в суд допускается после досудебного обжалования.', 'Unless the law provides otherwise, you may go to court after the pre-trial complaint stage.'),
+      }) },
     ]);
 
     // ---------------------------------------------------------------- official channels
@@ -161,10 +209,10 @@ ${ui.facts([
       { icon: 'building', title: S.gov.department.label, text: L(X('Мектепке лицензия берген орган.', 'Орган, выдавший лицензию школе.', 'The body that issued the school’s licence.')) + offLink(S.gov.department.url, 'gov.kz') },
       { icon: 'school', title: S.gov.cityEducation.label, text: L(X('Қаланың білім беруді басқару органы.', 'Городской орган управления образованием.', 'The city’s education authority.')) + offLink(S.gov.cityEducation.url, 'gov.kz') },
     ], { cols: 3 });
-    const sources = ui.docList([
-      { title: X('Қазақстан Республикасының Әкімшілік рәсімдік-процестік кодексі (29.06.2020 № 350-VI)', 'Административный процедурно-процессуальный кодекс Республики Казахстан от 29.06.2020 № 350-VI', 'Administrative Procedural and Process Code of the Republic of Kazakhstan, No. 350-VI of 29.06.2020'), url: LAW.appk, note: X('4, 63, 64, 76, 91, 92, 99-баптар', 'Статьи 4, 63, 64, 76, 91, 92, 99', 'Articles 4, 63, 64, 76, 91, 92, 99') },
-      { title: X('«Ақпаратқа қол жеткізу туралы» Қазақстан Республикасының Заңы (16.11.2015 № 401-V)', 'Закон Республики Казахстан «О доступе к информации» от 16.11.2015 № 401-V', 'Law of the Republic of Kazakhstan “On Access to Information”, No. 401-V of 16.11.2015'), url: LAW.info, note: X('11-бап — сұрау бойынша ақпарат беру', 'Статья 11 — предоставление информации по запросу', 'Article 11 — providing information on request') },
-    ]);
+    const sources = ui.legal([
+      { title: X('Қазақстан Республикасының Әкімшілік рәсімдік-процестік кодексі (29.06.2020 № 350-VI)', 'Административный процедурно-процессуальный кодекс Республики Казахстан от 29.06.2020 № 350-VI', 'Administrative Procedural and Process Code of the Republic of Kazakhstan, No. 350-VI of 29.06.2020'), href: LAW.appk, note: X('4, 63, 64, 76, 91, 92, 99-баптар', 'Статьи 4, 63, 64, 76, 91, 92, 99', 'Articles 4, 63, 64, 76, 91, 92, 99') },
+      { title: X('«Ақпаратқа қол жеткізу туралы» Қазақстан Республикасының Заңы (16.11.2015 № 401-V)', 'Закон Республики Казахстан «О доступе к информации» от 16.11.2015 № 401-V', 'Law of the Republic of Kazakhstan “On Access to Information”, No. 401-V of 16.11.2015'), href: LAW.info, note: X('11-бап — сұрау бойынша ақпарат беру (1-тармақ — тегін, 10-тармақ — мерзімі)', 'Статья 11 — предоставление информации по запросу (п. 1 — бесплатно, п. 10 — срок)', 'Article 11 — providing information on request (para. 1 — free of charge, para. 10 — time limit)') },
+    ], { title: X('Нормативтік актілер', 'Нормативные акты', 'Legislation'), note: X('Заң мәтіндері 25.09.2026 тексерілді (ӘРПК — 25.08.2026 жағдай бойынша редакция; 99-бап — 17.12.2025 № 241-VIII Заңның редакциясында). Өзекті редакциясын adilet.zan.kz сайтынан қараңыз.', 'Тексты законов сверены 25.09.2026 (АППК — в редакции по состоянию на 25.08.2026; ст. 99 — в редакции Закона от 17.12.2025 № 241-VIII). Актуальная редакция — на adilet.zan.kz.', 'Legal texts checked on 25.09.2026 (APPC as amended up to 25.08.2026; Art. 99 as worded by Law No. 241-VIII of 17.12.2025). See adilet.zan.kz for the current version.') });
 
     const toc = ui.toc([
       { id: 'form', label: X('Онлайн-өтініш', 'Онлайн-обращение', 'Online appeal') },
@@ -186,15 +234,17 @@ ${ui.facts([
     return [
       // Phones: the form is the page's main task, so the TOC is hidden above it and repeated right after it (display:none keeps
       // only one copy in the accessibility tree at any width).
-      ui.split({ ratio: '1:2', cls: 'fb-top', left: toc, right: ui.section({ id: 'form', cls: 'fb-formintro', eyebrow: X('Кері байланыс формасы', 'Форма обратной связи', 'Feedback form'), title: X('Мектепке жазу', 'Написать в школу', 'Write to the school'), lead: X('Барлық өрістердің жанында түсініктеме бар; қате болса, форма нені түзету керектігін мәтінмен көрсетеді. Капча жоқ.', 'У каждого поля есть подсказка; при ошибке форма текстом укажет, что исправить. Капчи нет.', 'Every field has a hint; if something is wrong the form says in words what to fix. No captcha.') }) }),
+      ui.split({ ratio: '1:2', cls: 'fb-top', left: toc, right: ui.section({ id: 'form', cls: 'fb-formintro', eyebrow: X('Кері байланыс формасы', 'Форма обратной связи', 'Feedback form'), title: X('Мектепке жазу', 'Написать в школу', 'Write to the school'), lead: X('Әр өрістің жанында түсініктеме бар. Капча жоқ.', 'У каждого поля есть подсказка. Капчи нет.', 'Every field has a hint. No captcha.') }) }),
       ui.section({ body: formBlock, cls: 'fb-formsec' }),
       `<div class="fb-toc-m">${toc}</div>`,
       ui.section({ id: 'types', eyebrow: X('Жолданымдар мен өтініштер', 'Обращения и запросы', 'Appeals and requests'), title: X('Қандай мәселемен жүгінуге болады', 'С чем можно обратиться', 'What you can write to us about'), body: types }),
-      ui.section({ id: 'procedure', tone: 'chemistry', eyebrow: X('Жолдаудан жауапқа дейін', 'От отправки до ответа', 'From sending to answer'), title: X('Өтініш қалай қаралады', 'Как рассматривается обращение', 'How an appeal is handled'), body: terms + procedure + termsTable }),
-      ui.section({ body: scopeNote }),
+      ui.section({ id: 'procedure', tone: 'chemistry', eyebrow: X('Жолдаудан жауапқа дейін', 'От отправки до ответа', 'From sending to answer'), title: X('Өтініш қалай қаралады', 'Как рассматривается обращение', 'How an appeal is handled'), body: terms + flow + `<div class="dz-row fb-proc-more">${ui.more({ icon: 'target', count: 4, label: X('Әр кезең туралы', 'Что происходит на каждом этапе', 'What happens at each stage'), body: procedure })}${ui.more({ icon: 'clock', count: 6, label: X('Заңда белгіленген барлық мерзімдер', 'Все сроки по закону', 'All time limits set by law'), body: termsTable })}${scopeNote}</div>` }),
       ui.section({ id: 'responsible', eyebrow: X('Байланыс тұлғасы', 'Контактное лицо', 'Contact person'), title: X('Өтініштерге жауапты тұлға', 'Ответственный за рассмотрение обращений', 'Person responsible for appeals'), body: responsible }),
-      ui.section({ id: 'appeal', eyebrow: X('Келіспесеңіз', 'Если вы не согласны', 'If you disagree'), title: X('Шешімге қалай шағымдануға болады', 'Как обжаловать решение', 'How to appeal a decision'), body: appeal }),
-      ui.section({ id: 'official', eyebrow: X('Ресми дереккөздер', 'Официальные источники', 'Official sources'), title: X('Ресми арналар мен нормативтік актілер', 'Официальные каналы и нормативные акты', 'Official channels and legislation'), body: official + sources + ui.note(X('Заң мәтіндері 25.09.2026 тексерілді (ӘРПК — 25.08.2026 жағдай бойынша редакция; 99-бап — 17.12.2025 № 241-VIII Заңның редакциясында). Өзекті редакциясын adilet.zan.kz сайтынан қараңыз.', 'Тексты законов сверены 25.09.2026 (АППК — в редакции по состоянию на 25.08.2026; ст. 99 — в редакции Закона от 17.12.2025 № 241-VIII). Актуальная редакция — на adilet.zan.kz.', 'Legal texts checked on 25.09.2026 (APPC as amended up to 25.08.2026; Art. 99 as worded by Law No. 241-VIII of 17.12.2025). See adilet.zan.kz for the current version.')) }),
+      ui.section({ id: 'appeal', eyebrow: X('Келіспесеңіз', 'Если вы не согласны', 'If you disagree'), title: X('Шешімге қалай шағымдануға болады', 'Как обжаловать решение', 'How to appeal a decision'), body: appeal + `<div class="fb-appeal-law">${ui.legal([
+        { title: X(`${L(APPK)}, 91-бап, 4–5-тармақтар`, `${L(APPK)}, ст. 91 п. 4–5`, `${L(APPK)} Art. 91(4)–(5)`), href: LAW.appk, note: X('Шағымды беру тәртібі; сотқа дейінгі шағымданудан кейін сотқа жүгіну', 'Порядок подачи жалобы; обращение в суд после досудебного обжалования', 'How a complaint is filed; going to court after the pre-trial stage') },
+        { title: X(`${L(APPK)}, 92-бап`, `${L(APPK)}, ст. 92`, `${L(APPK)} Art. 92`), href: LAW.appk, note: X('Шағым беру мерзімі — 3 ай', 'Срок подачи жалобы — 3 месяца', 'Deadline for a complaint: 3 months') },
+      ])}</div>` }),
+      ui.section({ id: 'official', eyebrow: X('Ресми дереккөздер', 'Официальные источники', 'Official sources'), title: X('Ресми арналар мен нормативтік актілер', 'Официальные каналы и нормативные акты', 'Official channels and legislation'), body: official + `<div class="fb-off-law">${sources}</div>` }),
       ui.section({ title: t('nav.inSection'), body: related }),
     ].join('\n');
   },

@@ -277,9 +277,31 @@ d.addEventListener('click', (e) => {
   const target = id && d.getElementById(id);
   if (!target || id === 'main') return;
   e.preventDefault();
-  lenis.scrollTo(target, { duration: 1.4 });
+  // a link to a tab panel of the official block (e.g. the egov teaser): select that tab first (main.js tabs)
+  const tab = target.getAttribute('role') === 'tabpanel' && d.getElementById(`${id}-tab`);
+  if (tab) tab.click();
+  lenis.scrollTo(tab ? (target.closest('.off') || target) : target, { duration: 1.4 });
   history.replaceState(null, '', `#${id}`);
 });
+
+/* official block on phones: the tab strip scrolls sideways — keep the chosen tab in view and drop the edge fade at the end */
+const offList = d.querySelector('.off .tabs__list');
+if (offList) {
+  const syncEnd = () => offList.toggleAttribute('data-end', offList.scrollLeft + offList.clientWidth >= offList.scrollWidth - 4);
+  const reveal = (e) => {
+    const tab = e.target.closest && e.target.closest('[role="tab"]');
+    if (!tab || offList.scrollWidth <= offList.clientWidth) return;
+    const l = tab.getBoundingClientRect().left - offList.getBoundingClientRect().left + offList.scrollLeft, r = l + tab.offsetWidth;
+    if (l < offList.scrollLeft + 6) offList.scrollTo({ left: Math.max(0, l - 6), behavior: 'smooth' });
+    else if (r > offList.scrollLeft + offList.clientWidth - 30) offList.scrollTo({ left: r - offList.clientWidth + 30, behavior: 'smooth' });
+  };
+  offList.addEventListener('scroll', syncEnd, { passive: true });
+  offList.addEventListener('focusin', reveal);
+  offList.addEventListener('click', reveal);
+  // the strip is display:none until main.js readies the tabs → re-check whenever its size changes
+  if ('ResizeObserver' in window) new ResizeObserver(syncEnd).observe(offList); else addEventListener('resize', syncEnd, { passive: true });
+  syncEnd();
+}
 
 let stRefreshHooked = false;
 function setupDayPin() {
@@ -505,6 +527,15 @@ function teardown() {
   requestUpdate();
 }
 function sync() { if (fxAllowed()) setup(); else teardown(); }
+
+/* main.js puts its "Expand all" button (≥ 3 closed disclosures) at the top of <main> — on the landing that is the 3D
+   hero. Move it into the head of the official part (#levels [data-xall-slot]). main.js runs after this module, so wait
+   for DOMContentLoaded (fired after all module scripts). */
+d.addEventListener('DOMContentLoaded', () => {
+  const x = main.querySelector(':scope > .xall');
+  const slot = $('[data-xall-slot]', main);
+  if (x && slot) slot.append(x);
+});
 
 window.addEventListener('keremet:a11y', sync);
 reducedMQ.addEventListener?.('change', sync);

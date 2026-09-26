@@ -137,11 +137,11 @@ ${usedTags.map((tg) => `<input class="nw-radio" type="radio" name="nw-tag" id="n
       ratio: '3:2', align: 'center',
       left: `<div class="flow">${ui.eyebrow('RSS 2.0')}
 <h2 class="sec__title" id="rss-title">${L(X('Жаңалықтарға RSS арқылы жазылыңыз', 'Подпишитесь на новости через RSS', 'Subscribe to the news via RSS'))}</h2>
-<p>${L(X(
-        'RSS — жаңалықтарды сайтқа кірмей-ақ алу тәсілі. Арна мекенжайын кез келген RSS-оқырманға (мысалы, Feedly, Inoreader, пошта бағдарламасы немесе браузер кеңейтімі) қосыңыз: жаңа жарияланым шыққанда ол бірден көрсетіледі. Әр тілдің өз арнасы бар.',
-        'RSS — способ получать новости, не заходя на сайт. Добавьте адрес ленты в любую программу для чтения RSS (например, Feedly, Inoreader, почтовый клиент или расширение браузера): новые публикации появятся там сразу. У каждого языка своя лента.',
-        'RSS lets you get the news without visiting the site. Add the feed address to any RSS reader (Feedly, Inoreader, a mail client or a browser extension) and new posts appear there straight away. Each language has its own feed.',
-      ))}</p>
+${ui.more({ cls: 'nw-rss-more', label: X('Қалай жазылуға болады', 'Как подписаться', 'How to subscribe'), summary: X('RSS — жаңалықтарды сайтқа кірмей-ақ алу тәсілі.', 'RSS — способ получать новости, не заходя на сайт.', 'RSS lets you get the news without visiting the site.'), body: X(
+        '<p>Арна мекенжайын кез келген RSS-оқырманға (мысалы, Feedly, Inoreader, пошта бағдарламасы немесе браузер кеңейтімі) қосыңыз: жаңа жарияланым шыққанда ол бірден көрсетіледі. Әр тілдің өз арнасы бар.</p>',
+        '<p>Добавьте адрес ленты в любую программу для чтения RSS (например, Feedly, Inoreader, почтовый клиент или расширение браузера): новые публикации появятся там сразу. У каждого языка своя лента.</p>',
+        '<p>Add the feed address to any RSS reader (Feedly, Inoreader, a mail client or a browser extension) and new posts appear there straight away. Each language has its own feed.</p>',
+      ) })}
 <ul class="nw-feeds" role="list">${['kz', 'ru', 'en'].map((l) => `<li><a href="${l === lang ? 'rss.xml' : `../${l}/rss.xml`}" type="application/rss+xml" hreflang="${{ kz: 'kk', ru: 'ru', en: 'en' }[l]}">${ui.icon('rss', { size: 16 })}<span>${{ kz: 'Қазақша', ru: 'Русский', en: 'English' }[l]}</span></a></li>`).join('')}</ul></div>`,
       right: `<div class="nw-term" role="group" aria-label="${L(X('Арна мекенжайы', 'Адрес ленты', 'Feed address'))}"><div class="nw-term__bar" aria-hidden="true"><i></i><i></i><i></i><span>rss.xml</span></div>
 <p class="nw-term__line"><span aria-hidden="true">&gt; </span>${L(X('жазылу', 'подписаться', 'subscribe'))}</p><p class="nw-term__url"><code>${rssAbs}</code></p>
@@ -168,7 +168,7 @@ ${usedTags.map((tg) => `<input class="nw-radio" type="radio" name="nw-tag" id="n
     return [
       feed,
       tagScript,
-      ui.section({ id: 'anatomy', eyebrow: X('Жаңалық стандарты', 'Стандарт новости', 'News standard'), title: X('Әр жаңалықта не бар', 'Что есть в каждой новости', 'What every item includes'), lead: X('Білім беру ұйымдарының сайттарына қойылатын талаптарға сәйкес әр жарияланымда төрт міндетті элемент болады.', 'В соответствии с требованиями к сайтам организаций образования в каждой публикации есть четыре обязательных элемента.', 'In line with the requirements for education websites, every post has four mandatory elements.'), body: anatomy }),
+      ui.section({ id: 'anatomy', eyebrow: X('Жаңалық стандарты', 'Стандарт новости', 'News standard'), title: X('Әр жаңалықта не бар', 'Что есть в каждой новости', 'What every item includes'), lead: X('Әр жарияланымда — төрт міндетті элемент.', 'В каждой публикации — четыре обязательных элемента.', 'Every post has four mandatory elements.'), body: anatomy + `<div class="nw-anat-law">${ui.legal(X('Білім беру ұйымдарының сайттарына қойылатын талаптарға сәйкес әр жарияланымда төрт міндетті элемент болады.', 'В соответствии с требованиями к сайтам организаций образования в каждой публикации есть четыре обязательных элемента.', 'In line with the requirements for education websites, every post has four mandatory elements.'))}</div>` }),
       `<section class="sec sec--themed nw-rss" id="rss" data-theme="informatics" aria-labelledby="rss-title" data-reveal><div class="sec__panel pattern">${rss}</div></section>`,
       tip,
       ui.section({ title: X('Осы бөлімде', 'В этом разделе', 'In this section'), body: related }),
@@ -231,7 +231,7 @@ ${metaCell('info', X('Дереккөз', 'Источник', 'Source'), sourceCe
 ${metaCell('clock', X('Сайтта жарияланды', 'Опубликовано на сайте', 'Posted on this site'), `<time datetime="${posted}">${fmt.dateTime(posted)}</time>${updatedOf(n) !== posted ? `<span class="nw-fact__sub">${L(X('Өзгертілді', 'Изменено', 'Edited'))}: <time datetime="${updatedOf(n)}">${fmt.dateTime(updatedOf(n))}</time></span>` : ''}`)}
 </dl>`;
       const sourceList = sources.length > 1
-        ? `<section class="nw-article__sec" aria-labelledby="sources-title"><h2 class="nw-article__h" id="sources-title">${L(X('Ресми дереккөздер', 'Официальные источники', 'Official sources'))}</h2>${ui.docList(sources.map((x) => ({ title: x.label, url: x.url, type: 'link' })))}</section>`
+        ? `<div class="nw-article__sec nw-article__src">${ui.legal(sources.map((x) => ({ title: x.label, href: x.url })), { title: X('Ресми дереккөздер', 'Официальные источники', 'Official sources') })}</div>`
         : '';
 
       const figure = n.image ? `<figure class="nw-figure" style="--nw-bg:${n.image.bg || '#04060A'}"><img src="${asset(n.image.src)}" alt="${ui.esc(L(n.image.alt))}" width="1280" height="800"><figcaption>${ui.icon('image', { size: 16 })}<span>${L(n.image.alt)} · ${L(X('иллюстрация', 'иллюстрация', 'illustration'))}</span></figcaption></figure>` : '';
