@@ -264,7 +264,11 @@ for (const page of renderList.filter((p) => p.root)) {
   const ctx = makeCtx(lang, page, '/');
   uiMod._setContext({ lang, href: ctx.href, asset: ctx.asset, api: '/api/feedback.php' });
   try {
-    const html = renderPage(page, lang, ctx, page.render(lang, ctx), { buildInfo, hasFile, version: VERSION });
+    let html = renderPage(page, lang, ctx, page.render(lang, ctx), { buildInfo, hasFile, version: VERSION });
+    // The root 404 is served for a missing URL at ANY depth, and the site may live in a sub-folder
+    // (GitHub Pages: /keremet-school-website/). Make its root-absolute URLs relative and set <base> at runtime.
+    const BASE_SCRIPT = `<script>(function(){var b="/";if(/\.github\.io$/.test(location.hostname)){var s=location.pathname.split("/")[1];if(s)b="/"+s+"/";}document.write('<base href="'+b+'">');})();</script>`;
+    html = html.replace(/(\s(?:href|src|action)=")\/(?!\/)/g, '$1').replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${BASE_SCRIPT}`);
     writeFileSync(join(OUT, `${page.slug}.html`), html);
     count++;
   } catch (e) { errors.push(`render failed: page "${page.slug}" [root] — ${e.stack || e}`); }

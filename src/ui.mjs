@@ -526,7 +526,7 @@ export function legal(items, { title, note: nt, open = false, id, cls = '' } = {
       const it = typeof raw === 'string' || isLoc(raw) ? { title: raw } : raw;
       const t = tx(it.title ?? it.label);
       const when = it.date ? (/^\d{4}-\d{2}-\d{2}/.test(it.date) ? `<time datetime="${attr(it.date)}">${fmtDate(C.lang, it.date)}</time>` : tx(it.date)) : '';
-      const host = it.href && isExt(it.href) ? hostOf(it.href) : '';
+      const host = it.href && isExt(it.href) && !String(it.note ? tx(it.note) : '').includes(hostOf(it.href)) ? hostOf(it.href) : '';
       const meta = [it.number ? `${T('doc.no')} ${tx(it.number)}` : '', when ? `${C.lang === 'en' ? T('doc.from') + ' ' : C.lang === 'ru' ? 'от ' : ''}${when}` : '', it.issuer ? tx(it.issuer) : '', host ? `<span class="legal__host">${esc(host)}</span>` : ''].filter(Boolean).join(' · ');
       return `<li class="legal__item"><span class="legal__ic" aria-hidden="true">${icon('scale', { size: 16 })}</span><div class="legal__main"><p class="legal__t">${it.href ? link(it.href, t, 'legal__a') : t}</p>${meta ? `<p class="legal__m">${meta}</p>` : ''}${it.note ? `<div class="legal__n">${tx(it.note)}</div>` : ''}</div></li>`;
     }).join('')}</ul>`;

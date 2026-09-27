@@ -163,7 +163,10 @@ function crumbTrail(page, lang, ctx) {
     const gFirst = firstPage(g.id);
     if (g.id !== 'util' && gFirst !== page.slug && gFirst !== topFirst) items.push({ label: LL(lang, PAGE_LABELS[gFirst] || g.label), href: ctx.href(gFirst) });
   }
-  items.push({ label: LL(lang, page.crumb || page.title) });
+  const own = LL(lang, page.crumb || page.title);
+  const prev = items[items.length - 1];
+  if (items.length > 1 && String(prev.label).trim().toLowerCase() === String(own).trim().toLowerCase()) items[items.length - 1] = { label: own };
+  else items.push({ label: own });
   return items;
 }
 function subNav(page, lang, ctx) {

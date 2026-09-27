@@ -442,3 +442,6 @@ html:is([data-page="privacy"], [data-page="anticorruption"]) .phero__title { max
   .dx-law { grid-template-columns: auto minmax(0, 1fr); }
   .dx-law__langs { grid-column: 2; justify-content: flex-start; }
 }
+
+/* low-vision mode sets overflow-wrap:break-word globally; the domain name is one long "word" and needs anywhere */
+html[data-a11y="on"] .dx-adilet__t { overflow-wrap: anywhere; word-break: break-all; }

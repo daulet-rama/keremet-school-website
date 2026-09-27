@@ -574,7 +574,7 @@ html.mnav-open, html.mnav-open body { overflow: hidden; }
 .phero[data-theme="paper"] > .orn-band { --band-color: #4B3DD0; --band-o: .4; }
 .phero[data-theme="paper"] .crumbs ol { background: rgba(255, 255, 255, .72); }
 @media (max-width: 899px) { .phero[data-theme="paper"] .phero__shanyrak { opacity: .28; } }
-.crumbs ol { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; list-style: none; margin: 0; padding: 6px 14px 6px 10px; border-radius: 999px; font-size: .84rem; background: color-mix(in srgb, var(--t-bg) 72%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--t-line); max-width: 100%; }
+.crumbs ol { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; list-style: none; margin: 0; padding: 6px 14px 6px 10px; border-radius: 16px; font-size: .84rem; background: color-mix(in srgb, var(--t-bg) 72%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--t-line); max-width: 100%; }
 .crumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
 .crumbs li + li::before { content: ""; width: 5px; height: 5px; border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; transform: rotate(45deg); opacity: .45; margin: 0 6px 0 2px; flex: none; }
 .crumbs a, .crumbs span { display: inline-flex; align-items: center; gap: 6px; color: var(--t-ink); text-decoration: none; }
@@ -632,6 +632,7 @@ html.mnav-open, html.mnav-open body { overflow: hidden; }
 /* ------------------------------------------------------------------ page body & sections */
 .page-body { padding-block: clamp(40px, 6vw, 88px) 0; }
 .page-body > * + * { margin-top: clamp(48px, 7vw, 100px); }
+.page-body > .xall + * { margin-top: 0; } /* .xall is absolute on ≥720px, so the first block must not get the section gap */
 .sec { position: relative; }
 .sec__head { max-width: 64ch; margin-bottom: clamp(20px, 3vw, 36px); }
 .sec__title { font-size: var(--fs-h2); }
@@ -734,7 +735,7 @@ html.mnav-open, html.mnav-open body { overflow: hidden; }
   .stats--bento .stat:first-child .stat__value--text { font-size: clamp(2rem, 3.4vw, 3.4rem); } }
 @media (max-width: 599px) { .stats--bento .stat:first-child { grid-column: 1 / -1; } .stats--bento .stat { padding: 18px; } .stats--bento .stat__icon { margin-bottom: 12px; } }
 @media (min-width: 900px) { .split__a > .toc:only-child, .toc--sticky { position: sticky; top: calc(var(--bar-h) + 24px); } }
-.stats--bento .stat:first-child { background-color: var(--ink); color: #EEF1FF; border-color: transparent; background-image: url(../img/patterns/stars.svg), radial-gradient(70% 80% at 100% 0%, rgba(108, 92, 231, .55), transparent 70%); background-size: 360px, 100% 100%; }
+.stats--bento .stat:first-child { background-color: var(--ink); color: #EEF1FF; border-color: transparent; background-image: linear-gradient(to top right, var(--ink) 38%, rgba(11, 15, 43, 0) 72%), url(../img/patterns/stars.svg), radial-gradient(70% 80% at 100% 0%, rgba(108, 92, 231, .55), transparent 70%); background-size: 100% 100%, 360px, 100% 100%; }
 .stats--bento .stat:first-child .stat__value { color: var(--sun); }
 .stats--bento .stat:first-child .stat__note { color: rgba(238, 241, 255, .74); }
 .stats--bento .stat:first-child .stat__icon { background: rgba(255, 182, 39, .16); color: var(--sun); }
@@ -1435,3 +1436,7 @@ html[data-a11y="on"] .pending__title::after { content: none; }
   .page-body a[href^="http"] { overflow-wrap: anywhere; }
   [data-reveal], [data-reveal-stagger] > * { opacity: 1 !important; transform: none !important; }
 }
+
+/* nothing animates in low-vision mode or with reduced motion, so the pause button is not needed there */
+html[data-a11y="on"] .motion-toggle { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .motion-toggle { display: none !important; } }

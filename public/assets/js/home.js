@@ -393,7 +393,7 @@ function setupCursor(on) {
 
 /* 3D world — lazy, after first paint, only with WebGL and motion allowed */
 function hasWebGL() {
-  return 'WebGL2RenderingContext' in window || 'WebGLRenderingContext' in window;
+  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return false; }
 }
 function loadWorld() {
   worldQueued = false;
