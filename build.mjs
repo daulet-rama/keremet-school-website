@@ -267,8 +267,16 @@ for (const page of renderList.filter((p) => p.root)) {
     let html = renderPage(page, lang, ctx, page.render(lang, ctx), { buildInfo, hasFile, version: VERSION });
     // The root 404 is served for a missing URL at ANY depth, and the site may live in a sub-folder
     // (GitHub Pages: /keremet-school-website/). Make its root-absolute URLs relative and set <base> at runtime.
-    const BASE_SCRIPT = `<script>(function(){var b="/";if(/\.github\.io$/.test(location.hostname)){var s=location.pathname.split("/")[1];if(s)b="/"+s+"/";}document.write('<base href="'+b+'">');})();</script>`;
-    html = html.replace(/(\s(?:href|src|action)=")\/(?!\/)/g, '$1').replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${BASE_SCRIPT}`);
+    html = html.replace(/(\s(?:href|src|action)=")\/(?!\/)/g, '$1');
+    // Chrome's preload scanner would fetch styles/scripts/fonts before <base> exists (wrong folder → 404s),
+    // so the 404 page writes them together with <base> from one inline script. Font preloads are dropped.
+    const moved = [];
+    html = html.replace(/<link rel="preload"[^>]*>\n?/g, '')
+      .replace(/<link rel="stylesheet"[^>]*>\n?/g, (m) => { moved.push(m.trim()); return ''; })
+      .replace(/<script[^>]*\ssrc="[^"]*"[^>]*><\/script>\n?/g, (m) => { moved.push(m.trim()); return ''; });
+    const movedJs = JSON.stringify(moved.join('')).replace(/<\//g, '<\\/');
+    const BASE_SCRIPT = `<script>(function(){var b="/";if(/\\.github\\.io$/.test(location.hostname)){var s=location.pathname.split("/")[1];if(s)b="/"+s+"/";}document.write('<base href="'+b+'">'+${movedJs});})();</script>`;
+    html = html.replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${BASE_SCRIPT}`);
     writeFileSync(join(OUT, `${page.slug}.html`), html);
     count++;
   } catch (e) { errors.push(`render failed: page "${page.slug}" [root] — ${e.stack || e}`); }
